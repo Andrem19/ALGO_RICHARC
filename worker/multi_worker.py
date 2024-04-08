@@ -2,7 +2,7 @@ import worker.multi_proccess as prc
 import helpers.util as util
 import shared_vars as sv
 import worker.multi_signal as sg
-# import worker.multi_signal_2 as sg_2
+import worker.loop_proccess as prc_2
 import copy
 from models.settings import Settings
 import traceback
@@ -25,7 +25,7 @@ def run(data, last_position, is_first_iter: bool):
             sg.get_signal(i_1, data, sv.settings)
 
             if sv.signal.signal in sv.settings.s:
-                tm = prc.position_proccess(profit_list, data, is_first_iter)
+                tm = prc_2.position_proccess(profit_list, data, is_first_iter)
                 i_1+=tm
             else: 
                 i_1+=1

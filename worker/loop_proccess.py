@@ -4,6 +4,7 @@ import helpers.profit as prof
 import helpers.print_info as printer
 import numpy as np
 import traceback
+import helpers.tools as tools
 import copy
 
 def position_proccess(profit_list: list, dt: np.ndarray, is_first_iter: bool):
@@ -15,7 +16,6 @@ def position_proccess(profit_list: list, dt: np.ndarray, is_first_iter: bool):
 
         take_profit = 0
         price_open = 0
-        close = 0
         index = 0
         type_close = ''
 
@@ -25,62 +25,54 @@ def position_proccess(profit_list: list, dt: np.ndarray, is_first_iter: bool):
 
         data = dt[ind:ind+target_len]
 
-        data_high = data[:-1, 2]
-        data_low = data[:-1, 3]
-        index_tp = 0
-        index_sl = 0
-
         if sv.signal.signal == 1:
             price_open = data[0][1] * (1 - 0.0001)
             stop_loss = (1 - s_loss) * float(price_open)
             take_profit = (1 + take_profit) * float(price_open)
-
-            index_tp = next((i for i, x in enumerate(data_high) if x > take_profit), None)
-            index_sl = next((i for i, x in enumerate(data_low) if x < stop_loss), None)
+                
 
         elif sv.signal.signal == 2:
             price_open = data[0][1] * (1 + 0.0001)
             stop_loss = (1 + s_loss) * float(price_open)
             take_profit = (1 - take_profit) * float(price_open)
 
-            index_tp = next((i for i, x in enumerate(data_low) if x < take_profit), None)
-            index_sl = next((i for i, x in enumerate(data_high) if x > stop_loss), None)
-
-        if index_tp is not None and index_sl is not None:
-            if index_tp < index_sl:
-                type_close = 'target'
-                close = take_profit
-                index = index_tp
-            else:
+        for i in range(target_len):
+            low_tail_1, high_tail_1, body_1 = tools.get_tail_body(data[i][1], data[i][2], data[i][3], data[i][4])
+            
+            if i == target_len-1:
+                type_close = 'timefinish'
+                cand_close = data[i]
+                price_close = data[i][1]
+                index = len(data)-1
+                
+                break
+            elif (data[i][3]<stop_loss and sv.signal.signal == 1) or (data[i][2]>stop_loss and sv.signal.signal == 2):
                 type_close = 'antitarget'
-                close = stop_loss
-                index = index_sl
-        elif index_sl is not None:
-            type_close = 'antitarget'
-            close = stop_loss
-            index = index_sl
-        elif index_tp is not None:
-            type_close = 'target'
-            close = take_profit
-            index = index_tp
-        else:
-            type_close = 'timefinish'
-            close = data[-1][1]
-            index = len(data)-1
-
+                cand_close = data[i]
+                price_close = stop_loss
+                index = i
+                break
+            elif high_tail_1>body_1:
+                type_close = 'tail'
+                cand_close = data[i+1]
+                price_close = data[i+1][1]
+                index = i
+                break
+        
         data_dict = {
             'open_time': float(data[0][0]),
             'profit_list': profit_list,
             'type_close': type_close,
             'price_open': price_open,
-            'cand_close': data[index],
-            'price_close': close
+            'cand_close': cand_close,
+            'price_close': price_close
         }
+
         position = prof.process_profit(data_dict, is_first_iter)
         
         if sv.settings.printer and sv.settings.counter%sv.settings.iter_count==0:
             printer.print_position(copy.deepcopy(position))
-            if sv.settings.drawing and (position['type_of_signal'] == 'ham_1a' or position['type_of_signal'] == 'ham_5a' or position['type_of_signal'] == 'ham_5b'):
+            if sv.settings.drawing:
                 sett = f'tp: {sv.settings.take_profit} sl: {sv.settings.init_stop_loss}'
                 title = f'up {index} - {sett}' if sv.signal.signal == 1 else f'down {index} - {sett}'
                 viz.draw_candlesticks(dt[ind-30:ind+index+1], title, 30)
@@ -92,3 +84,7 @@ def position_proccess(profit_list: list, dt: np.ndarray, is_first_iter: bool):
         print(f'Error [position_proccess] {e}')
         print(traceback.format_exc())
         print(sv.signal.data, sv.signal.index, len(dt), len(data))
+
+
+
+

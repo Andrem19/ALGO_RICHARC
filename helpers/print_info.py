@@ -6,8 +6,8 @@ def print_position(position: dict):
 
     type_close = position['type_close']
     profit = position['profit']
-    position['open_time'] = datetime.fromtimestamp(position['open_time']/1000)
-    position['close_time'] = datetime.fromtimestamp(position['close_time']/1000)
+    position['open_time'] = datetime.fromtimestamp(position['open_time']/1000).strftime("%d/%m/%Y, %H:%M:%S")
+    position['close_time'] = datetime.fromtimestamp(position['close_time']/1000).strftime("%d/%m/%Y, %H:%M:%S")
     if type_close == 'antitarget' and profit > 0:
         color = Fore.GREEN
     elif type_close == 'antitarget' and profit < 0:
