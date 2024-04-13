@@ -4,11 +4,13 @@ import shared_vars as sv
 import helpers.get_data as gd
 import traceback
 import coins as coins
+import bisect
 import random
 import msvcrt
 import time
 import os
 from collections import defaultdict
+from sortedcontainers import SortedDict
 
 def filter_dicts_less_10(dict_list, number, more_less):
     count_dict = defaultdict(int)
@@ -265,3 +267,26 @@ def format_data(data):
         prev_date = date
     print(result)
     return result
+
+
+# def get_previous_day_rsi(timestamp, rsi_dict):
+#     # Получение списка всех таймстампов в отсортированном порядке
+#     timestamps = sorted(rsi_dict.keys())
+
+#     # Использование бинарного поиска для нахождения индекса таймстампа, который меньше заданного
+#     index = bisect.bisect_left(timestamps, timestamp)
+
+#     # Если нет предыдущих таймстампов, возвращаем None
+#     if index == 0:
+#         return None
+
+#     # Возвращение значения RSI для самого позднего из предыдущих таймстампов
+#     return rsi_dict[timestamps[index - 1]]
+
+
+def get_previous_day_rsi(timestamp: float, sorted_rsi_dict: SortedDict):
+    index = sorted_rsi_dict.bisect_left(timestamp)
+    if index == 0:
+        return None
+
+    return sorted_rsi_dict.peekitem(index - 1)[1]

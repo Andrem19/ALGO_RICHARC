@@ -17,6 +17,7 @@ def run(data, last_position, is_first_iter: bool):
         i = 211
 
         while i < data_len_for_loop:
+            
             sg.get_signal(i, data)
 
             if sv.signal.signal in sv.settings.s:

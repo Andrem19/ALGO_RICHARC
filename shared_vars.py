@@ -38,6 +38,8 @@ candel_dict_1 = {}
 candel_dict_2 = {}
 
 saldo_sum = 0
+btc_data = None
+btc_rsi_dict = {}
 
 last_command = ''
 

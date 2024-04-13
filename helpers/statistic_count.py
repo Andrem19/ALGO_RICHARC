@@ -269,12 +269,20 @@ def recount_saldo(filtered_deals):
 
 def set_koof(position, lenth_active, ham_1a, ham_5b, last_7_min):
     types_7 = [t['type_of_signal'] for t in last_7_min if t['open_time'] < position['open_time']-120000]
-    if position["type_of_signal"] in ['ham_2a', 'ham_5b']:
+    # if position["type_of_signal"] in ['ham_2a', 'ham_5b']:
+    #     position["profit"]*=2
+    # if position["type_of_signal"] in ['ham_1a'] and lenth_active>0:
+    #     position["profit"]*=2
+    # elif 'ham_1b' in position["type_of_signal"] or 'ham_1aa' in position["type_of_signal"]:
+    #     position["profit"]*=0.5
+    if position["type_of_signal"] in ['ham_2a', 'ham_5b', 'ham_1a'] and not ('ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7 or 'ham_5a' in types_7):
+        position["profit"]*=1
+    elif position["type_of_signal"] in ['ham_2a', 'ham_5b', 'ham_1a'] and ('ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7 or 'ham_5a' in types_7):
         position["profit"]*=2
-    elif position["type_of_signal"] in ['ham_1a'] and lenth_active>0:
-        position["profit"]*=2
-    elif 'ham_1b' in position["type_of_signal"] or 'ham_1aa' in position["type_of_signal"]:
+    elif 'ham_1b' in position["type_of_signal"] and not ('ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7 or 'ham_5a' in types_7):
         position["profit"]*=0.5
+    elif 'ham_1b' in position["type_of_signal"] and ('ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7 or 'ham_5a' in types_7):
+        position["profit"]*=1
     elif 'ham_5a' == position["type_of_signal"] and not ('ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7 or 'ham_5a' in types_7):
         position["profit"]*=0.5
     elif 'ham_5a' == position["type_of_signal"] and ('ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7 or 'ham_5a' in types_7):

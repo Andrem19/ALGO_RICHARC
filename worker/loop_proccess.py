@@ -52,21 +52,21 @@ def position_proccess(profit_list: list, dt: np.ndarray, is_first_iter: bool):
                 price_close = stop_loss
                 index = i
                 break
-            elif high_tail_1>body_1*1 and data[i][1] < data[i][4] and sv.signal.type_os_signal in ['ham_1by', 'ham_1bx', 'ham_1a', 'ham_1aa']:
+            elif high_tail_1>body_1*1 and data[i][1] < data[i][4] and sv.signal.type_os_signal in ['ham_1by', 'ham_1bx', 'ham_1a', 'ham_1aa', 'ham_5a']:
                 type_close = 'high_tail'
                 cand_close = data[i+1]
                 price_close = data[i+1][1]
                 index = i
                 break
-            # elif i > 0 and data[i][1] > data[i][4] and data[i-1][1] < data[i-1][4]:
-            #     vol_can_1 = util.calculate_percent_difference(data[i][1], data[i][4])
-            #     vol_can_2 = util.calculate_percent_difference(data[i-1][4], data[i-1][1])
-            #     if vol_can_1>vol_can_2:
-            #         type_close = 'high_tail'
-            #         cand_close = data[i+1]
-            #         price_close = data[i+1][1]
-            #         index = i
-            #         break
+            elif i > 0 and data[i][1] > data[i][4] and data[i-1][1] < data[i-1][4]:
+                vol_can_1 = util.calculate_percent_difference(data[i][1], data[i][4])
+                vol_can_2 = util.calculate_percent_difference(data[i-1][4], data[i-1][1])
+                if vol_can_1>vol_can_2 and price_open<data[i+1][1]:
+                    type_close = 'engulfing'
+                    cand_close = data[i+1]
+                    price_close = data[i+1][1]
+                    index = i
+                    break
 
         data_dict = {
             'open_time': float(data[0][0]),

@@ -15,6 +15,10 @@ def get_signal(i_1, data_1, settings: Settings):
     sv.signal.signal = 3
 
     lenth = 210
+    # btc_rsi = util.get_previous_day_rsi(data_1[i_1][0], sv.btc_rsi_dict)
+    # print(btc_rsi)
+    # if btc_rsi>48 and btc_rsi<62:
+    #     return
     closes_1 = data_1[i_1-lenth:i_1, 4]
     highs_1 = data_1[i_1-lenth:i_1, 2]
     lows_1 = data_1[i_1-lenth:i_1, 3]
@@ -44,7 +48,7 @@ def get_signal(i_1, data_1, settings: Settings):
                 if low_tail < body*0.4:
                     if tools.check_high_candel(hi5[-1], lo5[-1], 0.028, settings.coin): #28#
                         low_tail, high_tail, body = tools.get_tail_body(opens_1[-1], highs_1[-1], lows_1[-1], closes_1[-1])
-                        if high_tail < body*1 and tools.all_True_any_False(closes_1, opens_1, 5, 'all', True, 3):
+                        if high_tail < body*1 and tools.all_True_any_False(closes_1, opens_1, 5, 'all', True, 3):#5 3
                             signal_1 = 1
                             sv.settings.init_stop_loss = 0.005 #0.004
                             sv.settings.target_len = 7#5
@@ -89,7 +93,7 @@ def get_signal(i_1, data_1, settings: Settings):
             if op2 is None:
                 op2, hi2, lo2, cl2 = tools.convert_timeframe(opens_1, highs_1, lows_1, closes_1, 2, 0)
                 rsi_2 = talib.RSI(cl2, 14)#16
-                if rsi_2[-1]<14:#18
+                if rsi_2[-1]<14:
                     if tools.check_high_candel(hi2[-1], lo2[-1], 0.026, settings.coin) and closes_1[-1]<opens_1[-1]:#0.028
                         if tools.check_rise(hi2, lo2, 5, 4, 'bigger') and tools.last_lowest(lows_1, 40):# and tools.all_True_any_False(closes_1, opens_1, 2, 'all', True):
                             low_tail, high_tail, body = tools.get_tail_body(op2[-1], hi2[-1], lo2[-1], cl2[-1])

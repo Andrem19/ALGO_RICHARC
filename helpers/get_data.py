@@ -16,6 +16,8 @@ def load_data_sets(timeframe: int):
     tm = ''
     if timeframe == 60:
         tm = '1h'
+    elif timeframe == 1440:
+        tm = '1d'
     else:
         tm = f'{timeframe}m'
 
