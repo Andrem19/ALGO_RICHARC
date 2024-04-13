@@ -18,6 +18,8 @@ async def count():
     random.shuffle(sv.all_positions)
     filtred_positions = stat.filter_positions(sv.all_positions)
 
+    # util.format_data(filtred_positions)
+
     dropdowns, type_collection = stat.dangerous_moments(filtred_positions)
     med_dur = stat.calc_med_duration(filtred_positions)
     stat_dict = stat.get_type_statistic(filtred_positions)
@@ -60,7 +62,15 @@ async def count_run():
     sv.time_start = datetime.now().timestamp()
 
     iter = sv.settings.cold_count_iterations
-    sv.all_positions = util.load_positions('_profits')
+    # sv.all_positions = util.load_positions('_profits')
+    positions = util.load_positions('_profits')
+    
+    sv.all_positions = []
+    for d in positions:
+        ts = datetime.fromtimestamp(d['open_time']/1000)
+        if sv.settings.start_date < ts < sv.settings.finish_date:
+            sv.all_positions.append(d)
+
     for i in range(iter):
         await count()
         

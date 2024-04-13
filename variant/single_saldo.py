@@ -17,7 +17,7 @@ async def process_result(result, coin, coin_list_len):
     report = stat.proceed_positions(result)
     report['coin'] = coin
     report = util.insert(report, 'Num', coin_list_len, 0)
-    # printer.print_colored_dict(report)
+    printer.print_colored_dict(report)
     return report
 
 def do_job(coin: str, profit_path: str, lock):

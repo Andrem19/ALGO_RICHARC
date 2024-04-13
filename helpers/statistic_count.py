@@ -2,6 +2,7 @@ import shared_vars as sv
 import copy
 from datetime import datetime
 from datetime import timedelta
+import helpers.util as util
 
 def get_type_statistic(positions: list) -> dict:
     stat_dict = {}
@@ -179,13 +180,15 @@ def proceed_positions(positions: list):
     }
 
 def filter_positions(deals):
-    deals.sort(key=lambda d: (d["open_time"], 'ham_1b' in d["type_of_signal"], -d["volume"]))
+    # deals = util.filter_dicts_less_10(deals, 3, 'more')
+    deals.sort(key=lambda d: (d["open_time"], 'ham_1b' in d["type_of_signal"], 'ham_1aa' in d["type_of_signal"], -d["volume"]))
 
     filtered_deals = []
 
     filter_val = {
         'stub': 1,
         'ham_1a': 5,
+        'ham_1aa': 3,
         'ham_2a': 1,
         'ham_1bx': 1,
         'ham_1by': 1,
@@ -198,6 +201,7 @@ def filter_positions(deals):
     on_off = {
         'stub': 1,
         'ham_1a': 1,
+        'ham_1aa': 1,
         'ham_2a': 1,
         'ham_1bx': 1,
         'ham_1by': 1,
@@ -210,7 +214,9 @@ def filter_positions(deals):
 
     for i in range(len(deals)):
         active = [d for d in filtered_deals if d["close_time"] >= deals[i]["open_time"]]
+        last_7_min = [d for d in filtered_deals if d["open_time"] >= deals[i]["open_time"] - 7*60*1000]
         lenth_active = len(active)
+
         if on_off[deals[i]["type_of_signal"]] == 1:
             if all(d['coin'] != deals[i]["coin"] for d in active):
                 # types = [t['type_of_signal'] for t in active if 'type_of_signal' in t]
@@ -218,17 +224,19 @@ def filter_positions(deals):
                 ham_5b = sum(1 for d in active if d.get('type_of_signal') == 'ham_5b')
                 ham_1a = sum(1 for d in active if d.get('type_of_signal') == 'ham_1a')
                 ham_2a = sum(1 for d in active if d.get('type_of_signal') == 'ham_2a')
-                # ham_1b = sum(1 for d in active if 'ham_1b' in d.get('type_of_signal'))
+                ham_1aa = sum(1 for d in active if d.get('type_of_signal') == 'ham_1aa')
+                ham_1b = sum(1 for d in active if 'ham_1b' in d.get('type_of_signal'))
 
                 limit = filter_val[deals[i]["type_of_signal"]]
                 if ('ham_1b' in deals[i]["type_of_signal"] and lenth_active<limit)\
                     or (deals[i]["type_of_signal"] == 'ham_1a' and ham_1a<limit)\
+                    or (deals[i]["type_of_signal"] == 'ham_1aa' and lenth_active<limit)\
                     or (deals[i]["type_of_signal"] == 'ham_5a' and ham_5a<limit)\
                     or (deals[i]["type_of_signal"] == 'ham_5b' and ham_5b<limit)\
                     or (deals[i]["type_of_signal"] == 'ham_2a' and ham_2a<limit and lenth_active > 1)\
                     or (deals[i]["type_of_signal"] == 'stub' and lenth_active<limit):
 
-                    pos = set_koof(copy.copy(deals[i]), lenth_active, ham_1a, ham_5b)
+                    pos = set_koof(copy.copy(deals[i]), lenth_active, ham_1a, ham_5b, last_7_min)
                     filtered_deals.append(pos)
     filtered_list = list(filter(lambda d: d['type_of_signal'] != 'stub', filtered_deals))
 
@@ -243,29 +251,34 @@ def calc_med_duration(positions):
     return round((sum(durations) / len(durations)) /60000, 2)
 
 def recount_saldo(filtered_deals):
+    if len(filtered_deals)>0:
+        filtered_deals[0]['saldo'] = filtered_deals[0]['profit']
 
-    filtered_deals[0]['saldo'] = filtered_deals[0]['profit']
+        for i in range(1, len(filtered_deals)):
+            dt1 = datetime.fromtimestamp(filtered_deals[i]['open_time']/1000)
+            dt2 = datetime.fromtimestamp(filtered_deals[i-1]['open_time']/1000)
+            days = abs(dt1 - dt2).days
+            if days in sv.days_gap:
+                sv.days_gap[days]+=1
+            else:
+                sv.days_gap[days]=1
 
-    for i in range(1, len(filtered_deals)):
-        dt1 = datetime.fromtimestamp(filtered_deals[i]['open_time']/1000)
-        dt2 = datetime.fromtimestamp(filtered_deals[i-1]['open_time']/1000)
-        days = abs(dt1 - dt2).days
-        if days in sv.days_gap:
-            sv.days_gap[days]+=1
-        else:
-            sv.days_gap[days]=1
+            filtered_deals[i]['saldo'] = filtered_deals[i-1]['saldo']+filtered_deals[i]['profit']
 
-        filtered_deals[i]['saldo'] = filtered_deals[i-1]['saldo']+filtered_deals[i]['profit']
+        return filtered_deals
 
-    return filtered_deals
-
-def set_koof(position, lenth_active, ham_1a, ham_5b):
+def set_koof(position, lenth_active, ham_1a, ham_5b, last_7_min):
+    types_7 = [t['type_of_signal'] for t in last_7_min if t['open_time'] < position['open_time']-120000]
     if position["type_of_signal"] in ['ham_2a', 'ham_5b']:
         position["profit"]*=2
     elif position["type_of_signal"] in ['ham_1a'] and lenth_active>0:
         position["profit"]*=2
-    elif 'ham_1b' in position["type_of_signal"]:
+    elif 'ham_1b' in position["type_of_signal"] or 'ham_1aa' in position["type_of_signal"]:
         position["profit"]*=0.5
+    elif 'ham_5a' == position["type_of_signal"] and not ('ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7 or 'ham_5a' in types_7):
+        position["profit"]*=0.5
+    elif 'ham_5a' == position["type_of_signal"] and ('ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7 or 'ham_5a' in types_7):
+        position["profit"]*=2
     else:
         position["profit"]*=1
     return position

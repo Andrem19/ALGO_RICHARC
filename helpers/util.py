@@ -5,14 +5,29 @@ import helpers.get_data as gd
 import traceback
 import coins as coins
 import random
+import msvcrt
 import time
 import os
+from collections import defaultdict
+
+def filter_dicts_less_10(dict_list, number, more_less):
+    count_dict = defaultdict(int)
+    for d in dict_list:
+        count_dict[d['open_time']] += 1
+    filtered_list = None
+    if more_less == 'more':
+        filtered_list = [d for d in dict_list if count_dict[d['open_time']] > number or 'ham_1b' in d['type_of_signal']]
+    elif more_less == 'less':
+        filtered_list = [d for d in dict_list if count_dict[d['open_time']] < number or 'ham_1b' in d['type_of_signal']]
+    return filtered_list
+
 
 def save_list(my_list, path):
     try:
         with open(path, 'a') as file:
             for item in my_list:
                 if all(key in item for key in ['open_time', 'close_time', 'signal', 'profit', 'coin', 'saldo', 'data_s', 'type_of_signal', 'volume']):
+                    
                     file.write(f"{item['open_time']},{item['close_time']},{item['signal']},{item['profit']},{item['coin']},{item['saldo']},{item['data_s']},{item['type_of_signal']},{item['type_close']},{item['volume']}" + "\n")
                 else:
                     print(f'Some keys are missing {item}')
@@ -228,4 +243,25 @@ def check_and_clean_data(file_path):
         print("File didnt change")
 
 
-            
+import datetime
+
+def format_data(data):
+    result = ''
+    prev_date = None
+
+    for item in data:
+        date = datetime.datetime.fromtimestamp(item['open_time'] / 1000).date()
+
+        if prev_date is not None:
+            while date - prev_date > datetime.timedelta(days=1):
+                prev_date += datetime.timedelta(days=1)
+                result += '='
+
+        if item['profit'] > 0:
+            result += '⋀'
+        elif item['profit'] < 0:
+            result += '⋁'
+
+        prev_date = date
+    print(result)
+    return result

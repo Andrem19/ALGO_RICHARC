@@ -76,6 +76,12 @@ def what_trend(closes: np.ndarray, step: int, minus_last: int):
     else:
         return 'none'
 
+def has_smaller(nums_list, num, smaller_bigger):
+    if smaller_bigger == 'smaller':
+        return any(n < num for n in nums_list)
+    elif smaller_bigger == 'bigger':
+        return any(n > num for n in nums_list)
+    
 
 def check_rise(highs: np.ndarray, lows: np.ndarray, numval: int, multiplier: float, less_bigger: str):
     num = numval+1
@@ -100,12 +106,18 @@ def check_rise(highs: np.ndarray, lows: np.ndarray, numval: int, multiplier: flo
     return res
 
 @jit(nopython=True)
-def all_True_any_False(closes: np.ndarray, opens: np.ndarray, numval: int, variant: str, types: bool) -> bool:
+def all_True_any_False(closes: np.ndarray, opens: np.ndarray, numval: int, variant: str, types: bool, count: int = None) -> bool:
     num = numval+1
     closes = closes[-num:-1]
     opens = opens[-num:-1]
 
     comparisons = closes < opens
+
+    if count is not None:
+        if types:
+            return np.sum(comparisons) >= count
+        elif not types:
+            return np.sum(~comparisons) >= count
 
     if variant == 'any':
         if types:
@@ -117,6 +129,7 @@ def all_True_any_False(closes: np.ndarray, opens: np.ndarray, numval: int, varia
             return np.all(comparisons)
         else:
             return np.all(~comparisons)
+
 
 @jit(nopython=True)
 def convert_timeframe(opens: np.ndarray, highs: np.ndarray, lows: np.ndarray, closes: np.ndarray, timeframe: int, ln: int):
