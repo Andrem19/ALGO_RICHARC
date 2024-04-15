@@ -46,3 +46,6 @@ last_command = ''
 price_close = 0
 delay = 0
 frozen = 0
+
+etalon_positions = None
+rsi_was_low10 = 0

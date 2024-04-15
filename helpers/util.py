@@ -6,6 +6,7 @@ import traceback
 import coins as coins
 import bisect
 import random
+import json
 import msvcrt
 import time
 import os
@@ -43,6 +44,52 @@ def load_positions(folder_path: str):
     curent_line = ''
     file_name = f'{sv.unique_ident}_profits.txt'
     file_path = os.path.join(folder_path, file_name)
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+        for line in lines:
+            try:
+                curent_line = line
+                if line != '':
+                    parts = line.strip().split(',')
+                    timestamp_open = float(parts[0])
+                    timestamp_close = float(parts[1])
+                    signal = int(parts[2])
+                    value = float(parts[3])
+                    coin = str(parts[4])
+                    saldo = float(parts[5])
+                    data_s = int(parts[6])
+                    type_of_signal = str(parts[7])
+                    type_close = str(parts[8])
+                    volume = float(parts[9])
+
+                    position = {
+                        'open_time': timestamp_open,
+                        'close_time': timestamp_close,
+                        'signal': signal,
+                        'profit': value,
+                        'coin': coin,
+                        'saldo': saldo,
+                        'data_s': data_s,
+                        'type_of_signal': type_of_signal,
+                        'type_close': type_close,
+                        'volume': volume,
+                    }
+                    data.append(position)
+            except Exception as e:
+                print(traceback.format_exc())
+                print(curent_line)
+                print(e)
+                continue
+    
+    
+    sorted_data = sorted(data, key=lambda x: x['open_time'])
+    return sorted_data
+
+def load_etalon_positions():
+    data = []
+    
+    curent_line = ''
+    file_path = f'etalon_profits.txt'
     with open(file_path, 'r') as file:
         lines = file.readlines()
         for line in lines:
@@ -290,3 +337,24 @@ def get_previous_day_rsi(timestamp: float, sorted_rsi_dict: SortedDict):
         return None
 
     return sorted_rsi_dict.peekitem(index - 1)[1]
+
+def load_data_from_file(filename):
+    with open(filename, 'r') as f:
+        exchanges = json.load(f)
+    return exchanges
+
+def filter_dicts(dicts, cur_pos):
+    current_time = cur_pos['open_time']  # текущее время в миллисекундах
+    two_minutes_ago = current_time - 2 * 60 * 1000  # время 2 минуты назад в миллисекундах
+    seven_minutes_ago = current_time - 7 * 60 * 1000  # время 7 минут назад в миллисекундах
+
+    # отфильтровать словари, время которых позднее 2х минут назад, но не позднее 7 минут назад
+    return [d for d in dicts if seven_minutes_ago <= d['open_time'] < two_minutes_ago]
+
+def filter_dicts_signal(dicts, cur_pos):
+    current_time = cur_pos['open_time']  # текущее время в миллисекундах
+    two_minutes_ago = current_time - 1 * 60 * 1000  # время 2 минуты назад в миллисекундах
+    seven_minutes_ago = current_time - 10 * 60 * 1000  # время 7 минут назад в миллисекундах
+
+    # отфильтровать словари, время которых позднее 2х минут назад, но не позднее 7 минут назад
+    return [d for d in dicts if seven_minutes_ago <= d['open_time'] < two_minutes_ago], [d for d in dicts if two_minutes_ago <= d['open_time'] < current_time]

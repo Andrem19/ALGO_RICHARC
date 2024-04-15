@@ -181,14 +181,15 @@ def proceed_positions(positions: list):
 
 def filter_positions(deals):
     # deals = util.filter_dicts_less_10(deals, 3, 'more')
-    deals.sort(key=lambda d: (d["open_time"], 'ham_1b' in d["type_of_signal"], 'ham_1aa' in d["type_of_signal"], -d["volume"]))
+    deals.sort(key=lambda d: (d["open_time"], 'ham_1b' in d["type_of_signal"], -d["volume"]))
 
     filtered_deals = []
 
     filter_val = {
         'stub': 1,
         'ham_1a': 5,
-        'ham_1aa': 3,
+        'ham_1az': 1,
+        'ham_1aa': 1,
         'ham_2a': 1,
         'ham_1bx': 1,
         'ham_1by': 1,
@@ -202,6 +203,7 @@ def filter_positions(deals):
         'stub': 1,
         'ham_1a': 1,
         'ham_1aa': 1,
+        'ham_1az': 1,
         'ham_2a': 1,
         'ham_1bx': 1,
         'ham_1by': 1,
@@ -214,7 +216,8 @@ def filter_positions(deals):
 
     for i in range(len(deals)):
         active = [d for d in filtered_deals if d["close_time"] >= deals[i]["open_time"]]
-        last_7_min = [d for d in filtered_deals if d["open_time"] >= deals[i]["open_time"] - 7*60*1000]
+        # last_7_min = [d for d in filtered_deals if d["open_time"] >= deals[i]["open_time"] - 7*60*1000]
+        last_7 = util.filter_dicts(filtered_deals, deals[i])
         lenth_active = len(active)
 
         if on_off[deals[i]["type_of_signal"]] == 1:
@@ -229,6 +232,7 @@ def filter_positions(deals):
 
                 limit = filter_val[deals[i]["type_of_signal"]]
                 if ('ham_1b' in deals[i]["type_of_signal"] and lenth_active<limit)\
+                    or ('ham_1az' in deals[i]["type_of_signal"] and lenth_active<limit) and len(last_7)>0\
                     or (deals[i]["type_of_signal"] == 'ham_1a' and ham_1a<limit)\
                     or (deals[i]["type_of_signal"] == 'ham_1aa' and lenth_active<limit)\
                     or (deals[i]["type_of_signal"] == 'ham_5a' and ham_5a<limit)\
@@ -236,7 +240,7 @@ def filter_positions(deals):
                     or (deals[i]["type_of_signal"] == 'ham_2a' and ham_2a<limit and lenth_active > 1)\
                     or (deals[i]["type_of_signal"] == 'stub' and lenth_active<limit):
 
-                    pos = set_koof(copy.copy(deals[i]), lenth_active, ham_1a, ham_5b, last_7_min)
+                    pos = set_koof(copy.copy(deals[i]), lenth_active, ham_1a, ham_5b, last_7)
                     filtered_deals.append(pos)
     filtered_list = list(filter(lambda d: d['type_of_signal'] != 'stub', filtered_deals))
 
@@ -267,8 +271,9 @@ def recount_saldo(filtered_deals):
 
         return filtered_deals
 
-def set_koof(position, lenth_active, ham_1a, ham_5b, last_7_min):
-    types_7 = [t['type_of_signal'] for t in last_7_min if t['open_time'] < position['open_time']-120000]
+def set_koof(position, lenth_active, ham_1a, ham_5b, types_7_last):
+    types_7 = [val['type_of_signal'] for val in types_7_last]
+    # types_7 = [t['type_of_signal'] for t in last_7_min if t['open_time'] < position['open_time']-120000]
     # if position["type_of_signal"] in ['ham_2a', 'ham_5b']:
     #     position["profit"]*=2
     # if position["type_of_signal"] in ['ham_1a'] and lenth_active>0:
@@ -287,6 +292,10 @@ def set_koof(position, lenth_active, ham_1a, ham_5b, last_7_min):
         position["profit"]*=0.5
     elif 'ham_5a' == position["type_of_signal"] and ('ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7 or 'ham_5a' in types_7):
         position["profit"]*=2
+    # elif 'ham_1bx' in position["type_of_signal"] or 'ham_1bz' in position["type_of_signal"]  or 'ham_1by' in position["type_of_signal"]:
+    #     position["profit"]*=0.5
+    elif 'ham_1az' == position["type_of_signal"]:#change to stub in real edition
+        position["profit"]*=0.5
     else:
         position["profit"]*=1
     return position

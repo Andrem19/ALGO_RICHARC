@@ -155,7 +155,7 @@ def convert_timeframe(opens: np.ndarray, highs: np.ndarray, lows: np.ndarray, cl
 
 def check_high_candel(high: float, low: float, border, coin: str = 'XRPUSDT'):
     vol_can = util.calculate_percent_difference(high, low)
-    if abs(vol_can) > border*coins.best_set_dict[coin]:
+    if abs(vol_can) > border*coins.best_set_dict.get(coin, 1):
         return True
     return False
 

@@ -1,4 +1,5 @@
 import worker.multi_proccess as prc
+import worker.loop_proccess as prc_2
 import signal as sg
 import shared_vars as sv
 import worker.single_signal as sg
@@ -8,7 +9,7 @@ import traceback
 def run(data, last_position, is_first_iter: bool):
     try:
         data_len = len(data)
-        data_len_for_loop = data_len - sv.settings.target_len*2
+        data_len_for_loop = data_len - 500
         profit_list: list = []
         if last_position:
             profit_list.append(last_position)

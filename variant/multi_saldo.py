@@ -45,20 +45,10 @@ def do_job(coin: str, profit_path: str, lock):
             print(f'{coin} doesnt exist')
             return None
         
-        #=======BTC RSI===============
-        # sv.btc_rsi_dict = RycharaDB.get_dict('btc_rsi')
-        # sv.btc_rsi_dict = {float(k): float(v) for k, v in sv.btc_rsi_dict.items()}
-        # sv.btc_rsi_dict = SortedDict(sv.btc_rsi_dict)
-        # sv.settings.coin = 'BTCUSDT'
-        # sv.btc_data = gd.load_data_sets(1440)
-        # close_prices = [item[4] for item in sv.btc_data]
-        # np_close_prices = np.array(close_prices)
-        # rsi = talib.RSI(np_close_prices, timeperiod=14)
-        # sv.btc_rsi_dict = {sv.btc_data[i][0]: rsi[i] for i in range(len(sv.btc_data))}
-        #=============================
+        etalon_positions = util.load_etalon_positions()
+        sv.etalon_positions = stat.filter_positions(etalon_positions)
         sv.settings.coin = coin
         data_gen_1m = gd.load_data_in_chunks(sv.settings, 100000, 1)
-        
         position_collector = []
         last_position = {}
         is_first_iter = True
@@ -88,22 +78,6 @@ def unpack_and_call(args):
     return do_job(*args, output_lock)
 
 async def mp_saldo(coin_list, use_multiprocessing=True):
-
-    # sv.settings.coin = 'BTCUSDT'
-    # sv.btc_data = gd.load_data_sets(1440)
-    # close_prices = [item[4] for item in sv.btc_data]
-    # np_close_prices = np.array(close_prices)
-    # rsi = talib.RSI(np_close_prices, timeperiod=14)
-    # sv.btc_rsi_dict = {sv.btc_data[i][0]: rsi[i] for i in range(len(sv.btc_data))}
-    
-    # RycharaDB.write_dict('btc_rsi', sv.btc_rsi_dict)
-    # num = 0
-    # for key, val in sv.btc_rsi_dict.items():
-    #     num+=1
-    #     print(type(key), type(val))
-    #     if num>5:
-    #         break
-
 
     random.shuffle(coin_list)
     coin_list_len = len(coin_list)

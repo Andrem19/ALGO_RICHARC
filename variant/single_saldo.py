@@ -25,6 +25,9 @@ def do_job(coin: str, profit_path: str, lock):
     if not os.path.exists(file_coin):
         print(f'{coin} doesnt exist')
         return
+    
+    # etalon_positions = util.load_etalon_positions()
+    # sv.etalon_positions = stat.filter_positions(etalon_positions)
 
     sv.settings.coin = coin
     data_gen = gd.load_data_in_chunks(sv.settings, 100000, sv.settings.time)

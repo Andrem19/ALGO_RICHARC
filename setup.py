@@ -28,7 +28,7 @@ def setup():
     settings.taker_fee = 0.2
     settings.maker_fee = 0.2
 
-    settings.curren_uid = 'c6e2e163'
+    settings.curren_uid = 'dcaf3bb7'
     settings.hot_count_on_off = 1
     settings.cold_count_on_off = 0
     settings.cold_count_iterations = 1
@@ -43,6 +43,7 @@ def setup():
                                     'ham_1bx': 0,
                                     'ham_1by': 0,
                                     'ham_1bz': 0,
+                                    'ham_1az': 0,
                                     'test_5': 0,
                                 }
     sv.settings = settings

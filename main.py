@@ -22,8 +22,14 @@ sv.telegram_api = 'API_TOKEN_1'
 coin_list = coins.best_set
 
 async def main(args):
+    # coin_list = []
+    # exchanges = util.load_data_from_file('contracts.json')
+    # coin_list.clear()
+    # for c in exchanges['HL']:
+    #     if c in coins.best_set:
+    #         coin_list.append(c)
+
     sv.time_start = datetime.now().timestamp()
-    global coin_list
     sv.unique_ident = str(uuid.uuid4())[:8]
     print(f'uid: {sv.unique_ident}')
 
