@@ -99,12 +99,15 @@ async def mp_saldo(coin_list, use_multiprocessing=True):
     util.check_and_clean_data(f'_profits/{sv.unique_ident}_profits.txt')
     all_positions = util.load_positions('_profits')
     if len(all_positions)>0:
+        sv.settings.amount = 30
         filtred_positions = stat.filter_positions(all_positions)
         # util.format_data(filtred_positions)
         dropdowns, type_collection = stat.dangerous_moments(filtred_positions)
         med_dur = stat.calc_med_duration(filtred_positions)
         stat_dict = stat.get_type_statistic(filtred_positions)
         full_report = stat.proceed_positions(filtred_positions)
+        close_types = stat.stat_of_close(filtred_positions)
+        full_report['close_types'] = close_types
         full_report['med_dur'] = med_dur
         full_report['coin'] = 'All contracts'
         print(f'\033[0;31mGeneral report:\033[0m')

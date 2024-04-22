@@ -25,7 +25,10 @@ def position_proccess(profit_list: list, dt: np.ndarray, is_first_iter: bool):
         target_len = sv.settings.target_len
 
         data = dt[ind:ind+target_len]
-
+        closes = data[:, 4]
+        highs = data[:, 2]
+        lows = data[:, 3]
+        opens = data[:, 1]
         if sv.signal.signal == 1:
             price_open = data[0][1] * (1 - 0.0001)
             stop_loss = (1 - s_loss) * float(price_open)
@@ -39,7 +42,6 @@ def position_proccess(profit_list: list, dt: np.ndarray, is_first_iter: bool):
 
         for i in range(target_len):
             low_tail_1, high_tail_1, body_1 = tools.get_tail_body(data[i][1], data[i][2], data[i][3], data[i][4])
-            
             if i == target_len-1:
                 type_close = 'timefinish'
                 cand_close = data[i]
@@ -52,16 +54,17 @@ def position_proccess(profit_list: list, dt: np.ndarray, is_first_iter: bool):
                 price_close = stop_loss
                 index = i
                 break
-            elif high_tail_1>body_1*1 and data[i][1] < data[i][4] and sv.signal.type_os_signal in ['ham_1by', 'ham_1bx', 'ham_1a', 'ham_1aa', 'ham_5a']:
-                type_close = 'high_tail'
-                cand_close = data[i+1]
-                price_close = data[i+1][1]
-                index = i
-                break
+            elif high_tail_1>body_1*2 and data[i][1] < data[i][4] and sv.signal.type_os_signal in ['ham_1by', 'ham_1bx', 'ham_1a', 'ham_1aa', 'ham_5a', 'ham_60c']:
+                #if price_open*1.000<data[i+1][1]:
+                    type_close = 'high_tail'
+                    cand_close = data[i+1]
+                    price_close = data[i+1][1]
+                    index = i
+                    break
             elif i > 0 and data[i][1] > data[i][4] and data[i-1][1] < data[i-1][4]:
                 vol_can_1 = util.calculate_percent_difference(data[i][1], data[i][4])
                 vol_can_2 = util.calculate_percent_difference(data[i-1][4], data[i-1][1])
-                if vol_can_1>vol_can_2 and price_open<data[i+1][1]:
+                if vol_can_1>vol_can_2:# and price_open*1.000<data[i+1][1]:
                     type_close = 'engulfing'
                     cand_close = data[i+1]
                     price_close = data[i+1][1]

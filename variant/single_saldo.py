@@ -10,7 +10,8 @@ import worker.single_worker as w
 import concurrent.futures
 import helpers.vizualizer as viz
 import helpers.print_info as printer
-
+import time
+import random
 output_lock = multiprocessing.Lock()
 
 async def process_result(result, coin, coin_list_len):
@@ -18,6 +19,14 @@ async def process_result(result, coin, coin_list_len):
     report['coin'] = coin
     report = util.insert(report, 'Num', coin_list_len, 0)
     printer.print_colored_dict(report)
+    # if sv.settings.send_pic:
+    #     pt = util.get_points_value(len(result))
+    #     drpd, tp_cl = stat.dangerous_moments(result)
+    #     with output_lock:
+    #         path = viz.plot_time_series(result, True, pt, True, drpd, {})
+    #         await tel.send_inform_message(f'{coin}', path, True)
+    #         pause = random.randint(10, 20)
+    #         time.sleep(pause)
     return report
 
 def do_job(coin: str, profit_path: str, lock):
@@ -28,15 +37,22 @@ def do_job(coin: str, profit_path: str, lock):
     
     # etalon_positions = util.load_etalon_positions()
     # sv.etalon_positions = stat.filter_positions(etalon_positions)
-
+    util.load_add_data()
     sv.settings.coin = coin
-    data_gen = gd.load_data_in_chunks(sv.settings, 100000, sv.settings.time)
+    if sv.settings.multi_tf == 0:
+        data_gen = gd.load_data_in_chunks(sv.settings, 100000, sv.settings.time)
+    else:
+        for key, val in sv.data.items():
+            if val is not None:
+                data_gen = gd.load_data_in_chunks(sv.settings, 100000, key)
+                break
+
     position_collector = []
     last_position = {}
     is_first_iter = True
-
     for data in data_gen:
-
+        for key, val in sv.prev_index.items():
+            sv.prev_index[key] = 0
         profit_list = w.run(data, last_position, is_first_iter)
 
         if len(profit_list) > 0:
@@ -76,10 +92,10 @@ async def mp_saldo(coin_list, use_multiprocessing=True):
             printer.print_colored_dict(report)
             coin_list_len-=1
             # print(f'saldo: {sv.saldo_sum}')
-            if coin_list_len>10:
-                if (coin_list_len<60 and sv.saldo_sum<=0) or (coin_list_len<66 and sv.saldo_sum==0) or sv.saldo_sum<-100:
-                    print('Next iteration =====>')
-                    return
+            # if coin_list_len<5:
+            #     if (coin_list_len<5 and sv.saldo_sum<=0) or (coin_list_len<5 and sv.saldo_sum==0) or sv.saldo_sum<-20:
+            #         print(f'Saldo: {sv.saldo_sum} Next iteration =====>')
+            #         return
 
 
     if os.path.exists(f'_profits/{sv.unique_ident}_profits.txt'):
@@ -88,15 +104,22 @@ async def mp_saldo(coin_list, use_multiprocessing=True):
             filtred_positions = stat.filter_positions(all_positions)
             dropdowns, type_collection = stat.dangerous_moments(filtred_positions)
             med_dur = stat.calc_med_duration(filtred_positions)
+            stat_dict = stat.get_type_statistic(filtred_positions)
             full_report = stat.proceed_positions(filtred_positions)
+            close_types = stat.stat_of_close(filtred_positions)
             if 'saldo' not in full_report:
                 full_report['saldo'] = 0
             full_report['med_dur'] = med_dur
-            full_report['coin'] = 'All contracts'
+            full_report['close_types'] = close_types
             print(full_report)
+            print(stat_dict)
             print(dropdowns)
+            print(sv.days_gap)
             # sv.reactor.print_pattern()
             points = util.get_points_value(len(filtred_positions))
             path = viz.plot_time_series(filtred_positions, True, points, True, dropdowns, full_report)
+            # if sv.saldo_sum>70 and len(filtred_positions)>600:
             await tel.send_inform_message(f'{full_report}', path, True)
+            #     time.sleep(2)
+            #await tel.send_inform_message(f'{sv.reactor.pattern_info()}', path, True)
                 

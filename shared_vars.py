@@ -5,6 +5,7 @@ from models.settings import Settings
 from datetime import datetime, timedelta
 from commander.com import Commander
 from database.core import RycharaDB
+from models.reactor import Reactor
 
 days_gap = {}
 telegram_api = 'API_TOKEN_1'
@@ -21,9 +22,32 @@ preload = False
 all_positions = None
 
 data: np.ndarray = None
-data_1: np.ndarray = None
-data_2: np.ndarray = None
-data_5: np.ndarray = None
+
+data = {
+1: None,
+5: None,
+15: None,
+30: None,
+60: None,
+1440: None,
+}
+
+candel_dict = {
+    1: {},
+    5: {},
+    15: {},
+    30: {},
+    60: {},
+    1440: {},
+}
+prev_index = {
+    1: 0,
+    5: 0,
+    15: 0,
+    30: 0,
+    60: 0,
+    1440: 0,
+}
 
 settings: Settings = set.setup()
 additional_settings = RycharaDB.get_dict('ad_set')
@@ -34,8 +58,7 @@ max_border_accum = []
 min_border_accum = []
 sum_saldo = []
 
-candel_dict_1 = {}
-candel_dict_2 = {}
+
 
 saldo_sum = 0
 btc_data = None
@@ -49,3 +72,6 @@ frozen = 0
 
 etalon_positions = None
 rsi_was_low10 = 0
+reactor: Reactor = None
+treshold = 22
+vol_triger = 0

@@ -15,7 +15,7 @@ def run(data, last_position, is_first_iter: bool):
             profit_list.append(last_position)
 
 
-        i = 211
+        i = 225
 
         while i < data_len_for_loop:
             
@@ -23,7 +23,7 @@ def run(data, last_position, is_first_iter: bool):
 
             if sv.signal.signal in sv.settings.s:
 
-                tm1 = prc.position_proccess(profit_list, data, is_first_iter)
+                tm1 = prc_2.position_proccess(profit_list, data, is_first_iter)
                 i+=tm1
             else: 
                 i+=1

@@ -32,15 +32,15 @@ def profit_counter(taker_maker: bool, open_price: float, buy: bool, close_price:
                 isProf = True
                 profit_or_loss -= comission
         
-        if isProf:
+        if isProf and profit_or_loss>0:
             return abs(round(profit_or_loss, 4))
-        else:
+        elif not isProf or profit_or_loss<0:
             return -abs(round(profit_or_loss, 4))#-abs(round(serv.spread_imitation(profit_or_loss), 4))
     else: return 0
 
 def process_profit(dt: dict, is_first_iter: bool):
 
-    taker = False
+    taker = False if sv.signal.type_os_signal == 'ham_60c' else True
     if dt['type_close'] == 'timefinish':
         taker = True
     buy = True if sv.signal.signal == 1 else False
@@ -66,6 +66,24 @@ def process_profit(dt: dict, is_first_iter: bool):
         'type_of_signal': sv.signal.type_os_signal,
         'volume': round(sv.signal.volume, 4),
     }
-    dt['profit_list'].append(position)
+    if validate_position(position):
+        dt['profit_list'].append(position)
+    # else:
+    #     print('Invalid position')
+    # dt['profit_list'].append(position)
     
     return position
+
+def validate_position(position):
+    required_keys = ['open_time', 'close_time', 'signal', 'profit', 'coin', 'saldo', 'type_close', 'data_s', 'type_of_signal', 'volume']
+    required_types = [float, float, int, float, str, float, str, int, str, float]
+
+    for key, required_type in zip(required_keys, required_types):
+        if key not in position:
+            print(f'Key {key} is missing in position')
+            return False
+        if not isinstance(position[key], required_type):
+            print(f'Invalid type for {key}. Expected {required_type}, got {type(position[key])}')
+            return False
+
+    return True

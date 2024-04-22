@@ -182,6 +182,7 @@ def get_tail_body(open, high, low, close):
     high_tail = high - max_br
     return low_tail, high_tail, body
 
+
 def tail_body(tail, body, lower_bigger, koff):
     if lower_bigger == 'lower':
         return tail < body *koff
@@ -267,3 +268,10 @@ def last_lowest_highest(highs, lows, lowest_highest_none, ln):
         return last_lowest(lows, ln)
     elif lowest_highest_none == 'highest':
         return last_highest(highs, ln)
+    
+def rsi_repeater(rsi: np.ndarray, step: int, min: int, max: int):
+    target = 0
+    for i in range(step, len(rsi), step):
+        if any(r>min and r<max for r in rsi[i-step:i]):
+            target+=1
+    return target

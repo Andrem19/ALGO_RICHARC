@@ -7,9 +7,9 @@ import glob
 import os
 
 def main():
-    symbols = coins.all_coins
+    symbols = coins.usdc_set
     
-    times =['1h']# ['1m', '5m']#, '15m', '30m', '1h']
+    times =['1m']# ['1m', '5m']#, '15m', '30m', '1h']
     for t in times:
         for symbol in symbols:
             data_dumper = BinanceDataDumper(

@@ -180,8 +180,9 @@ def proceed_positions(positions: list):
     }
 
 def filter_positions(deals):
+    # print(len(deals))
     # deals = util.filter_dicts_less_10(deals, 3, 'more')
-    deals.sort(key=lambda d: (d["open_time"], 'ham_1b' in d["type_of_signal"], -d["volume"]))
+    deals.sort(key=lambda d: (d["open_time"], 'ham_60c' in d["type_of_signal"], 'ham_1b' in d["type_of_signal"], -d["volume"]))
 
     filtered_deals = []
 
@@ -194,6 +195,7 @@ def filter_positions(deals):
         'ham_1bx': 1,
         'ham_1by': 1,
         'ham_1bz': 1,
+        'ham_60c': 1,
         'ham_5a': 3,
         'ham_5b': 2,
         'test_5': 5,
@@ -207,6 +209,7 @@ def filter_positions(deals):
         'ham_2a': 1,
         'ham_1bx': 1,
         'ham_1by': 1,
+        'ham_60c': 1,
         'ham_1bz': 1,
         'ham_5a': 1,
         'ham_5b': 1,
@@ -215,9 +218,12 @@ def filter_positions(deals):
     }
 
     for i in range(len(deals)):
+        # if i%1000==0:
+        #     print(i)
         active = [d for d in filtered_deals if d["close_time"] >= deals[i]["open_time"]]
         # last_7_min = [d for d in filtered_deals if d["open_time"] >= deals[i]["open_time"] - 7*60*1000]
-        last_7 = util.filter_dicts(filtered_deals, deals[i])
+        last_7 = util.filter_dicts(filtered_deals, deals[i], 7, 2)
+        # last_60 = util.filter_dicts(filtered_deals, deals[i], 60, 15)
         lenth_active = len(active)
 
         if on_off[deals[i]["type_of_signal"]] == 1:
@@ -227,7 +233,8 @@ def filter_positions(deals):
                 ham_5b = sum(1 for d in active if d.get('type_of_signal') == 'ham_5b')
                 ham_1a = sum(1 for d in active if d.get('type_of_signal') == 'ham_1a')
                 ham_2a = sum(1 for d in active if d.get('type_of_signal') == 'ham_2a')
-                ham_1aa = sum(1 for d in active if d.get('type_of_signal') == 'ham_1aa')
+                ham_60c = sum(1 for d in active if d.get('type_of_signal') == 'ham_60c')
+                # ham_1aa = sum(1 for d in active if d.get('type_of_signal') == 'ham_1aa')
                 ham_1b = sum(1 for d in active if 'ham_1b' in d.get('type_of_signal'))
 
                 limit = filter_val[deals[i]["type_of_signal"]]
@@ -237,6 +244,7 @@ def filter_positions(deals):
                     or (deals[i]["type_of_signal"] == 'ham_1aa' and lenth_active<limit)\
                     or (deals[i]["type_of_signal"] == 'ham_5a' and ham_5a<limit)\
                     or (deals[i]["type_of_signal"] == 'ham_5b' and ham_5b<limit)\
+                    or (deals[i]["type_of_signal"] == 'ham_60c' and ham_60c<limit)\
                     or (deals[i]["type_of_signal"] == 'ham_2a' and ham_2a<limit and lenth_active > 1)\
                     or (deals[i]["type_of_signal"] == 'stub' and lenth_active<limit):
 
@@ -295,6 +303,8 @@ def set_koof(position, lenth_active, ham_1a, ham_5b, types_7_last):
     # elif 'ham_1bx' in position["type_of_signal"] or 'ham_1bz' in position["type_of_signal"]  or 'ham_1by' in position["type_of_signal"]:
     #     position["profit"]*=0.5
     elif 'ham_1az' == position["type_of_signal"]:#change to stub in real edition
+        position["profit"]*=0.5
+    elif position["type_of_signal"] == 'ham_60c':
         position["profit"]*=0.5
     else:
         position["profit"]*=1
@@ -399,3 +409,12 @@ def dangerous_moments(positions: list) -> dict:
     'counter_2': counter_2
     }
     return down_result, dict_collection
+
+def stat_of_close(positions):
+    close_types = {}
+    for pos in positions:
+        if pos['type_close'] in close_types:
+            close_types[pos['type_close']]+=1
+        else:
+            close_types[pos['type_close']] = 1
+    return close_types

@@ -38,52 +38,102 @@ def save_list(my_list, path):
         print(f'Error [save_list] {e}')
         print(traceback.format_exc())
 
+
 def load_positions(folder_path: str):
     data = []
     
-    curent_line = ''
     file_name = f'{sv.unique_ident}_profits.txt'
     file_path = os.path.join(folder_path, file_name)
+    
+    if not os.path.exists(file_path):
+        print(f'File {file_path} does not exist')
+        return data
+
     with open(file_path, 'r') as file:
         lines = file.readlines()
         for line in lines:
-            try:
-                curent_line = line
-                if line != '':
-                    parts = line.strip().split(',')
-                    timestamp_open = float(parts[0])
-                    timestamp_close = float(parts[1])
-                    signal = int(parts[2])
-                    value = float(parts[3])
-                    coin = str(parts[4])
-                    saldo = float(parts[5])
-                    data_s = int(parts[6])
-                    type_of_signal = str(parts[7])
-                    type_close = str(parts[8])
-                    volume = float(parts[9])
-
-                    position = {
-                        'open_time': timestamp_open,
-                        'close_time': timestamp_close,
-                        'signal': signal,
-                        'profit': value,
-                        'coin': coin,
-                        'saldo': saldo,
-                        'data_s': data_s,
-                        'type_of_signal': type_of_signal,
-                        'type_close': type_close,
-                        'volume': volume,
-                    }
-                    data.append(position)
-            except Exception as e:
-                print(traceback.format_exc())
-                print(curent_line)
-                print(e)
+            parts = line.strip().split(',')
+            if len(parts) < 10:
+                print(f'Invalid line: {line}')
                 continue
-    
-    
+
+            try:
+                timestamp_open = float(parts[0])
+                timestamp_close = float(parts[1])
+                signal = int(parts[2])
+                value = float(parts[3])
+                coin = str(parts[4])
+                saldo = float(parts[5])
+                data_s = int(parts[6])
+                type_of_signal = str(parts[7])
+                type_close = str(parts[8])
+                volume = float(parts[9])
+
+                position = {
+                    'open_time': timestamp_open,
+                    'close_time': timestamp_close,
+                    'signal': signal,
+                    'profit': value,
+                    'coin': coin,
+                    'saldo': saldo,
+                    'data_s': data_s,
+                    'type_of_signal': type_of_signal,
+                    'type_close': type_close,
+                    'volume': volume,
+                }
+                data.append(position)
+            except ValueError as e:
+                print(f'Error parsing line: {line}. Error: {e}')
+                continue
+
     sorted_data = sorted(data, key=lambda x: x['open_time'])
     return sorted_data
+# def load_positions(folder_path: str):
+#     data = []
+    
+#     curent_line = ''
+#     file_name = f'{sv.unique_ident}_profits.txt'
+#     file_path = os.path.join(folder_path, file_name)
+#     with open(file_path, 'r') as file:
+#         lines = file.readlines()
+#         for line in lines:
+#             try:
+#                 curent_line = line
+#                 if line != '':
+#                     parts = line.strip().split(',')
+#                     timestamp_open = float(parts[0])
+#                     timestamp_close = float(parts[1])
+#                     signal = int(parts[2])
+#                     value = float(parts[3])
+#                     coin = str(parts[4])
+#                     saldo = float(parts[5])
+#                     data_s = int(parts[6])
+#                     type_of_signal = str(parts[7])
+#                     type_close = str(parts[8])
+#                     volume = float(parts[9])
+
+#                     position = {
+#                         'open_time': timestamp_open,
+#                         'close_time': timestamp_close,
+#                         'signal': signal,
+#                         'profit': value,
+#                         'coin': coin,
+#                         'saldo': saldo,
+#                         'data_s': data_s,
+#                         'type_of_signal': type_of_signal,
+#                         'type_close': type_close,
+#                         'volume': volume,
+#                     }
+#                     data.append(position)
+#             except Exception as e:
+#                 print(traceback.format_exc())
+#                 print(curent_line)
+#                 print(e)
+#                 continue
+    
+    
+#     sorted_data = sorted(data, key=lambda x: x['open_time'])
+#     return sorted_data
 
 def load_etalon_positions():
     data = []
@@ -154,6 +204,7 @@ def get_candel_index(timestamp, candeldict):
         candle_index = candeldict[timestamp]
         return candle_index
     else: return -1
+
 
 def find_candle_index(timestamp, candles):
     start = 0
@@ -316,21 +367,6 @@ def format_data(data):
     return result
 
 
-# def get_previous_day_rsi(timestamp, rsi_dict):
-#     # Получение списка всех таймстампов в отсортированном порядке
-#     timestamps = sorted(rsi_dict.keys())
-
-#     # Использование бинарного поиска для нахождения индекса таймстампа, который меньше заданного
-#     index = bisect.bisect_left(timestamps, timestamp)
-
-#     # Если нет предыдущих таймстампов, возвращаем None
-#     if index == 0:
-#         return None
-
-#     # Возвращение значения RSI для самого позднего из предыдущих таймстампов
-#     return rsi_dict[timestamps[index - 1]]
-
-
 def get_previous_day_rsi(timestamp: float, sorted_rsi_dict: SortedDict):
     index = sorted_rsi_dict.bisect_left(timestamp)
     if index == 0:
@@ -343,10 +379,10 @@ def load_data_from_file(filename):
         exchanges = json.load(f)
     return exchanges
 
-def filter_dicts(dicts, cur_pos):
+def filter_dicts(dicts, cur_pos, from_c, to_c):
     current_time = cur_pos['open_time']  # текущее время в миллисекундах
-    two_minutes_ago = current_time - 2 * 60 * 1000  # время 2 минуты назад в миллисекундах
-    seven_minutes_ago = current_time - 7 * 60 * 1000  # время 7 минут назад в миллисекундах
+    two_minutes_ago = current_time - to_c * 60 * 1000  # время 2 минуты назад в миллисекундах
+    seven_minutes_ago = current_time - from_c * 60 * 1000  # время 7 минут назад в миллисекундах
 
     # отфильтровать словари, время которых позднее 2х минут назад, но не позднее 7 минут назад
     return [d for d in dicts if seven_minutes_ago <= d['open_time'] < two_minutes_ago]
@@ -358,3 +394,16 @@ def filter_dicts_signal(dicts, cur_pos):
 
     # отфильтровать словари, время которых позднее 2х минут назад, но не позднее 7 минут назад
     return [d for d in dicts if seven_minutes_ago <= d['open_time'] < two_minutes_ago], [d for d in dicts if two_minutes_ago <= d['open_time'] < current_time]
+
+
+def load_add_data():
+    first = False
+    if sv.settings.multi_tf == 1:
+        for key, val in sv.settings.aditional_timeframes.items():
+            if val == 1 and first == False:
+                sv.data[key] = 1
+                first = True
+                continue
+            elif val == 1:
+                sv.data[key] = gd.load_data_sets(key)
+                sv.candel_dict[key] = create_candle_dict(sv.data[key])

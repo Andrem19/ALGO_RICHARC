@@ -18,9 +18,18 @@ class Settings:
         self.only: int = 0
         self.s = [1,2]
         self.counter: int = 0
+        self.multi_tf = 0
+        self.aditional_timeframes = {
+            1:1,
+            5:0,
+            15:1,
+            30:0,
+            60:1,
+            1440:0,
+        }
 
         self.start_date = datetime(2017, 1, 1)
-        self.finish_date = datetime(2024, 1, 1)
+        self.finish_date = datetime(2024, 5, 1)
 
         self.taker_fee: float = 0.12
         self.maker_fee: float = 0.12

@@ -12,7 +12,7 @@ from models.signal import Signal
 def run(data, last_position, is_first_iter: bool):
     try:
         data_len = len(data)
-        data_len_for_loop = data_len - 15
+        data_len_for_loop = data_len - 60
         profit_list: list = []
 
         if last_position:
@@ -25,7 +25,12 @@ def run(data, last_position, is_first_iter: bool):
             sg.get_signal(i_1, data, sv.settings)
 
             if sv.signal.signal in sv.settings.s:
-                tm = prc_2.position_proccess(profit_list, data, is_first_iter)
+                tm = 1
+                # tm = prc_2.position_proccess(profit_list, data, is_first_iter)
+                if sv.signal.type_os_signal == 'ham_60c' or sv.signal.data == 5 or sv.signal.type_os_signal == 'ham_1by':
+                    tm = prc_2.position_proccess(profit_list, data, is_first_iter)
+                else:
+                    tm = prc.position_proccess(profit_list, data, is_first_iter)
                 i_1+=tm
             else: 
                 i_1+=1
