@@ -42,12 +42,15 @@ def get_type_statistic(positions: list) -> dict:
 
 def type_of_closes_stat(positions: list):
     dict_pos = {}
+    data_5 = 0
     for pos in positions:
+        if pos['data_s'] == 5:
+            data_5 += 1
         if pos['type_close'] in dict_pos:
             dict_pos[pos['type_close']]+=1
         else:
             dict_pos[pos['type_close']]=1
-
+    print(f'data_s 5 = {data_5}')
     return dict_pos
 
 def sort_by_type(positions: list):
@@ -251,7 +254,13 @@ def filter_positions(deals):
                     pos = set_koof(copy.copy(deals[i]), lenth_active, ham_1a, ham_5b, last_7)
                     filtered_deals.append(pos)
     filtered_list = list(filter(lambda d: d['type_of_signal'] != 'stub', filtered_deals))
-
+    for d in filtered_list:
+        if d['data_s'] == 5:
+            open_dt = datetime.fromtimestamp(d['open_time']/1000)
+            close_dt = datetime.fromtimestamp(d['close_time']/1000)
+            duration = close_dt - open_dt
+            print(f'Profit: {d["profit"]} Duration: {duration.total_seconds()/60}')
+            d['type_of_signal'] = 'ham_long'
     return recount_saldo(filtered_list)
 
 
@@ -412,9 +421,13 @@ def dangerous_moments(positions: list) -> dict:
 
 def stat_of_close(positions):
     close_types = {}
+    data_5 = 0
     for pos in positions:
+        if pos['data_s'] == 5:
+            data_5 += 1
         if pos['type_close'] in close_types:
             close_types[pos['type_close']]+=1
         else:
             close_types[pos['type_close']] = 1
+    print(f'data_s 5 = {data_5}')
     return close_types

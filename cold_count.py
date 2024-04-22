@@ -60,7 +60,7 @@ async def count():
 
 async def count_run():
     sv.time_start = datetime.now().timestamp()
-
+    sv.settings.amount = 30
     iter = sv.settings.cold_count_iterations
     # sv.all_positions = util.load_positions('_profits')
     positions = util.load_positions('_profits')

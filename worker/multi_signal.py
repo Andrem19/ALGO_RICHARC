@@ -221,11 +221,11 @@ def get_signal(i_1, data_1, settings: Settings):
         pos = {'open_time': data_1[i_1][0]}
         pos_list = util.filter_dicts(sv.etalon_positions, pos, 15, 5)
         types_7 = [val['type_of_signal'] for val in pos_list]
-        if ('ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7 or 'ham_5a' in types_7) and len(types_7)>1:
-                if sv.signal.type_os_signal != 'ham_60c' and 'ham_1b' not in sv.signal.type_os_signal:
-                    sv.signal.data = 5
-                    sv.settings.init_stop_loss = 0.03
-                    sv.settings.target_len = 60
+        if ('ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7 or 'ham_5a' in types_7) and len(types_7)>0:
+            if sv.signal.type_os_signal != 'ham_60c' and 'ham_1b' not in sv.signal.type_os_signal:
+                sv.signal.data = 5
+                sv.settings.init_stop_loss = 0.03
+                sv.settings.target_len = 60
         #     sv.settings.init_stop_loss = 0.03
         #     sv.settings.target_len = 60
         #     sv.settings.init_stop_loss = 0.004
