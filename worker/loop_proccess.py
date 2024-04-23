@@ -54,8 +54,7 @@ def position_proccess(profit_list: list, dt: np.ndarray, is_first_iter: bool):
                 price_close = stop_loss
                 index = i
                 break
-            elif high_tail_1>body_1*2 and data[i][1] < data[i][4] and sv.signal.type_os_signal in ['ham_1by', 'ham_1bx', 'ham_1a', 'ham_1aa', 'ham_5a', 'ham_60c']:
-                #if price_open*1.000<data[i+1][1]:
+            elif high_tail_1>body_1*2 and data[i][1] < data[i][4] and sv.signal.type_os_signal in ['ham_1by', 'ham_1bx', 'ham_1a', 'ham_1aa', 'ham_5a', 'ham_60c', 'ham_60cc']:
                     type_close = 'high_tail'
                     cand_close = data[i+1]
                     price_close = data[i+1][1]
@@ -64,7 +63,7 @@ def position_proccess(profit_list: list, dt: np.ndarray, is_first_iter: bool):
             elif i > 0 and data[i][1] > data[i][4] and data[i-1][1] < data[i-1][4]:
                 vol_can_1 = util.calculate_percent_difference(data[i][1], data[i][4])
                 vol_can_2 = util.calculate_percent_difference(data[i-1][4], data[i-1][1])
-                if vol_can_1>vol_can_2:# and price_open*1.000<data[i+1][1]:
+                if vol_can_1>vol_can_2:
                     type_close = 'engulfing'
                     cand_close = data[i+1]
                     price_close = data[i+1][1]
@@ -82,12 +81,11 @@ def position_proccess(profit_list: list, dt: np.ndarray, is_first_iter: bool):
 
         position = prof.process_profit(data_dict, is_first_iter)
         
-        if sv.settings.printer and sv.settings.counter%sv.settings.iter_count==0:
+        if sv.settings.printer and sv.settings.counter%sv.settings.iter_count==0 and sv.signal.type_os_signal == 'ham_60c':
             printer.print_position(copy.deepcopy(position))
             if sv.settings.drawing:
-                sett = f'tp: {sv.settings.take_profit} sl: {sv.settings.init_stop_loss}'
-                title = f'up {index} - {sett}' if sv.signal.signal == 1 else f'down {index} - {sett}'
-                viz.draw_candlesticks(dt[ind-30:ind+target_len+1], title, 30)
+                title = f'up {index}' if sv.signal.signal == 1 else f'down {index}'
+                viz.draw_candlesticks(dt[ind-30:ind+5], title+f' {sv.signal.type_os_signal}', 5)
         index = index-1 if type_close == 'timefinish' else index
 
         return index+1
