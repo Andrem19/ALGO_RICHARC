@@ -3,9 +3,9 @@ import shared_vars as sv
 import helpers.util as util
 import coins
 
+deals = [{"type_of_signal": "ham_60c"}, {"type_of_signal": "ham_60c"}, {"type_of_signal": "ham_60cc"}, {"type_of_signal": "ham_1b"}, {"type_of_signal": "ham_60cc"}, {"type_of_signal": "ham_60c"}]
 
-exchanges = util.load_data_from_file('contracts.json')
 
-for coin in coins.usdc_set:
-    if coin not in coins.best_set:
-        print(coin)
+deals.sort(key=lambda d: ('ham_60cc' == d["type_of_signal"], 'ham_60c' == d["type_of_signal"], 'ham_1b' in d["type_of_signal"]))
+
+print(deals)

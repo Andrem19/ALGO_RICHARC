@@ -1,5 +1,6 @@
 import worker.multi_proccess as prc
 import worker.loop_proccess as prc_2
+import worker.loop_proccess_3 as prc_3
 import signal as sg
 import shared_vars as sv
 import worker.single_signal as sg
@@ -23,7 +24,7 @@ def run(data, last_position, is_first_iter: bool):
 
             if sv.signal.signal in sv.settings.s:
 
-                tm1 = prc_2.position_proccess(profit_list, data, is_first_iter)
+                tm1 = prc_3.position_proccess(profit_list, data, is_first_iter)
                 i+=tm1
             else: 
                 i+=1

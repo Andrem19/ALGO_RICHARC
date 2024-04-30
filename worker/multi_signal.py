@@ -25,6 +25,7 @@ def get_signal(i_1, data_1, settings: Settings):
     highs_1 = data_1[i_1-lenth:i_1, 2]
     lows_1 = data_1[i_1-lenth:i_1, 3]
     opens_1 = data_1[i_1-lenth:i_1, 1]
+    
 
     signal_1 = 3
     if signal_1 == 3 and settings.coin in coins.usdc_set:
@@ -172,7 +173,7 @@ def get_signal(i_1, data_1, settings: Settings):
             if sv.signal.type_os_signal != 'ham_60c' and 'ham_1b' not in sv.signal.type_os_signal and sv.signal.type_os_signal != 'ham_60cc':
                 sv.signal.data = 5
                 sv.settings.init_stop_loss = 0.03
-                sv.settings.target_len = 60
+                sv.settings.target_len = 20
         #     sv.settings.init_stop_loss = 0.03
         #     sv.settings.target_len = 60
         #     sv.settings.init_stop_loss = 0.004

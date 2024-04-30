@@ -185,7 +185,7 @@ def proceed_positions(positions: list):
 def filter_positions(deals):
     # print(len(deals))
     # deals = util.filter_dicts_less_10(deals, 3, 'more')
-    deals.sort(key=lambda d: (d["open_time"], 'ham_60c' in d["type_of_signal"], 'ham_1b' in d["type_of_signal"], -d["volume"]))
+    deals.sort(key=lambda d: (d["open_time"], 'ham_60cc' == d["type_of_signal"], 'ham_60c' == d["type_of_signal"], 'ham_1b' in d["type_of_signal"], -d["volume"]))
 
     filtered_deals = []
 
@@ -239,7 +239,7 @@ def filter_positions(deals):
                 ham_1a = sum(1 for d in active if d.get('type_of_signal') == 'ham_1a')
                 ham_2a = sum(1 for d in active if d.get('type_of_signal') == 'ham_2a')
                 ham_60c = sum(1 for d in active if d.get('type_of_signal') == 'ham_60c')
-                ham_60cc = sum(1 for d in active if d.get('type_of_signal') == 'ham_60c')
+                ham_60cc = sum(1 for d in active if d.get('type_of_signal') == 'ham_60cc')
                 # ham_1aa = sum(1 for d in active if d.get('type_of_signal') == 'ham_1aa')
                 ham_1b = sum(1 for d in active if 'ham_1b' in d.get('type_of_signal'))
 

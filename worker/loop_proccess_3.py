@@ -19,7 +19,8 @@ def position_proccess(profit_list: list, dt: np.ndarray, is_first_iter: bool):
         price_open = 0
         index = 0
         type_close = ''
-
+        step = 0.0005
+        trailing_init = False
         s_loss = sv.settings.init_stop_loss
         take_profit = sv.settings.take_profit
         target_len = sv.settings.target_len
@@ -54,27 +55,11 @@ def position_proccess(profit_list: list, dt: np.ndarray, is_first_iter: bool):
                 price_close = stop_loss
                 index = i
                 break
-            elif (i>0 or tools.check_high_candel(data[i][2], data[i][3], sv.signal.volume*0.25, sv.settings.coin)) and high_tail_1>body_1*2 and data[i][1] < data[i][4] and sv.signal.type_os_signal in ['ham_1by', 'ham_1bx', 'ham_1a', 'ham_1aa', 'ham_5a', 'ham_60c', 'ham_60cc']:
-                type_close = 'high_tail'
-                cand_close = data[i+1]
-                price_close = data[i+1][1]
-                index = i
-                break
-            elif i > 0 and data[i][1] > data[i][4] and data[i-1][1] < data[i-1][4]:
-                vol_can_1 = util.calculate_percent_difference(data[i][1], data[i][4])
-                vol_can_2 = util.calculate_percent_difference(data[i-1][4], data[i-1][1])
-                if vol_can_1>vol_can_2:
-                    type_close = 'engulfing'
-                    cand_close = data[i+1]
-                    price_close = data[i+1][1]
-                    index = i
-                    break
-            elif (tools.check_high_candel(data[i][1], data[i][4], sv.signal.volume*0.6, sv.settings.coin)) and data[i][1] < data[i][4] and sv.signal.type_os_signal in ['ham_60c', 'ham_60cc']:
-                type_close = 'upcand'
-                cand_close = data[i+1]
-                price_close = data[i+1][1]
-                index = i
-                break
+            elif data[i][2]>price_open*(1+step*2) and not trailing_init:
+                stop_loss = price_open*(1+step*1)
+                trailing_init = True
+            elif trailing_init and data[i][4]>stop_loss*(1+step*2):
+                stop_loss = stop_loss*(1+step*1)
 
         data_dict = {
             'open_time': float(data[0][0]),
