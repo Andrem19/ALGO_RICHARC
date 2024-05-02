@@ -354,6 +354,37 @@ best_set = [
     "FILUSDT",
 ]
 
+hl_aditional = [
+    'ETHUSDT',
+    'DYDXUSDT',
+    'LDOUSDT',
+    'RNDRUSDT',
+    'SNXUSDT',
+    'BCHUSDT',
+    'AAVEUSDT',
+    'YGGUSDT',
+    'TRXUSDT',
+    'UNIUSDT',
+    'RUNEUSDT',
+    'BLZUSDT',
+    'DOTUSDT',
+    'RDNTUSDT',
+    'BIGTIMEUSDT',
+    'POLYXUSDT',
+    'ILVUSDT',
+    'JUPUSDT',
+    'ACEUSDT',
+    'PEOPLEUSDT',
+    'XAIUSDT',
+    'MANTAUSDT',
+    'ONDOUSDT',
+    'ALTUSDT',
+    'ZETAUSDT',
+    'DYMUSDT',
+    'STRKUSDT',
+    'ARUSDT',
+]
+
 usdc_set = [
     "BTCUSDT",
     "ETHUSDT",

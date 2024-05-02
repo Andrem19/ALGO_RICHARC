@@ -64,9 +64,9 @@ def get_signal(i, data):
         #                     low_tail, high_tail, body = tools.get_tail_body(opens[-1], highs[-1], lows[-1], closes[-1])
         #                     if low_tail<body*0.4 and high_tail<body*0.4:
         #                         sg = 1
-        op15, hi15, lo15, cl15 = tools.convert_timeframe(opens, highs, lows, closes, 15, 0)
-        rsi = talib.RSI(cl15, 14)
-        if rsi[-1]<=30 and tools.check_high_candel(hi15[-1], lo15[-1], 0.02, sv.settings.coin) and cl15[-1]<op15[-1]:
+        
+        rsi = talib.RSI(closes, 14)
+        if rsi[-1]<=20 and tools.check_high_candel(highs[-1], lows[-1], 0.05, sv.settings.coin):
             sg = 1
         #=================END LOGIC=====================
 
@@ -83,7 +83,7 @@ def get_signal(i, data):
             sv.signal.data = sv.settings.time
             sv.settings.init_stop_loss = 0.01#0.004
             # sv.settings.take_profit = 0.004
-            sv.settings.target_len = 120#3
+            sv.settings.target_len = 5#3
             sv.signal.type_os_signal = 'ham_60c'
             sv.signal.volume = abs(util.calculate_percent_difference(highs[-3], lows[-1]))
             sv.signal.data = 1

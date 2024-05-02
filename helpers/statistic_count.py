@@ -230,7 +230,7 @@ def filter_positions(deals):
         last_7 = util.filter_dicts(filtered_deals, deals[i], 7, 2)
         # last_60 = util.filter_dicts(filtered_deals, deals[i], 60, 15)
         lenth_active = len(active)
-
+        # lenth_active_without_ham_60c = sum(1 for d in active if d.get('type_of_signal')!= 'ham_60c')
         if on_off[deals[i]["type_of_signal"]] == 1:
             if all(d['coin'] != deals[i]["coin"] for d in active):
                 # types = [t['type_of_signal'] for t in active if 'type_of_signal' in t]
@@ -318,7 +318,7 @@ def set_koof(position, lenth_active, ham_1a, ham_5b, types_7_last):
     elif 'ham_1az' == position["type_of_signal"]:#change to stub in real edition
         position["profit"]*=0.5
     elif position["type_of_signal"] in ['ham_60c', 'ham_60cc']:
-        position["profit"]*=0.5
+        position["profit"]*=1
     else:
         position["profit"]*=1
     return position

@@ -23,11 +23,11 @@ def setup():
     settings.counter = 0
     settings.multi_tf = 0
     settings.aditional_timeframes = {
-            1:1,
+            1:0,
             5:0,
             15:0,
             30:0,
-            60:0,
+            60:1,
             1440:0,
         }
 
@@ -37,7 +37,7 @@ def setup():
     settings.taker_fee = 0.2
     settings.maker_fee = 0.04
 
-    settings.curren_uid = '4e8febe4'
+    settings.curren_uid = 'e186086b'
     settings.hot_count_on_off = 1
     settings.cold_count_on_off = 0
     settings.cold_count_iterations = 1

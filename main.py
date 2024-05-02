@@ -30,9 +30,10 @@ async def main(args):
     #         coin_list.append(c)
     # coin_list_2 = []
     # exchanges = util.load_data_from_file('contracts.json')
-    # coin_list.clear()
+    # coin_list = []
     # for c in exchanges['HL']:
-    #     if c in coins.best_set:
+    #     if c in coins.all_coins:
+    #         print(c)
     #         coin_list.append(c)
     # for c in exchanges['HL']:
     #     if c in coins.all_coins:

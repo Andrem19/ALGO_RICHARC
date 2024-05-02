@@ -168,22 +168,11 @@ def get_signal(i_1, data_1, settings: Settings):
         pos_list = util.filter_dicts(sv.etalon_positions, pos, 15, 5)
         types_7 = [val['type_of_signal'] for val in pos_list]
         if ('ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7 or 'ham_5a' in types_7) and len(types_7)>0:
-            # op30, hi30, lo30, cl30 = tools.convert_timeframe(opens_1, highs_1, lows_1, closes_1, 30, 2)
-            # if tools.check_high_candel(hi30[-1], lo30[-1], 0.08, settings.coin):
             if sv.signal.type_os_signal != 'ham_60c' and 'ham_1b' not in sv.signal.type_os_signal and sv.signal.type_os_signal != 'ham_60cc':
                 sv.signal.data = 5
                 sv.settings.init_stop_loss = 0.03
                 sv.settings.target_len = 20
-        #     sv.settings.init_stop_loss = 0.03
-        #     sv.settings.target_len = 60
-        #     sv.settings.init_stop_loss = 0.004
-        # pos = {'open_time': data_1[i_1][0]}
-        # types_10, types_5 = util.filter_dicts_signal(sv.etalon_positions, pos)
-
-        # if len(types_10)< 1 and len(types_5)<1 and sv.signal.type_os_signal == 'ham_1bz':
-        #     sv.signal.type_os_signal = 'stub'
         sv.signal.volume = abs(util.calculate_percent_difference(highs_1[-3], lows_1[-1]))
-        # sv.settings.init_stop_loss = sv.signal.volume/5
         
         sv.signal.index = i_1
         return
