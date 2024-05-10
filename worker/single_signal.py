@@ -64,9 +64,10 @@ def get_signal(i, data):
         #                     low_tail, high_tail, body = tools.get_tail_body(opens[-1], highs[-1], lows[-1], closes[-1])
         #                     if low_tail<body*0.4 and high_tail<body*0.4:
         #                         sg = 1
-        
         rsi = talib.RSI(closes, 14)
-        if rsi[-1]<=20 and tools.check_high_candel(highs[-1], lows[-1], 0.05, sv.settings.coin):
+        if sum(1 for r in rsi[-30:] if r >70)>2 and closes[-1]<opens[-1] and not tools.last_highest(highs, 30):# and not tools.last_lowest_highest(highs, lows, 'lowest', 5):
+            # if sum(1 for o,h,l,c in zip(opens[-3:], highs[-3:], lows[-3:], closes[-3:]) if tools.low_high_tails(o,h,l,c, 'high', 'bigger', 1))==0:
+            # if tools.rsi_repeater(rsi[-30:], 3, 70, 100)>2:
             sg = 1
         #=================END LOGIC=====================
 
@@ -81,9 +82,9 @@ def get_signal(i, data):
             #     sv.signal.signal = 3
             #     return
             sv.signal.data = sv.settings.time
-            sv.settings.init_stop_loss = 0.01#0.004
+            sv.settings.init_stop_loss = 0.03#0.004
             # sv.settings.take_profit = 0.004
-            sv.settings.target_len = 5#3
+            sv.settings.target_len = 20#3
             sv.signal.type_os_signal = 'ham_60c'
             sv.signal.volume = abs(util.calculate_percent_difference(highs[-3], lows[-1]))
             sv.signal.data = 1

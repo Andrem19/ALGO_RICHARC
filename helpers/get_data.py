@@ -21,7 +21,7 @@ def load_data_sets(timeframe: int):
     else:
         tm = f'{timeframe}m'
 
-    d = get_csv_data(f'_crypto_data/{sv.settings.coin}/{sv.settings.coin}_{tm}.csv')
+    d = get_csv_data(f'{sv.base_data}\_crypto_data/{sv.settings.coin}/{sv.settings.coin}_{tm}.csv')
 
     filtered_data = d[(d[:, 0] / 1000 >= sv.settings.start_date.timestamp()) & (d[:, 0] / 1000 <= sv.settings.finish_date.timestamp())]
     # filtered_data[np.argsort(filtered_data[:, 0])]
@@ -49,7 +49,7 @@ def load_data_in_chunks(settings: Settings, chunk_size, timeframe):
         tm = '1h'
     else:
         tm = f'{timeframe}m'
-    with open(f'_crypto_data/{settings.coin}/{settings.coin}_{tm}.csv', 'r') as file:
+    with open(f'{sv.base_data}\_crypto_data/{settings.coin}/{settings.coin}_{tm}.csv', 'r') as file:
         lines = file.readlines()
     for i in range(0, len(lines), chunk_size):
         chunk = np.genfromtxt(lines[i:i+chunk_size], delimiter=',')
@@ -62,7 +62,7 @@ def ml_load_data_sets(start: datetime, finish: datetime, settings: Settings):
         tm = '1h'
     else:
         tm = f'{settings.time}m'
-    d = get_csv_data(f'_crypto_data/{settings.coin}/{settings.coin}_{tm}.csv')
+    d = get_csv_data(f'{sv.base_data}\_crypto_data/{settings.coin}/{settings.coin}_{tm}.csv')
 
     filtered_data = d[(d[:, 0] / 1000 >= start.timestamp()) & (d[:, 0] / 1000 <= finish.timestamp())]
 

@@ -136,11 +136,14 @@ def proceed_positions(positions: list):
     short_minus = 0
     long_plus = 0
     long_minus = 0
+    close_antitarget = 0
     len_pos = len(positions)
     all_plus = []
     all_minus = []
     if len_pos>2:
         for pos in positions:
+            if pos['type_close'] == 'antitarget':
+                close_antitarget+=1
             if pos['profit'] > 0:
                 all_plus.append(pos['profit'])
                 plus+=1
@@ -169,20 +172,22 @@ def proceed_positions(positions: list):
         result = {
             'saldo': round(saldo, 3),
             'all': len_pos,
-            'percent': round(percent,3),
-            'short_plus': short_plus,
-            'long_plus': long_plus,
-            'short_minus': short_minus,
-            'long_minus': long_minus,
-            'med_plus': ap,
-            'med_minus': am
+            'perc': round(percent,3),
+            # 'short_pl': short_plus,
+            'long_pl': long_plus,
+            # 'short_mn': short_minus,
+            'long_mn': long_minus,
+            'med_pl': ap,
+            'med_mn': am,
+            'anttrg': round(close_antitarget/len_pos,2),
+            'k': round((abs(ap)/abs(am))*percent, 2),
         }
         return result
     return {
         'saldo': 0
     }
 
-def filter_positions(deals):
+def filter_positions(deals, i5 = True):
     # print(len(deals))
     # deals = util.filter_dicts_less_10(deals, 3, 'more')
     deals.sort(key=lambda d: (d["open_time"], 'ham_60cc' == d["type_of_signal"], 'ham_60c' == d["type_of_signal"], 'ham_1b' in d["type_of_signal"], -d["volume"]))
@@ -238,8 +243,8 @@ def filter_positions(deals):
                 ham_5b = sum(1 for d in active if d.get('type_of_signal') == 'ham_5b')
                 ham_1a = sum(1 for d in active if d.get('type_of_signal') == 'ham_1a')
                 ham_2a = sum(1 for d in active if d.get('type_of_signal') == 'ham_2a')
-                ham_60c = sum(1 for d in active if d.get('type_of_signal') == 'ham_60c')
-                ham_60cc = sum(1 for d in active if d.get('type_of_signal') == 'ham_60cc')
+                ham_60c = sum(1 for d in active if 'ham_60c' in d.get('type_of_signal'))
+                ham_60cc = sum(1 for d in active if 'ham_60c' in d.get('type_of_signal'))
                 # ham_1aa = sum(1 for d in active if d.get('type_of_signal') == 'ham_1aa')
                 ham_1b = sum(1 for d in active if 'ham_1b' in d.get('type_of_signal'))
 
@@ -258,13 +263,14 @@ def filter_positions(deals):
                     pos = set_koof(copy.copy(deals[i]), lenth_active, ham_1a, ham_5b, last_7)
                     filtered_deals.append(pos)
     filtered_list = list(filter(lambda d: d['type_of_signal'] != 'stub', filtered_deals))
-    for d in filtered_list:
-        if d['data_s'] == 5:
-            open_dt = datetime.fromtimestamp(d['open_time']/1000)
-            close_dt = datetime.fromtimestamp(d['close_time']/1000)
-            duration = close_dt - open_dt
-            print(f'Profit: {d["profit"]} Duration: {duration.total_seconds()/60}')
-            d['type_of_signal'] = 'ham_long'
+    if i5:
+        for d in filtered_list:
+            if d['data_s'] == 5:
+                open_dt = datetime.fromtimestamp(d['open_time']/1000)
+                close_dt = datetime.fromtimestamp(d['close_time']/1000)
+                duration = close_dt - open_dt
+                print(f'Profit: {d["profit"]} Duration: {duration.total_seconds()/60}')
+                d['type_of_signal'] = 'ham_long'
     return recount_saldo(filtered_list)
 
 

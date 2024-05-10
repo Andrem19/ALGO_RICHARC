@@ -46,7 +46,7 @@ def do_job(coin: str, profit_path: str, lock):
             return None
         
         etalon_positions = util.load_etalon_positions()
-        sv.etalon_positions = stat.filter_positions(etalon_positions)
+        sv.etalon_positions = stat.filter_positions(etalon_positions, False)
         sv.settings.coin = coin
         data_gen_1m = gd.load_data_in_chunks(sv.settings, 100000, 1)
         position_collector = []

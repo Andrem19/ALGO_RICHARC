@@ -27,9 +27,9 @@ async def count():
     additional_statistics = stat.additional_statistics_2(filtred_positions)
     full_report['med_dur'] = med_dur
     full_report['coin'] = 'All contracts'
-    sv.percent_accumulate.append(full_report['percent'])
-    sv.max_border_accum.append(full_report['med_plus'])
-    sv.min_border_accum.append(abs(full_report['med_minus']))
+    sv.percent_accumulate.append(full_report['perc'])
+    sv.max_border_accum.append(full_report['med_pl'])
+    sv.min_border_accum.append(abs(full_report['med_mn']))
     if sv.settings.cold_count_print_all == 1:
         print(f'\033[0;31mGeneral report:\033[0m')
         print(full_report)

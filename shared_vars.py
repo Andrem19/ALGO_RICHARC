@@ -71,7 +71,8 @@ delay = 0
 frozen = 0
 
 etalon_positions = None
-rsi_was_low10 = 0
+ham_60c_triger = 0
 reactor: Reactor = None
 treshold = 22
 vol_triger = 0
+base_data = 'D:\\PYTHON\\MARKET_DATA'
