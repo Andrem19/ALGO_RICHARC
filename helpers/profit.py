@@ -1,6 +1,7 @@
 import shared_vars as sv
 from models.settings import Settings
 import helpers.util as util
+import coins
 
 
 def profit_counter(taker_maker: bool, open_price: float, buy: bool, close_price: float) -> float:
@@ -40,7 +41,7 @@ def profit_counter(taker_maker: bool, open_price: float, buy: bool, close_price:
 
 def process_profit(dt: dict, is_first_iter: bool):
 
-    taker = False if 'ham_60c' in sv.signal.type_os_signal else True
+    taker = False if 'ham_60c' in sv.signal.type_os_signal or sv.settings.coin in coins.usdc_set else True
     if dt['type_close'] == 'timefinish':
         taker = True
     buy = True if sv.signal.signal == 1 else False

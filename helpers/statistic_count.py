@@ -319,10 +319,6 @@ def set_koof(position, lenth_active, ham_1a, ham_5b, types_7_last):
         position["profit"]*=0.5
     elif 'ham_5a' == position["type_of_signal"] and ('ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7 or 'ham_5a' in types_7):
         position["profit"]*=2
-    # elif 'ham_1bx' in position["type_of_signal"] or 'ham_1bz' in position["type_of_signal"]  or 'ham_1by' in position["type_of_signal"]:
-    #     position["profit"]*=0.5
-    elif 'ham_1az' == position["type_of_signal"]:#change to stub in real edition
-        position["profit"]*=0.5
     elif position["type_of_signal"] in ['ham_60c', 'ham_60cc']:
         position["profit"]*=1
     else:

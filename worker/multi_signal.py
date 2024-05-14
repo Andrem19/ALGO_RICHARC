@@ -35,20 +35,19 @@ def get_signal(i_1, data_1, settings: Settings):
             if tools.rsi_repeater(rsi_1[-60:], 5, 0, 46)>5:
                 sv.signal.type_os_signal = 'ham_60c'
                 sv.settings.init_stop_loss = 0.006
-                sv.settings.target_len = 60#5
+                sv.settings.target_len = 20#5
                 sv.settings.amount = 20
                 signal_1 = 1
     
     if signal_1 == 3 and settings.coin in coins.usdc_set:
         low_tail, high_tail, body = tools.get_tail_body(opens_1[-1], highs_1[-1], lows_1[-1], closes_1[-1])
         if high_tail<body and low_tail>body*0.1:
-            op4, hi4, lo4, cl4 = tools.convert_timeframe(opens_1, highs_1, lows_1, closes_1, 4, 0)
-            rsi_1 = talib.RSI(cl4, 14)
-            if (rsi_1[-1]<23 and tools.check_high_candel(hi4[-1], lo4[-1], 0.028, sv.settings.coin)):
-                #if tools.rsi_repeater(rsi_1[-30:], 3, 0, 46)>4:# and sum(1 for r in rsi_1[-15:] if r<30)<5:
+            op3, hi3, lo3, cl3 = tools.convert_timeframe(opens_1, highs_1, lows_1, closes_1, 3, 0)
+            rsi_1 = talib.RSI(cl3, 14)
+            if rsi_1[-1]<18 and tools.check_high_candel(hi3[-1], lo3[-1], 0.018, sv.settings.coin):
                 sv.signal.type_os_signal = 'ham_60cc'
-                sv.settings.init_stop_loss = 0.006
-                sv.settings.target_len = 60#5
+                sv.settings.init_stop_loss = 0.005
+                sv.settings.target_len = 20#5
                 sv.settings.amount = 20
                 signal_1 = 1
     
@@ -201,10 +200,17 @@ def get_signal(i_1, data_1, settings: Settings):
                 sv.settings.amount = 5
             else:
                 sv.settings.amount = 10
-        
+
+        if 'ham_60c' in sv.signal.type_os_signal:
+            pos_list = util.filter_dicts(sv.etalon_positions, pos, 15, 0)
+            types_7 = [val['type_of_signal'] for val in pos_list]
+            if 'ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7:
+                sv.signal.type_os_signal = 'stub'
+                sv.settings.target_len = 3
+
         # if 'ham_60cc' == sv.signal.type_os_signal:
         #     sv.signal.type_os_signal = 'ham_60c'
-        #     pos_list = util.filter_dicts(sv.etalon_positions, pos, 5, 0)
+        #     pos_list = util.filter_dicts(sv.etalon_positions, pos, 10, 0)
         #     if len(pos_list)>0:
         #         sv.signal.type_os_signal = 'stub'
         #         sv.settings.target_len = 3

@@ -169,7 +169,7 @@ all_coins = [
     "EDUUSDT",
     "IDEXUSDT",
     "UMAUSDT",
-    "RADUSDT",
+    # "RADUSDT",
     "KEYUSDT",
     "COMBOUSDT",
     "NMRUSDT",
