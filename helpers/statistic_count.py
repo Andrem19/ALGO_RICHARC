@@ -205,6 +205,10 @@ def filter_positions(deals, i5 = True):
         'ham_1bz': 1,
         'ham_60c': 1,
         'ham_60cc': 1,
+        'ham_usdc': 2,
+        'ham_usdc_1': 2,
+        'ham_usdc_2': 2,
+        'ham_usdc_3': 5,
         'ham_5a': 3,
         'ham_5b': 2,
         'test_5': 5,
@@ -220,6 +224,10 @@ def filter_positions(deals, i5 = True):
         'ham_1by': 1,
         'ham_60c': 1,
         'ham_60cc': 1,
+        'ham_usdc': 1,
+        'ham_usdc_1': 1,
+        'ham_usdc_2': 1,
+        'ham_usdc_3': 1,
         'ham_1bz': 1,
         'ham_5a': 1,
         'ham_5b': 1,
@@ -245,18 +253,19 @@ def filter_positions(deals, i5 = True):
                 ham_2a = sum(1 for d in active if d.get('type_of_signal') == 'ham_2a')
                 ham_60c = sum(1 for d in active if 'ham_60c' in d.get('type_of_signal'))
                 ham_60cc = sum(1 for d in active if 'ham_60c' in d.get('type_of_signal'))
+                ham_usdc = sum(1 for d in active if 'ham_usdc' in d.get('type_of_signal'))
                 # ham_1aa = sum(1 for d in active if d.get('type_of_signal') == 'ham_1aa')
                 ham_1b = sum(1 for d in active if 'ham_1b' in d.get('type_of_signal'))
 
                 limit = filter_val[deals[i]["type_of_signal"]]
                 if ('ham_1b' in deals[i]["type_of_signal"] and lenth_active<limit)\
-                    or ('ham_1az' in deals[i]["type_of_signal"] and lenth_active<limit) and len(last_7)>0\
                     or (deals[i]["type_of_signal"] == 'ham_1a' and ham_1a<limit)\
                     or (deals[i]["type_of_signal"] == 'ham_1aa' and lenth_active<limit)\
                     or (deals[i]["type_of_signal"] == 'ham_5a' and ham_5a<limit)\
                     or (deals[i]["type_of_signal"] == 'ham_5b' and ham_5b<limit)\
                     or (deals[i]["type_of_signal"] == 'ham_60c' and ham_60c<limit)\
                     or (deals[i]["type_of_signal"] == 'ham_60cc' and ham_60cc<limit)\
+                    or ('ham_usdc' in deals[i]["type_of_signal"] and ham_usdc<limit)\
                     or (deals[i]["type_of_signal"] == 'ham_2a' and ham_2a<limit and lenth_active > 1)\
                     or (deals[i]["type_of_signal"] == 'stub' and lenth_active<limit):
 
@@ -321,6 +330,8 @@ def set_koof(position, lenth_active, ham_1a, ham_5b, types_7_last):
         position["profit"]*=2
     elif position["type_of_signal"] in ['ham_60c', 'ham_60cc']:
         position["profit"]*=1
+    elif 'ham_usdc' in position["type_of_signal"]:
+        position["profit"]*=2
     else:
         position["profit"]*=1
     return position

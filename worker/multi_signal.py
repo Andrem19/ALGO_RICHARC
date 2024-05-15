@@ -28,6 +28,40 @@ def get_signal(i_1, data_1, settings: Settings):
     
 
     signal_1 = 3
+    
+    rsi_1 = talib.RSI(closes_1, 22)#22
+    if signal_1 == 3 and settings.coin in coins.usdc_set:
+        if rsi_1[-1]<19:#18
+            if closes_1[-1] > opens_1[-1]:
+                if tools.check_high_candel(highs_1[-1], lows_1[-1], 0.018, settings.coin):
+                    low_tail, high_tail, body = tools.get_tail_body(opens_1[-1], highs_1[-1], lows_1[-1], closes_1[-1])
+                    if high_tail < body*1:
+                        low_tail, high_tail, body = tools.get_tail_body(opens_1[-2], highs_1[-2], lows_1[-2], closes_1[-2])
+                        if high_tail < body*1:
+                            sv.signal.type_os_signal = 'ham_usdc_1'
+                            sv.settings.init_stop_loss = 0.01#serv.set_stls(0.020, abs(vol_can))#0.004
+                            sv.settings.target_len = 5#5
+                            sv.settings.amount = 20#20
+                            signal_1 = 1
+
+    if rsi_1[-1]<40 and signal_1 == 3 and settings.coin in coins.usdc_set:
+        if closes_1[-1] > opens_1[-1]:
+            if tools.all_True_any_False(closes_1, opens_1, 5, 'all', True, 3):
+                low_tail, high_tail, body = tools.get_tail_body(opens_1[-1], highs_1[-1], lows_1[-1], closes_1[-1])
+                if high_tail < body*1:#5 3
+                    if cl5 is None:
+                        op5, hi5, lo5, cl5 = tools.convert_timeframe(opens_1, highs_1, lows_1, closes_1, 5, 0)
+                    rsi = talib.RSI(cl5, 20)#20
+                    if rsi[-1]<18:
+                        low_tail, high_tail, body = tools.get_tail_body(op5[-1], hi5[-1], lo5[-1], cl5[-1])
+                        if low_tail < body*0.4:
+                            if tools.check_high_candel(hi5[-1], lo5[-1], 0.026, settings.coin): #28#
+                                signal_1 = 1
+                                sv.settings.init_stop_loss = 0.01 #0.004
+                                sv.settings.target_len = 7#7
+                                sv.settings.amount = 20#20
+                                sv.signal.type_os_signal = 'ham_usdc_2'
+    
     if signal_1 == 3 and settings.coin in coins.usdc_set:
         rsi_1 = talib.RSI(closes_1, 14)
         op15, hi15, lo15, cl15 = tools.convert_timeframe(opens_1, highs_1, lows_1, closes_1, 15, 2)
@@ -51,7 +85,7 @@ def get_signal(i_1, data_1, settings: Settings):
                 sv.settings.amount = 20
                 signal_1 = 1
     
-    rsi_1 = talib.RSI(closes_1, 22)#22
+    # rsi_1 = talib.RSI(closes_1, 22)#22
     if signal_1 == 3 and settings.coin not in coins.usdc_set:
         if rsi_1[-1]<19:#18
             if closes_1[-1] > opens_1[-1]:
@@ -80,7 +114,7 @@ def get_signal(i_1, data_1, settings: Settings):
                             if tools.check_high_candel(hi5[-1], lo5[-1], 0.028, settings.coin): #28#
                                 signal_1 = 1
                                 sv.settings.init_stop_loss = 0.005 #0.004
-                                sv.settings.target_len = 7#5
+                                sv.settings.target_len = 7#7
                                 sv.settings.amount = 20#20
                                 sv.signal.type_os_signal = 'ham_5a'
     
@@ -181,7 +215,7 @@ def get_signal(i_1, data_1, settings: Settings):
         pos_list = util.filter_dicts(sv.etalon_positions, pos, 15, 5)
         types_7 = [val['type_of_signal'] for val in pos_list]
         if ('ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7 or 'ham_5a' in types_7) and len(types_7)>0:
-            if sv.signal.type_os_signal != 'ham_60c' and 'ham_1b' not in sv.signal.type_os_signal and sv.signal.type_os_signal != 'ham_60cc':
+            if sv.signal.type_os_signal != 'ham_60c' and 'ham_1b' not in sv.signal.type_os_signal and sv.signal.type_os_signal != 'ham_60cc' and 'ham_usdc' not in sv.signal.type_os_signal:
                 sv.signal.data = 5
                 sv.settings.init_stop_loss = 0.03
                 sv.settings.target_len = 20

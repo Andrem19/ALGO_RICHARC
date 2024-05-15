@@ -27,7 +27,7 @@ def run(data, last_position, is_first_iter: bool):
             if sv.signal.signal in sv.settings.s:
                 tm = 1
                 # tm = prc_2.position_proccess(profit_list, data, is_first_iter)
-                if 'ham_60c' in sv.signal.type_os_signal or sv.signal.data == 5 or sv.signal.type_os_signal == 'ham_1by':
+                if 'ham_60c' in sv.signal.type_os_signal or sv.signal.data == 5 or sv.signal.type_os_signal == 'ham_1by' or 'ham_usdc' in sv.signal.type_os_signal:
                     tm = prc_2.position_proccess(profit_list, data, is_first_iter)
                 else:
                     tm = prc.position_proccess(profit_list, data, is_first_iter)

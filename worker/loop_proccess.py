@@ -54,7 +54,7 @@ def position_proccess(profit_list: list, dt: np.ndarray, is_first_iter: bool):
                 price_close = stop_loss
                 index = i
                 break
-            elif (i>0 or tools.check_high_candel(data[i][2], data[i][3], sv.signal.volume*0.25, sv.settings.coin)) and high_tail_1>body_1*2 and data[i][1] < data[i][4] and sv.signal.type_os_signal in ['ham_1by', 'ham_1bx', 'ham_1a', 'ham_1aa', 'ham_5a', 'ham_60c', 'ham_60cc']:
+            elif (i>0 or tools.check_high_candel(data[i][2], data[i][3], sv.signal.volume*0.25, sv.settings.coin)) and high_tail_1>body_1*2 and data[i][1] < data[i][4] and sv.signal.type_os_signal in ['ham_1by', 'ham_usdc', 'ham_1bx', 'ham_1a', 'ham_1aa', 'ham_5a', 'ham_60c', 'ham_60cc'] or 'ham_usdc' in sv.signal.type_os_signal:
                 type_close = 'high_tail'
                 cand_close = data[i+1]
                 price_close = data[i+1][1]
@@ -69,7 +69,7 @@ def position_proccess(profit_list: list, dt: np.ndarray, is_first_iter: bool):
                     price_close = data[i+1][1]
                     index = i
                     break
-            elif (tools.check_high_candel(data[i][1], data[i][4], sv.signal.volume*0.6, sv.settings.coin)) and data[i][1] < data[i][4] and sv.signal.type_os_signal in ['ham_60c', 'ham_60cc']:
+            elif (tools.check_high_candel(data[i][1], data[i][4], sv.signal.volume*0.6, sv.settings.coin)) and data[i][1] < data[i][4] and sv.signal.type_os_signal in ['ham_60c', 'ham_60cc', 'ham_usdc'] or 'ham_usdc' in sv.signal.type_os_signal:
                 type_close = 'upcand'
                 cand_close = data[i+1]
                 price_close = data[i+1][1]
