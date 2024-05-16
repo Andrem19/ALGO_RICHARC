@@ -7,6 +7,8 @@ import coins as coins
 import bisect
 import random
 import json
+from statistics import mean
+from collections import Counter
 import msvcrt
 import time
 import os
@@ -407,3 +409,30 @@ def load_add_data():
             elif val == 1:
                 sv.data[key] = gd.load_data_sets(key)
                 sv.candel_dict[key] = create_candle_dict(sv.data[key])
+
+def process_month_saldo_dict(d):
+    bin_width=0.8
+    rounded_dict = {k: round(v, 2) for k, v in d.items()}
+
+    min_key = min(rounded_dict.items(), key=lambda x: x[1])[0]
+
+    max_key = max(rounded_dict.items(), key=lambda x: x[1])[0]
+
+    avg_value = round(mean(rounded_dict.values()), 2)
+
+    # counter = Counter(rounded_dict.values())
+    # most_common_value = counter.most_common(1)[0][0]
+    # Group values into bins and count the number of occurrences in each bin
+    bins = Counter(round(v/bin_width)*bin_width for v in rounded_dict.values())
+
+    # Find the bin with the most occurrences
+    most_common_bin = bins.most_common(1)[0][0]
+    
+    # Print the results nicely
+    print("Rounded dictionary:")
+    for k, v in rounded_dict.items():
+        print(f"  {k}: {v} - {sv.month_deal_count[k]} - {round((v/sv.settings.amount)*100, 0)}%")
+    print(f"Minimum value: {sv.month_profit[min_key]}")
+    print(f"Maximum value: {sv.month_profit[max_key]}")
+    print(f"Average value: {avg_value}")
+    print(f"Value that occurs most frequently: {most_common_bin}")

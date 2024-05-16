@@ -293,11 +293,15 @@ def calc_med_duration(positions):
 def recount_saldo(filtered_deals):
     if len(filtered_deals)>0:
         filtered_deals[0]['saldo'] = filtered_deals[0]['profit']
+        monthly_saldo = {}
+        month_deal_count = {}
 
         for i in range(1, len(filtered_deals)):
             dt1 = datetime.fromtimestamp(filtered_deals[i]['open_time']/1000)
             dt2 = datetime.fromtimestamp(filtered_deals[i-1]['open_time']/1000)
             days = abs(dt1 - dt2).days
+            month_year = (dt1.year, dt1.month)
+
             if days in sv.days_gap:
                 sv.days_gap[days]+=1
             else:
@@ -305,6 +309,19 @@ def recount_saldo(filtered_deals):
 
             filtered_deals[i]['saldo'] = filtered_deals[i-1]['saldo']+filtered_deals[i]['profit']
 
+            # Update monthly saldo
+            if month_year in monthly_saldo:
+                monthly_saldo[month_year] += filtered_deals[i]['profit']
+            else:
+                monthly_saldo[month_year] = filtered_deals[i]['profit']
+
+            if month_year in month_deal_count:
+                month_deal_count[month_year] += 1
+            else:
+                month_deal_count[month_year] = 1
+
+        sv.month_profit = {k: monthly_saldo[k] for k in sorted(monthly_saldo)}
+        sv.month_deal_count = {k: month_deal_count[k] for k in sorted(month_deal_count)}
         return filtered_deals
 
 def set_koof(position, lenth_active, ham_1a, ham_5b, types_7_last):

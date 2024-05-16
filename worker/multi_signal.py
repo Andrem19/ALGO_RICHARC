@@ -38,7 +38,7 @@ def get_signal(i_1, data_1, settings: Settings):
                     if high_tail < body*1:
                         low_tail, high_tail, body = tools.get_tail_body(opens_1[-2], highs_1[-2], lows_1[-2], closes_1[-2])
                         if high_tail < body*1:
-                            sv.signal.type_os_signal = 'ham_usdc_1'
+                            sv.signal.type_os_signal = 'ham_usdc'
                             sv.settings.init_stop_loss = 0.01#serv.set_stls(0.020, abs(vol_can))#0.004
                             sv.settings.target_len = 5#5
                             sv.settings.amount = 20#20
@@ -60,7 +60,25 @@ def get_signal(i_1, data_1, settings: Settings):
                                 sv.settings.init_stop_loss = 0.01 #0.004
                                 sv.settings.target_len = 7#7
                                 sv.settings.amount = 20#20
-                                sv.signal.type_os_signal = 'ham_usdc_2'
+                                sv.signal.type_os_signal = 'ham_usdc'
+
+    
+    if signal_1 == 3 and settings.coin in coins.usdc_set:
+        if closes_1[-1] > opens_1[-1]:
+            low_tail_1, high_tail_1, body_1 = tools.get_tail_body(opens_1[-1], highs_1[-1], lows_1[-1], closes_1[-1])
+            if  high_tail_1 < body_1*1:
+                if op2 is None:
+                    op2, hi2, lo2, cl2 = tools.convert_timeframe(opens_1, highs_1, lows_1, closes_1, 2, 30)
+                rsi = talib.RSI(cl2, 22)#22
+                if rsi[-1]<20:#18
+                    if tools.check_high_candel(hi2[-1], lo2[-1], 0.016, settings.coin):
+                        low_tail, high_tail, body = tools.get_tail_body(op2[-1], hi2[-1], lo2[-1], cl2[-1])
+                        if low_tail < body*1:
+                            sv.signal.type_os_signal = 'ham_usdc'
+                            sv.settings.init_stop_loss = 0.006
+                            sv.settings.target_len = 5#5
+                            sv.settings.amount = 20#20
+                            signal_1 = 1
     
     if signal_1 == 3 and settings.coin in coins.usdc_set:
         rsi_1 = talib.RSI(closes_1, 14)

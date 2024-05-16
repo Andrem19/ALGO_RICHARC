@@ -116,6 +116,8 @@ async def mp_saldo(coin_list, use_multiprocessing=True):
         print(dropdowns)
         print('\033[0;31mStatistic types:\033[0m')
         print(stat_dict)
+        print('\033[0;31mMonth Profit:\033[0m')
+        util.process_month_saldo_dict(sv.month_profit)
         print('\033[0;31mDays gap:\033[0m')
         print(sv.days_gap)
         # print(type_collection)

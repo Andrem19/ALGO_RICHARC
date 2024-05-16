@@ -76,3 +76,6 @@ reactor: Reactor = None
 treshold = 22
 vol_triger = 0
 base_data = 'D:\\PYTHON\\MARKET_DATA'
+
+month_profit = {}
+month_deal_count = {}
