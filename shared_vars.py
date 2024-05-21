@@ -62,6 +62,7 @@ sum_saldo = []
 
 saldo_sum = 0
 btc_data = None
+btc_cand_dict = {}
 btc_rsi_dict = {}
 
 last_command = ''

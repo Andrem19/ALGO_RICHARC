@@ -21,20 +21,21 @@ import uuid
 import helpers.tel as tel
 
 sv.telegram_api = 'API_TOKEN_1'
-coin_list = coins.best_set# coins.long_str_collection# coins.best_set
+coin_list = coins.best_set#coins.long_str_collection# coins.best_set
 
 async def main(args):
-    # coin_list = []
     # for c in coins.all_coins:
     #     if c not in coins.best_set:
     #         coin_list.append(c)
     # coin_list_2 = []
+
     # exchanges = util.load_data_from_file('contracts.json')
     # coin_list = []
-    # for c in exchanges['HL']:
+    # for c in exchanges['MX']:
     #     if c in coins.all_coins:
     #         print(c)
     #         coin_list.append(c)
+
     # for c in exchanges['HL']:
     #     if c in coins.all_coins:
     #         coin_list_2.append(c)
