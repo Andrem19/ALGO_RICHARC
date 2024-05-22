@@ -88,8 +88,8 @@ def get_signal(i_1, data_1, settings: Settings):
                                 signal_1 = 1
         
         if signal_1 == 3:
-            rsi_1 = talib.RSI(closes_1, 14)
             if closes_1[-1]>opens_1[-1]:
+                rsi_1 = talib.RSI(closes_1, 14)
                 koff = 0.0032
                 if rsi_1[-1]<35:
                     vol_can_1 = util.calculate_percent_difference(closes_1[-2], opens_1[-1])
@@ -219,19 +219,19 @@ def get_signal(i_1, data_1, settings: Settings):
                                 sv.settings.amount = 20#20
                                 signal_1 = 1
 
-        if signal_1 == 3:
-            rsi_1 = talib.RSI(closes_1, 14)
-            if closes_1[-1]>opens_1[-1]:
-                koff = 0.0032
-                if rsi_1[-1]<35:
-                    vol_can_1 = util.calculate_percent_difference(closes_1[-2], opens_1[-1])
-                    vol_can_2 = util.calculate_percent_difference(closes_1[-3], opens_1[-2])
-                    if ((vol_can_1 < -koff or vol_can_1 > koff) or (vol_can_2 < -koff or vol_can_2 > koff)):
-                        sv.signal.type_os_signal = 'ham_brg'
-                        sv.settings.init_stop_loss = 0.006
-                        sv.settings.target_len = 20#5
-                        sv.settings.amount = 20
-                        signal_1 = 1
+        # if signal_1 == 3:
+        #     rsi_1 = talib.RSI(closes_1, 14)
+        #     if closes_1[-1]>opens_1[-1] and closes_1[-2]<opens_1[-2]:
+        #         koff = 0.003
+        #         if rsi_1[-1]<22:
+        #             vol_can_1 = util.calculate_percent_difference(closes_1[-2], opens_1[-1])
+        #             vol_can_2 = util.calculate_percent_difference(closes_1[-3], opens_1[-2])
+        #             if ((vol_can_1 < -koff or vol_can_1 > koff) or (vol_can_2 < -koff or vol_can_2 > koff)):
+        #                 sv.signal.type_os_signal = 'ham_brg'
+        #                 sv.settings.init_stop_loss = 0.006
+        #                 sv.settings.target_len = 20#5
+        #                 sv.settings.amount = 20
+        #                 signal_1 = 1
 
     if signal_1 in sv.settings.s:
         sv.signal.signal = signal_1

@@ -21,7 +21,7 @@ import uuid
 import helpers.tel as tel
 
 sv.telegram_api = 'API_TOKEN_1'
-coin_list = coins.best_set#coins.long_str_collection# coins.best_set
+coin_list = coins.usdc_set#coins.long_str_collection# coins.best_set
 
 async def main(args):
     # for c in coins.all_coins:

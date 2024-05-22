@@ -23,8 +23,8 @@ def setup():
     settings.counter = 0
     settings.multi_tf = 0
     settings.aditional_timeframes = {
-            1:1,
-            5:0,
+            1:0,
+            5:1,
             15:0,
             30:0,
             60:0,

@@ -5,6 +5,7 @@ import numpy as np
 import helpers.util as util
 import shared_vars as sv
 from datetime import datetime
+import helpers.trend as tr
 
 def get_signal(i, data):
     try:
@@ -65,10 +66,26 @@ def get_signal(i, data):
         #                     if low_tail<body*0.4 and high_tail<body*0.4:
         #                         sg = 1
 
-        rsi = talib.RSI(closes, 14)
-        vol_can = util.calculate_percent_difference(closes[-2], opens[-1])
-        if (vol_can < -0.003 or vol_can > 0.003) and rsi[-1]<35 and closes[-1]>opens[-1]:
-            sg = 1
+        # if closes[-1]>opens[-1]:
+        #     if tools.all_True_any_False(closes, opens, 4, 'all', True, 3):
+        #         low_tail, high_tail, body = tools.get_tail_body(opens[-1], highs[-1], lows[-1], closes[-1])
+        #         if high_tail<body:
+
+        # if sg == 3:
+        #     angle, expect_trend = tr.analyze_trend(closes[-50:-20], 20, 0.85)
+        #     if angle is not None:
+        #         if angle > 45:
+        #             res = tr.analyze_pattern(expect_trend, closes[-20:])
+        #             if res:
+        #                 sg = 1
+        if closes[-1]>opens[-1]:
+            angle, expect_trend = tr.analyze_trend(closes[-30:-1], 4, 0.85)
+            if angle is not None:
+                if angle < -50:
+                    if tools.check_rise(highs, lows, 4, 5, 'bigger'):
+                        sg = 1
+                
+   
         #=================END LOGIC=====================
 
         if sg in sv.settings.s:
@@ -83,9 +100,10 @@ def get_signal(i, data):
             #     return
             sv.signal.data = sv.settings.time
             sv.settings.init_stop_loss = 0.006#0.004
+            # sv.settings.take_profit = 0.007#0.004
             # sv.settings.take_profit = 0.004
-            sv.settings.target_len = 20#3
-            sv.signal.type_os_signal = 'ham_60c'
+            sv.settings.target_len = 4#3
+            sv.signal.type_os_signal = 'ham_60cc'
             sv.signal.volume = abs(util.calculate_percent_difference(highs[-3], lows[-1]))
             sv.signal.data = 1
             sv.signal.index = i

@@ -55,11 +55,12 @@ def position_proccess(profit_list: list, dt: np.ndarray, is_first_iter: bool):
                 price_close = stop_loss
                 index = i
                 break
-            elif data[i][2]>price_open*(1+step*2) and not trailing_init:
-                stop_loss = price_open*(1+step*1)
-                trailing_init = True
-            elif trailing_init and data[i][4]>stop_loss*(1+step*2):
-                stop_loss = stop_loss*(1+step*1)
+            elif (i>3 or tools.check_high_candel(data[i][2], data[i][3], sv.signal.volume*0.50, sv.settings.coin)) and high_tail_1>body_1*2 and data[i][1] < data[i][4] and data[i+1][1]>price_open and sv.signal.type_os_signal in ['ham_1by', 'ham_usdc', 'ham_1bx', 'ham_1a', 'ham_1aa', 'ham_5a', 'ham_60c', 'ham_60cc', 'ham_brg'] or 'ham_usdc' in sv.signal.type_os_signal:
+                type_close = 'high_tail'
+                cand_close = data[i+1]
+                price_close = data[i+1][1]
+                index = i
+                break
 
         data_dict = {
             'open_time': float(data[0][0]),
@@ -72,7 +73,7 @@ def position_proccess(profit_list: list, dt: np.ndarray, is_first_iter: bool):
 
         position = prof.process_profit(data_dict, is_first_iter)
         
-        if sv.settings.printer and sv.settings.counter%sv.settings.iter_count==0 and sv.signal.type_os_signal == 'ham_60c':
+        if sv.settings.printer and sv.settings.counter%sv.settings.iter_count==0 and sv.signal.type_os_signal == 'ham_60cc':
             printer.print_position(copy.deepcopy(position))
             if sv.settings.drawing:
                 title = f'up {index}' if sv.signal.signal == 1 else f'down {index}'
