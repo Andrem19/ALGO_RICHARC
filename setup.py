@@ -34,10 +34,10 @@ def setup():
     settings.start_date = datetime(2017, 1, 1)
     settings.finish_date = datetime(2024, 6, 1)
 
-    settings.taker_fee = 0.2
+    settings.taker_fee = 0.3
     settings.maker_fee = 0.04
 
-    settings.curren_uid = '6d646339'
+    settings.curren_uid = 'b8a2f5eb'
     settings.hot_count_on_off = 1
     settings.cold_count_on_off = 0
     settings.cold_count_iterations = 1

@@ -23,7 +23,7 @@ def run(data, last_position, is_first_iter: bool):
 
         while i_1 < data_len_for_loop:
 
-            mx.get_signal(i_1, data, sv.settings)
+            sg.get_signal(i_1, data, sv.settings)
 
             if sv.signal.signal in sv.settings.s:
                 tm = 1

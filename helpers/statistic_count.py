@@ -190,7 +190,7 @@ def proceed_positions(positions: list):
 def filter_positions(deals, i5 = True):
     # print(len(deals))
     # deals = util.filter_dicts_less_10(deals, 3, 'more')
-    deals.sort(key=lambda d: (d["open_time"], 'ham_60cc' == d["type_of_signal"], 'ham_60c' == d["type_of_signal"], 'ham_1b' in d["type_of_signal"], -d["volume"]))
+    deals.sort(key=lambda d: (d["open_time"], not ('ham_60cc' == d["type_of_signal"]), not('ham_60c' == d["type_of_signal"]), not ('ham_usdc' in d["type_of_signal"]), 'ham_1b' in d["type_of_signal"], -d["volume"]))
 
     filtered_deals = []
 
@@ -206,7 +206,7 @@ def filter_positions(deals, i5 = True):
         'ham_60c': 1,
         'ham_60cc': 1,
         'ham_brg': 1,
-        'ham_usdc': 1,
+        'ham_usdc': 2,
         'ham_usdc_1': 1,
         'ham_usdc_2': 1,
         'ham_usdc_3': 5,
@@ -351,8 +351,10 @@ def set_koof(position, lenth_active, ham_1a, ham_5b, types_7_last):
         position["profit"]*=2
     elif position["type_of_signal"] in ['ham_60c', 'ham_60cc']:
         position["profit"]*=1
-    elif 'ham_usdc' in position["type_of_signal"]:
+    elif 'ham_usdc' == position["type_of_signal"]:
         position["profit"]*=2
+    elif 'ham_usdc_1' == position["type_of_signal"]:
+        position["profit"]*=1.5
     elif 'ham_brg' in position["type_of_signal"]:
         position["profit"]*=2
     else:

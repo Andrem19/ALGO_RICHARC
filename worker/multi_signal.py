@@ -190,9 +190,9 @@ def get_signal(i_1, data_1, settings: Settings):
                             if tools.check_rise(hi2, lo2, 5, 4, 'bigger') and tools.last_lowest(lows_1, 40):# and tools.all_True_any_False(closes_1, opens_1, 2, 'all', True):
                                 low_tail, high_tail, body = tools.get_tail_body(op2[-1], hi2[-1], lo2[-1], cl2[-1])
                                 if low_tail < body*0.6 and low_tail > body*0.1 and not tools.has_smaller(rsi_2, rsi_2[-1], 'smaller'):
-                                    sv.signal.type_os_signal = 'ham_1by'
+                                    sv.signal.type_os_signal = 'stub'# 'ham_1by'
                                     sv.settings.init_stop_loss = 0.006#6
-                                    sv.settings.target_len = 4#4
+                                    sv.settings.target_len = 2#4
                                     sv.settings.amount = 20#20
                                     signal_1 = 1
                                 elif low_tail <= body*0.1:
@@ -249,9 +249,9 @@ def get_signal(i_1, data_1, settings: Settings):
             pos_list = util.filter_dicts(sv.etalon_positions, pos, 5, 0)
             low_tail, high_tail, body = tools.get_tail_body(opens_1[-1], highs_1[-1], lows_1[-1], closes_1[-1])
             if closes_1[-1]> opens_1[-1]:
-                sv.settings.amount = 40
-            elif len(pos_list)>0:
                 sv.settings.amount = 30
+            elif len(pos_list)>0:
+                sv.settings.amount = 20
             elif low_tail>body*1.5 or high_tail>body:
                 sv.signal.type_os_signal = 'stub'
                 sv.settings.target_len = 3
