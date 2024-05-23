@@ -34,7 +34,7 @@ def setup():
     settings.start_date = datetime(2017, 1, 1)
     settings.finish_date = datetime(2024, 6, 1)
 
-    settings.taker_fee = 0.20
+    settings.taker_fee = 0.2
     settings.maker_fee = 0.04
 
     settings.curren_uid = '6d646339'

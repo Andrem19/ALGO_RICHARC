@@ -41,7 +41,7 @@ def profit_counter(taker_maker: bool, open_price: float, buy: bool, close_price:
 
 def process_profit(dt: dict, is_first_iter: bool):
 
-    taker = False if 'ham_60c' in sv.signal.type_os_signal or sv.settings.coin in coins.usdc_set else True
+    taker = False if sv.signal.type_os_signal in ['ham_60c', 'ham_usdc', 'ham_usdc_1'] or sv.settings.coin in coins.usdc_set else True
     if dt['type_close'] == 'timefinish':
         taker = True
     buy = True if sv.signal.signal == 1 else False

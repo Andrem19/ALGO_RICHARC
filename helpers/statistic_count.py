@@ -206,7 +206,7 @@ def filter_positions(deals, i5 = True):
         'ham_60c': 1,
         'ham_60cc': 1,
         'ham_brg': 1,
-        'ham_usdc': 2,
+        'ham_usdc': 1,
         'ham_usdc_1': 1,
         'ham_usdc_2': 1,
         'ham_usdc_3': 5,

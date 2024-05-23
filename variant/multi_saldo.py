@@ -103,7 +103,7 @@ async def mp_saldo(coin_list, use_multiprocessing=True):
     util.check_and_clean_data(f'_profits/{sv.unique_ident}_profits.txt')
     all_positions = util.load_positions('_profits')
     if len(all_positions)>0:
-        sv.settings.amount = 30
+        sv.settings.amount = 20
         filtred_positions = stat.filter_positions(all_positions)
         # util.format_data(filtred_positions)
         dropdowns, type_collection = stat.dangerous_moments(filtred_positions)

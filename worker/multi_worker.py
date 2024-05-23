@@ -3,6 +3,7 @@ import helpers.util as util
 import shared_vars as sv
 import worker.multi_signal as sg
 import worker.loop_proccess as prc_2
+import worker.mexc_signals as mx
 import copy
 from models.settings import Settings
 import traceback
@@ -22,7 +23,7 @@ def run(data, last_position, is_first_iter: bool):
 
         while i_1 < data_len_for_loop:
 
-            sg.get_signal(i_1, data, sv.settings)
+            mx.get_signal(i_1, data, sv.settings)
 
             if sv.signal.signal in sv.settings.s:
                 tm = 1
