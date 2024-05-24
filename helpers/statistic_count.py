@@ -10,6 +10,7 @@ def get_type_statistic(positions: list) -> dict:
         plus_key = f'{pos["type_of_signal"]}plus'
         minus_key = f'{pos["type_of_signal"]}minus'
         prof_key = f'{pos["type_of_signal"]}prof'
+        stls_close = f'{pos["type_of_signal"]}_Stls'
         
         if plus_key in stat_dict and pos['profit']> 0:
             stat_dict[plus_key]+=1
@@ -22,22 +23,30 @@ def get_type_statistic(positions: list) -> dict:
                 stat_dict[minus_key]=1
         
         if prof_key in stat_dict:
-            stat_dict[prof_key]+=pos['profit']
+            stat_dict[prof_key]+=pos['profit'] 
         else:
             stat_dict[prof_key]=pos['profit']
-    
+
+        if pos["open_time"] == pos["close_time"] and pos['profit'] < 0:
+            if stls_close in stat_dict:
+                stat_dict[stls_close]+=1
+            else:
+                stat_dict[stls_close]=1
     new_dict = {}
     for pos in positions:
         plus_key = f"{pos['type_of_signal']}plus"
         minus_key = f"{pos['type_of_signal']}minus"
         prof_key = f'{pos["type_of_signal"]}prof'
+        stls_close = f'{pos["type_of_signal"]}_Stls'
         
-        if plus_key in stat_dict and minus_key in stat_dict and prof_key in stat_dict:
+        if plus_key in stat_dict and minus_key in stat_dict and prof_key in stat_dict and stls_close in stat_dict:
             plus = stat_dict[plus_key]
             minus = stat_dict[minus_key]
             prof = stat_dict[prof_key]
+            stls = stat_dict[stls_close]
             new_dict[pos["type_of_signal"]] = f'{plus}/{minus}'
             new_dict[prof_key] = prof
+            new_dict[stls_close] = f'{stls}/{round(stls/minus, 2)}%'
     return new_dict
 
 def type_of_closes_stat(positions: list):
@@ -275,8 +284,9 @@ def filter_positions(deals, i5 = True):
 
                     pos = set_koof(copy.copy(deals[i]), lenth_active, ham_1a, ham_5b, last_7)
                     filtered_deals.append(pos)
-    filtered_list = list(filter(lambda d: d['type_of_signal'] != 'stub', filtered_deals))
+    
     if i5:
+        filtered_list = list(filter(lambda d: d['type_of_signal'] != 'stub', filtered_deals))
         for d in filtered_list:
             if d['data_s'] == 5:
                 open_dt = datetime.fromtimestamp(d['open_time']/1000)
@@ -284,6 +294,8 @@ def filter_positions(deals, i5 = True):
                 duration = close_dt - open_dt
                 print(f'Profit: {d["profit"]} Duration: {duration.total_seconds()/60}')
                 d['type_of_signal'] = 'ham_long'
+    else:
+        filtered_list = filtered_deals
     return recount_saldo(filtered_list)
 
 
