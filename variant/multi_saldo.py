@@ -48,8 +48,8 @@ def do_job(coin: str, profit_path: str, lock):
         # sv.settings.coin = 'BTCUSDT'
         # sv.btc_data = gd.load_data_sets(1)
         # sv.btc_cand_dict = util.create_candle_dict(sv.btc_data)
-        etalon_positions = util.load_etalon_positions()
-        sv.etalon_positions = stat.filter_positions(etalon_positions, False)
+        sv.unfiltered_positions = util.load_etalon_positions()
+        sv.etalon_positions = stat.filter_positions(sv.unfiltered_positions, False)
         sv.settings.coin = coin
         
         data_gen_1m = gd.load_data_in_chunks(sv.settings, 100000, 1)
@@ -105,6 +105,13 @@ async def mp_saldo(coin_list, use_multiprocessing=True):
     if len(all_positions)>0:
         sv.settings.amount = 20
         filtred_positions = stat.filter_positions(all_positions)
+
+        # for d in filtred_positions:
+        #     open_dt = datetime.fromtimestamp(d['open_time']/1000)
+        #     close_dt = datetime.fromtimestamp(d['close_time']/1000)
+        #     duration = close_dt - open_dt
+        #     print(f'Profit: {d["profit"]} Tof: {d["type_of_signal"]}')
+
         # util.format_data(filtred_positions)
         dropdowns, type_collection = stat.dangerous_moments(filtred_positions)
         med_dur = stat.calc_med_duration(filtred_positions)

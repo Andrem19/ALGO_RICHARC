@@ -205,7 +205,7 @@ def filter_positions(deals, i5 = True):
 
     filter_val = {
         'stub': 1,
-        'ham_1a': 5,
+        'ham_1a': 5,#5
         'ham_1az': 1,
         'ham_1aa': 1,
         'ham_2a': 1,
@@ -215,12 +215,12 @@ def filter_positions(deals, i5 = True):
         'ham_60c': 1,
         'ham_60cc': 1,
         'ham_brg': 1,
-        'ham_usdc': 2,
+        'ham_usdc': 2,#
         'ham_usdc_1': 1,
         'ham_usdc_2': 1,
         'ham_usdc_3': 5,
-        'ham_5a': 3,
-        'ham_5b': 2,
+        'ham_5a': 3,#3
+        'ham_5b': 2,#2
         'test_5': 5,
         'test_10': 5,
     }
@@ -279,8 +279,19 @@ def filter_positions(deals, i5 = True):
                     or (deals[i]["type_of_signal"] == 'ham_60c' and ham_60c<limit)\
                     or (deals[i]["type_of_signal"] == 'ham_60cc' and ham_60cc<limit)\
                     or ('ham_usdc' in deals[i]["type_of_signal"] and ham_usdc<limit)\
-                    or (deals[i]["type_of_signal"] == 'ham_2a' and ham_2a<limit and lenth_active > 1)\
+                    or (deals[i]["type_of_signal"] == 'ham_2a' and ham_2a<limit and lenth_active > 1 )\
                     or (deals[i]["type_of_signal"] == 'stub' and lenth_active<limit):
+                
+                # if deals[i]["type_of_signal"] != 'ham_60c':
+                #     if sv.prev_plus:
+                #         deals[i]['profit']*=2
+                #     else:
+                #         deals[i]['profit']*=0.5
+                    
+                #     if deals[i]['profit']>0:
+                #         sv.prev_plus = True
+                #     else:
+                #         sv.prev_plus = False
 
                     pos = set_koof(copy.copy(deals[i]), lenth_active, ham_1a, ham_5b, last_7)
                     filtered_deals.append(pos)

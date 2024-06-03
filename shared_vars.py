@@ -72,6 +72,7 @@ delay = 0
 frozen = 0
 
 etalon_positions = None
+unfiltered_positions = None
 ham_60c_triger = 0
 reactor: Reactor = None
 treshold = 22
@@ -80,3 +81,5 @@ base_data = 'D:\\PYTHON\\MARKET_DATA'
 
 month_profit = {}
 month_deal_count = {}
+
+prev_plus = True

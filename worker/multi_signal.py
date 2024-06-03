@@ -104,14 +104,14 @@ def get_signal(i_1, data_1, settings: Settings):
         if signal_1 == 3:
             rsi_1 = talib.RSI(closes_1, 14)
             op15, hi15, lo15, cl15 = tools.convert_timeframe(opens_1, highs_1, lows_1, closes_1, 15, 2)
-            if (rsi_1[-1]<16 and tools.check_high_candel(hi15[-1], lo15[-1], 0.026, sv.settings.coin)):
+            if rsi_1[-1]<16 and tools.check_high_candel(hi15[-1], lo15[-1], 0.026, sv.settings.coin):
                 if tools.rsi_repeater(rsi_1[-60:], 5, 0, 46)>5:
-                    if not tools.check_high_candel(closes_1[-2], lows_1[-2], 0.018, settings.coin) or closes_1[-2]>opens_1[-2] or closes_1[-1]>opens_1[-1]:
-                        sv.signal.type_os_signal = 'ham_60c'
-                        sv.settings.init_stop_loss = 0.006
-                        sv.settings.target_len = 20#5
-                        sv.settings.amount = 20
-                        signal_1 = 1
+                    # if not tools.check_high_candel(closes_1[-2], lows_1[-2], 0.018, settings.coin) or closes_1[-2]>opens_1[-2] or closes_1[-1]>opens_1[-1]:
+                    sv.signal.type_os_signal = 'ham_60c'
+                    sv.settings.init_stop_loss = 0.006
+                    sv.settings.target_len = 20#5
+                    sv.settings.amount = 20
+                    signal_1 = 1
 
         
         
@@ -235,6 +235,7 @@ def get_signal(i_1, data_1, settings: Settings):
         #                 signal_1 = 1
 
     if signal_1 in sv.settings.s:
+
         sv.signal.signal = signal_1
         sv.signal.data = 1
         pos = {'open_time': data_1[i_1][0]}
@@ -246,9 +247,11 @@ def get_signal(i_1, data_1, settings: Settings):
                 sv.settings.init_stop_loss = 0.03
                 sv.settings.target_len = 20
 
+
         if 'ham_60c' == sv.signal.type_os_signal:
             pos_list = util.filter_dicts(sv.etalon_positions, pos, 5, 0)
             low_tail, high_tail, body = tools.get_tail_body(opens_1[-1], highs_1[-1], lows_1[-1], closes_1[-1])
+            # res = util.at_time_position_opened(sv.unfiltered_positions, data_1[i_1][0])
             if closes_1[-1]> opens_1[-1]:
                 sv.settings.amount = 30
             elif len(pos_list)>0:
@@ -264,9 +267,21 @@ def get_signal(i_1, data_1, settings: Settings):
         if 'ham_60c' in sv.signal.type_os_signal:
             pos_list = util.filter_dicts(sv.etalon_positions, pos, 15, 0)
             types_7 = [val['type_of_signal'] for val in pos_list]
-            if 'ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7:
+            res = util.at_time_position_opened(sv.unfiltered_positions, data_1[i_1][0])
+            if ('ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7):# or res >15:
                 sv.signal.type_os_signal = 'stub'
                 sv.settings.target_len = 3
+        
+
+
+        # pos_list = util.filter_dicts(sv.etalon_positions, pos, 5, 0, 'close_time')
+        # res = util.at_time_position_opened(sv.unfiltered_positions, data_1[i_1][0])
+
+        # if len(pos_list)>0:
+        #     if all(p['open_time']==p['close_time'] for p in pos_list) or all(p['profit']<0 for p in pos_list):
+        #         sv.settings.amount*=0.5
+        #     elif any(p['profit']>0 for p in pos_list):
+        #         sv.settings.amount*=2
 
         # if tools.check_high_candel(closes_1[-2], lows_1[-2], 0.018, settings.coin) and closes_1[-2]<opens_1[-2] and closes_1[-1]<opens_1[-1]:
         #     sv.signal.type_os_signal = 'stub'

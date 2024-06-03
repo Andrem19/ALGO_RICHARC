@@ -137,6 +137,27 @@ def load_positions(folder_path: str):
 #     sorted_data = sorted(data, key=lambda x: x['open_time'])
 #     return sorted_data
 
+# def last_closed_multiplier(data, time_in_milliseconds):
+#     # Конвертируем 10 минут в миллисекунды
+#     ten_minutes_in_milliseconds = 10 * 60 * 1000
+
+#     data.sort(key=lambda x: x['close_time'], reverse=True)
+
+#     for position in data:
+#         # Проверяем, что позиция закрылась не позднее, чем 10 минут назад
+#         if position['close_time'] < time_in_milliseconds and position['close_time'] >= time_in_milliseconds - ten_minutes_in_milliseconds:
+#             if position['profit']>0:
+#                 return True
+#             else:
+#                 return False
+
+#     return None
+def at_time_position_opened(data, time_in_milliseconds):
+    positions_open_at_time = sum(1 for position in data if position['open_time'] == time_in_milliseconds)
+
+    return positions_open_at_time
+
+
 def load_etalon_positions():
     data = []
     
@@ -381,13 +402,13 @@ def load_data_from_file(filename):
         exchanges = json.load(f)
     return exchanges
 
-def filter_dicts(dicts, cur_pos, from_c, to_c):
+def filter_dicts(dicts, cur_pos, from_c, to_c, tp = 'open_time'):
     current_time = cur_pos['open_time']  # текущее время в миллисекундах
     two_minutes_ago = current_time - to_c * 60 * 1000  # время 2 минуты назад в миллисекундах
     seven_minutes_ago = current_time - from_c * 60 * 1000  # время 7 минут назад в миллисекундах
 
     # отфильтровать словари, время которых позднее 2х минут назад, но не позднее 7 минут назад
-    return [d for d in dicts if seven_minutes_ago <= d['open_time'] < two_minutes_ago]
+    return [d for d in dicts if seven_minutes_ago <= d[tp] < two_minutes_ago]
 
 def filter_dicts_signal(dicts, cur_pos):
     current_time = cur_pos['open_time']  # текущее время в миллисекундах

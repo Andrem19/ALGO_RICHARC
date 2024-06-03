@@ -77,25 +77,25 @@ def get_signal(i_1, data_1, settings: Settings):
                             sv.settings.amount = 20#20
                             signal_1 = 1
     
-    if signal_1 == 3:
-        if closes_1[-1]>opens_1[-1]:
-            rsi_1 = talib.RSI(closes_1, 14)
-            koff = 0.0032
-            if rsi_1[-1]<35:
-                vol_can_1 = util.calculate_percent_difference(closes_1[-2], opens_1[-1])
-                vol_can_2 = util.calculate_percent_difference(closes_1[-3], opens_1[-2])
-                if ((vol_can_1 < -koff or vol_can_1 > koff) or (vol_can_2 < -koff or vol_can_2 > koff)):
-                    sv.signal.type_os_signal = 'ham_usdc_1'
-                    sv.settings.init_stop_loss = 0.006
-                    sv.settings.target_len = 20#5
-                    sv.settings.amount = 20
-                    signal_1 = 1
+    # if signal_1 == 3:
+    #     if closes_1[-1]>opens_1[-1]:
+    #         rsi_1 = talib.RSI(closes_1, 14)
+    #         koff = 0.0032
+    #         if rsi_1[-1]<35:
+    #             vol_can_1 = util.calculate_percent_difference(closes_1[-2], opens_1[-1])
+    #             vol_can_2 = util.calculate_percent_difference(closes_1[-3], opens_1[-2])
+    #             if ((vol_can_1 < -koff or vol_can_1 > koff) or (vol_can_2 < -koff or vol_can_2 > koff)):
+    #                 sv.signal.type_os_signal = 'ham_usdc_1'
+    #                 sv.settings.init_stop_loss = 0.006
+    #                 sv.settings.target_len = 20#5
+    #                 sv.settings.amount = 20
+    #                 signal_1 = 1
     
     if signal_1 == 3:
         rsi_1 = talib.RSI(closes_1, 14)
         op15, hi15, lo15, cl15 = tools.convert_timeframe(opens_1, highs_1, lows_1, closes_1, 15, 2)
         if (rsi_1[-1]<16 and tools.check_high_candel(hi15[-1], lo15[-1], 0.032, sv.settings.coin)):
-            if tools.rsi_repeater(rsi_1[-60:], 5, 0, 46)>5:
+            if tools.rsi_repeater(rsi_1[-60:], 5, 0, 46)>5 and closes_1[-1]<opens_1[-1]:
                 sv.signal.type_os_signal = 'ham_60c'
                 sv.settings.init_stop_loss = 0.006
                 sv.settings.target_len = 20#5
