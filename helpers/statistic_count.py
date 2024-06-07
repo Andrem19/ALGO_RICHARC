@@ -199,8 +199,18 @@ def proceed_positions(positions: list):
 def filter_positions(deals, i5 = True):
     # print(len(deals))
     # deals = util.filter_dicts_less_10(deals, 3, 'more')
-    deals.sort(key=lambda d: (d["open_time"], not ('ham_60cc' == d["type_of_signal"]), not('ham_60c' == d["type_of_signal"]), not ('ham_usdc' in d["type_of_signal"]), 'ham_1b' in d["type_of_signal"], -d["volume"]))
+    # ham_1adict = [d for d in deals if d["type_of_signal"] == "ham_1a"]
+    # ham_1adict.sort(key=itemgetter("open_time", "volume"), reverse=True)
 
+    # # группируем по минутам и выбираем запись с наибольшим объемом
+    # result = []
+    # for _, items in groupby(ham_1adict, key=lambda d: d["open_time"] // 60000):
+    #     result.append(max(items, key=itemgetter("volume")))
+    # deals = [d for d in deals if d.get('type_of_signal') != 'ham_1a']
+    # deals += result
+
+    deals.sort(key=lambda d: (d["open_time"], not ('ham_60cc' == d["type_of_signal"]), not('ham_60c' == d["type_of_signal"]), not ('ham_usdc' in d["type_of_signal"]), 'ham_1b' in d["type_of_signal"], -d["volume"]))
+    
     filtered_deals = []
 
     filter_val = {
@@ -281,17 +291,6 @@ def filter_positions(deals, i5 = True):
                     or ('ham_usdc' in deals[i]["type_of_signal"] and ham_usdc<limit)\
                     or (deals[i]["type_of_signal"] == 'ham_2a' and ham_2a<limit and lenth_active > 1 )\
                     or (deals[i]["type_of_signal"] == 'stub' and lenth_active<limit):
-                
-                # if deals[i]["type_of_signal"] != 'ham_60c':
-                #     if sv.prev_plus:
-                #         deals[i]['profit']*=2
-                #     else:
-                #         deals[i]['profit']*=0.5
-                    
-                #     if deals[i]['profit']>0:
-                #         sv.prev_plus = True
-                #     else:
-                #         sv.prev_plus = False
 
                     pos = set_koof(copy.copy(deals[i]), lenth_active, ham_1a, ham_5b, last_7)
                     filtered_deals.append(pos)
@@ -360,26 +359,22 @@ def set_koof(position, lenth_active, ham_1a, ham_5b, types_7_last):
     #     position["profit"]*=2
     # elif 'ham_1b' in position["type_of_signal"] or 'ham_1aa' in position["type_of_signal"]:
     #     position["profit"]*=0.5
-    if position["type_of_signal"] in ['ham_2a', 'ham_5b', 'ham_1a'] and not ('ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7 or 'ham_5a' in types_7):
-        position["profit"]*=1
+    if position['data_s'] == 5:
+        position["profit"]*=2
+    elif position["type_of_signal"] in ['ham_2a', 'ham_5b', 'ham_1a'] and not ('ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7 or 'ham_5a' in types_7):
+        position["profit"]*=0.5
     elif position["type_of_signal"] in ['ham_2a', 'ham_5b', 'ham_1a'] and ('ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7 or 'ham_5a' in types_7):
         position["profit"]*=2
-    elif 'ham_1b' in position["type_of_signal"] and not ('ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7 or 'ham_5a' in types_7):
-        position["profit"]*=0.5
-    elif 'ham_1b' in position["type_of_signal"] and ('ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7 or 'ham_5a' in types_7):
-        position["profit"]*=1
     elif 'ham_5a' == position["type_of_signal"] and not ('ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7 or 'ham_5a' in types_7):
         position["profit"]*=0.5
     elif 'ham_5a' == position["type_of_signal"] and ('ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7 or 'ham_5a' in types_7):
-        position["profit"]*=2
+        position["profit"]*=1.5
     elif position["type_of_signal"] in ['ham_60c', 'ham_60cc']:
         position["profit"]*=1
     elif 'ham_usdc' == position["type_of_signal"]:
         position["profit"]*=2
-    elif 'ham_usdc_1' == position["type_of_signal"]:
+    elif 'ham_usdc_1' == position["type_of_signal"] and ('ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7 or 'ham_5a' in types_7):
         position["profit"]*=1.5
-    elif 'ham_brg' in position["type_of_signal"]:
-        position["profit"]*=2
     else:
         position["profit"]*=1
     return position

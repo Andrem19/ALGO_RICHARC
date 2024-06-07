@@ -96,7 +96,7 @@ all_coins = [
     "RVNUSDT",
     "GALUSDT",
     "LDOUSDT",
-    "WAVESUSDT",
+    #"WAVESUSDT",
     "ZRXUSDT",
     "MKRUSDT",
     "WLDUSDT",
@@ -236,7 +236,7 @@ best_set = [
     'INJUSDT',
     'NEOUSDT',
     'APEUSDT',
-    'FXSUSDT',
+    #'FXSUSDT',!
     'MINAUSDT',
     'CRVUSDT',
     'SUIUSDT',
@@ -247,7 +247,7 @@ best_set = [
     'OPUSDT',
     'TIAUSDT',
     'KASUSDT',
-    'BATUSDT',
+    #'BATUSDT',!
     'BLURUSDT',
     'GMXUSDT',
     'TWTUSDT',
@@ -256,28 +256,28 @@ best_set = [
     'GASUSDT',
     'AGIXUSDT',
     'COMPUSDT',
-    'GLMRUSDT',
+    #'GLMRUSDT',!
     'QTUMUSDT',
     'LRCUSDT',
     'TRBUSDT',
     'MASKUSDT',
-    "SSVUSDT",
-    "JTOUSDT",
+    #"SSVUSDT",!
+    #"JTOUSDT",!
     "ICPUSDT",
     "MEMEUSDT",
     "ENSUSDT",
-    "BNTUSDT",
-    "ORBSUSDT",
-    "BSVUSDT",
+    #"BNTUSDT",!
+    #"ORBSUSDT",!
+    #"BSVUSDT",!
     "GMTUSDT",
     "ETCUSDT",
-    "WAXPUSDT",
+    #"WAXPUSDT",!
     "RVNUSDT",
     "GALUSDT",
     "ZRXUSDT",
     "MKRUSDT",
     "WLDUSDT",
-    "IDUSDT",
+    #"IDUSDT",!
     "FLMUSDT",
     "PYTHUSDT",
     "FETUSDT",
@@ -285,7 +285,7 @@ best_set = [
     "XTZUSDT",
     "ONTUSDT",
     "IOSTUSDT",
-    "OMGUSDT",
+    #"OMGUSDT",!
     "BANDUSDT",
     "ICXUSDT",
     "RENUSDT",
@@ -298,7 +298,7 @@ best_set = [
     "UNFIUSDT",
     "REEFUSDT",
     "SFPUSDT",
-    "COTIUSDT",
+    #"COTIUSDT",!
     "CHRUSDT",
     "ONEUSDT",
     "OGNUSDT",
@@ -321,30 +321,30 @@ best_set = [
     "LQTYUSDT",
     "JOEUSDT",
     "TLMUSDT",
-    "AMBUSDT",
+    #"AMBUSDT",!
     "LEVERUSDT",
     "IDEXUSDT",
     "UMAUSDT",
     "RADUSDT",
     "KEYUSDT",
-    "COMBOUSDT",
+    #"COMBOUSDT",!
     "NMRUSDT",
     "MAVUSDT",
-    "MDTUSDT",
+    #"MDTUSDT",!
     "PENDLEUSDT",
     "ARKMUSDT",
     "SEIUSDT",
     "CYBERUSDT",
     "FRONTUSDT",
-    "LOOMUSDT",
-    "SLPUSDT",
+    #"LOOMUSDT",!
+    #"SLPUSDT",!
     "TOKENUSDT",
-    "BADGERUSDT",
-    "USTCUSDT",
-    "NFPUSDT",
+    #"BADGERUSDT",!
+    #"USTCUSDT",!
+    #"NFPUSDT",!
     "WIFUSDT",
-    "PIXELUSDT",
-    "MAVIAUSDT",
+    #"PIXELUSDT",!
+    #"MAVIAUSDT",!
 
     "BTCUSDT",
     "BNBUSDT",
@@ -369,14 +369,14 @@ hl_aditional = [
     'BLZUSDT',
     'DOTUSDT',
     'RDNTUSDT',
-    'BIGTIMEUSDT',
-    'POLYXUSDT',
-    'ILVUSDT',
-    'JUPUSDT',
-    'ACEUSDT',
+    #'BIGTIMEUSDT',!
+    #'POLYXUSDT',!
+    #'ILVUSDT',!
+    #'JUPUSDT',!
+    #'ACEUSDT',!
     'PEOPLEUSDT',
-    'XAIUSDT',
-    'MANTAUSDT',
+    #'XAIUSDT',!
+    #'MANTAUSDT',!
     'ONDOUSDT',
     'ALTUSDT',
     'ZETAUSDT',
@@ -614,7 +614,7 @@ old_set = [
     "RVNUSDT",
     "GALUSDT",
     "LDOUSDT",
-    "WAVESUSDT",
+    #"WAVESUSDT",
     "MKRUSDT",
     "PYTHUSDT",
     "MAGICUSDT",
