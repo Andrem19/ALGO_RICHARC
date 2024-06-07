@@ -153,7 +153,7 @@ def load_positions(folder_path: str):
 
 #     return None
 def at_time_position_opened(data, time_in_milliseconds):
-    positions_open_at_time = sum(1 for position in data if position['open_time'] == time_in_milliseconds)
+    positions_open_at_time = [p for p in data if p['open_time'] == time_in_milliseconds]
 
     return positions_open_at_time
 

@@ -269,10 +269,18 @@ def get_signal(i_1, data_1, settings: Settings):
         if 'ham_60c' in sv.signal.type_os_signal:
             pos_list = util.filter_dicts(sv.etalon_positions, pos, 15, 0)
             types_7 = [val['type_of_signal'] for val in pos_list]
-            res = util.at_time_position_opened(sv.unfiltered_positions, data_1[i_1][0])
+            # positions_openes_at_time = util.at_time_position_opened(sv.unfiltered_positions, data_1[i_1][0])
             if ('ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7):# or res >15:
                 sv.signal.type_os_signal = 'stub'
                 sv.settings.target_len = 3
+        
+        # if sv.signal.type_os_signal in ['ham_1a', 'ham_2a', 'ham_5a', 'ham_5b']:
+        #     positions_openes_at_time = util.at_time_position_opened(sv.unfiltered_positions, data_1[i_1][0])
+        #     pos_types = [val['type_of_signal'] for val in positions_openes_at_time]
+        #     if len(pos_types)>5:
+        #         if sum(1 for p in pos_types if p == 'ham_60c') > 3:
+        #             sv.signal.type_os_signal = 'stub'
+        #             sv.settings.target_len = 3
 
         # pos_list = util.filter_dicts(sv.etalon_positions, pos, 5, 0, 'close_time')
         # res = util.at_time_position_opened(sv.unfiltered_positions, data_1[i_1][0])
