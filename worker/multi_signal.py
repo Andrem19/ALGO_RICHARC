@@ -246,8 +246,8 @@ def get_signal(i_1, data_1, settings: Settings):
         if ('ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7 or 'ham_5a' in types_7) and len(types_7)>0:
             if sv.signal.type_os_signal in ['ham_1a', 'ham_2a']:
                 sv.signal.data = 5
-                sv.settings.init_stop_loss = 0.03
-                sv.settings.target_len = 20
+                sv.settings.init_stop_loss = 0.05
+                sv.settings.target_len = 7#20
 
 
         if 'ham_60c' == sv.signal.type_os_signal:

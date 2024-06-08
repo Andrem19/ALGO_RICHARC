@@ -37,7 +37,7 @@ def setup():
     settings.taker_fee = 0.2
     settings.maker_fee = 0.04
 
-    settings.curren_uid = '8b4354ee'
+    settings.curren_uid = '14e1622e'
     settings.hot_count_on_off = 1
     settings.cold_count_on_off = 0
     settings.cold_count_iterations = 1
