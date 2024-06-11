@@ -150,18 +150,20 @@ def get_signal(i_1, data_1, settings: Settings):
                 if tools.all_True_any_False(closes_1, opens_1, 5, 'all', True, 3):
                     low_tail, high_tail, body = tools.get_tail_body(opens_1[-1], highs_1[-1], lows_1[-1], closes_1[-1])
                     if high_tail < body*1:#5 3
-                        if cl5 is None:
-                            op5, hi5, lo5, cl5 = tools.convert_timeframe(opens_1, highs_1, lows_1, closes_1, 5, 0)
-                        rsi = talib.RSI(cl5, 20)#20
-                        if rsi[-1]<18:
-                            low_tail, high_tail, body = tools.get_tail_body(op5[-1], hi5[-1], lo5[-1], cl5[-1])
-                            if low_tail < body*0.4:
-                                if tools.check_high_candel(hi5[-1], lo5[-1], 0.028, settings.coin): #28#
-                                    signal_1 = 1
-                                    sv.settings.init_stop_loss = 0.005 #0.004
-                                    sv.settings.target_len = 7#7
-                                    sv.settings.amount = 20#20
-                                    sv.signal.type_os_signal = 'ham_5a'
+                        low_tail, high_tail, body = tools.get_tail_body(opens_1[-2], highs_1[-2], lows_1[-2], closes_1[-2])
+                        if high_tail < body*1.5:#5 3
+                            if cl5 is None:
+                                op5, hi5, lo5, cl5 = tools.convert_timeframe(opens_1, highs_1, lows_1, closes_1, 5, 0)
+                            rsi = talib.RSI(cl5, 20)#20
+                            if rsi[-1]<18:
+                                low_tail, high_tail, body = tools.get_tail_body(op5[-1], hi5[-1], lo5[-1], cl5[-1])
+                                if low_tail < body*0.4:
+                                    if tools.check_high_candel(hi5[-1], lo5[-1], 0.028, settings.coin): #28#
+                                        signal_1 = 1
+                                        sv.settings.init_stop_loss = 0.005 #0.004
+                                        sv.settings.target_len = 7#7
+                                        sv.settings.amount = 20#20
+                                        sv.signal.type_os_signal = 'ham_5a'
         
         if signal_1 == 3:
             if rsi_1[-1]<20:# or sv.rsi_was_low10>0:#20
@@ -183,28 +185,28 @@ def get_signal(i_1, data_1, settings: Settings):
                                         sv.settings.amount = 20#20
                                         sv.signal.type_os_signal = 'ham_5b'
 
-        # if signal_1 == 3:
-        #     if rsi_1[-1]<36:
-        #         if closes_1[-1]<opens_1[-1]:
-        #             if op2 is None:
-        #                 op2, hi2, lo2, cl2 = tools.convert_timeframe(opens_1, highs_1, lows_1, closes_1, 2, 30)
-        #             rsi_2 = talib.RSI(cl2, 14)#16
-        #             if rsi_2[-1]<14:
-        #                 if tools.check_high_candel(hi2[-1], lo2[-1], 0.030, settings.coin):#0.026
-        #                     if tools.check_rise(hi2, lo2, 5, 4, 'bigger') and tools.last_lowest(lows_1, 40):# and tools.all_True_any_False(closes_1, opens_1, 2, 'all', True):
-        #                         low_tail, high_tail, body = tools.get_tail_body(op2[-1], hi2[-1], lo2[-1], cl2[-1])
-        #                         if not tools.check_high_candel(closes_1[-2], lows_1[-2], 0.018, settings.coin) and low_tail < body*0.6 and low_tail > body*0.1 and not tools.has_smaller(rsi_2, rsi_2[-1], 'smaller'):
-        #                             sv.signal.type_os_signal = 'stub'# 'ham_1by'
-        #                             sv.settings.init_stop_loss = 0.006#6
-        #                             sv.settings.target_len = 4#4
-        #                             sv.settings.amount = 20#20
-        #                             signal_1 = 1
-        #                         elif low_tail <= body*0.1:
-        #                             sv.signal.type_os_signal = 'stub'
-        #                             sv.settings.init_stop_loss = 0.006#6
-        #                             sv.settings.target_len = 2
-        #                             sv.settings.amount = 1#20
-        #                             signal_1 = 1
+        if signal_1 == 3:
+            if rsi_1[-1]<36:
+                if closes_1[-1]<opens_1[-1]:
+                    if op2 is None:
+                        op2, hi2, lo2, cl2 = tools.convert_timeframe(opens_1, highs_1, lows_1, closes_1, 2, 30)
+                    rsi_2 = talib.RSI(cl2, 14)#16
+                    if rsi_2[-1]<14:
+                        if tools.check_high_candel(hi2[-1], lo2[-1], 0.030, settings.coin):#0.026
+                            if tools.check_rise(hi2, lo2, 5, 4, 'bigger') and tools.last_lowest(lows_1, 40):# and tools.all_True_any_False(closes_1, opens_1, 2, 'all', True):
+                                low_tail, high_tail, body = tools.get_tail_body(op2[-1], hi2[-1], lo2[-1], cl2[-1])
+                                if not tools.check_high_candel(closes_1[-2], lows_1[-2], 0.018, settings.coin) and low_tail < body*0.6 and low_tail > body*0.1 and not tools.has_smaller(rsi_2, rsi_2[-1], 'smaller'):
+                                    sv.signal.type_os_signal = 'stub'# 'ham_1by'
+                                    sv.settings.init_stop_loss = 0.006#6
+                                    sv.settings.target_len = 4#4
+                                    sv.settings.amount = 20#20
+                                    signal_1 = 1
+                                elif low_tail <= body*0.1:
+                                    sv.signal.type_os_signal = 'stub'
+                                    sv.settings.init_stop_loss = 0.006#6
+                                    sv.settings.target_len = 2
+                                    sv.settings.amount = 1#20
+                                    signal_1 = 1
 
         if signal_1 == 3:
             if closes_1[-1] > opens_1[-1]:
