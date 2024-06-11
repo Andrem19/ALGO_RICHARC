@@ -93,9 +93,10 @@ def get_signal(i_1, data_1, settings: Settings):
     
     if signal_1 == 3:
         rsi_1 = talib.RSI(closes_1, 14)
-        op15, hi15, lo15, cl15 = tools.convert_timeframe(opens_1, highs_1, lows_1, closes_1, 15, 2)
-        if (rsi_1[-1]<16 and tools.check_high_candel(hi15[-1], lo15[-1], 0.032, sv.settings.coin)):
+        op15, hi15, lo15, cl15 = tools.convert_timeframe(opens_1, highs_1, lows_1, closes_1, 5, 2)#5
+        if (rsi_1[-1]<16 and tools.check_high_candel(hi15[-1], lo15[-1], 0.022, sv.settings.coin)):#22
             if tools.rsi_repeater(rsi_1[-60:], 5, 0, 46)>5 and closes_1[-1]<opens_1[-1]:
+                # if tools.check_rise(highs_1, lows_1, 5, 2, 'bigger'):
                 sv.signal.type_os_signal = 'ham_60c'
                 sv.settings.init_stop_loss = 0.006
                 sv.settings.target_len = 20#5
@@ -122,11 +123,24 @@ def get_signal(i_1, data_1, settings: Settings):
                 sv.settings.amount = 10
 
         if 'ham_60c' in sv.signal.type_os_signal:
+            positions_openes_at_time = util.at_time_position_opened(sv.unfiltered_positions, data_1[i_1][0])
             pos_list = util.filter_dicts(sv.etalon_positions, pos, 15, 0)
             types_7 = [val['type_of_signal'] for val in pos_list]
-            if 'ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7:
+            if 'ham_usdc' in types_7:#len(positions_openes_at_time)>10:
                 sv.signal.type_os_signal = 'stub'
                 sv.settings.target_len = 3
+
+        # if 'ham_60c' in sv.signal.type_os_signal:
+        #     index = sv.btc_cand_dict.get(data_1[i_1-1][0], -1)
+        #     if index != -1:
+        #         btc_cand = sv.btc_data[index]
+        #         op = btc_cand[1]
+        #         hi = btc_cand[2]
+        #         lo = btc_cand[3]
+        #         cl = btc_cand[4]
+        #         if cl > op:# and tools.check_high_candel(op, cl, 0.0025, 'BTCUSDT'):
+        #             sv.settings.amount = 40
+
 
         sv.signal.volume = abs(util.calculate_percent_difference(highs_1[-3], lows_1[-1]))
         

@@ -32,6 +32,7 @@ async def main(args):
     # exchanges = util.load_data_from_file('contracts.json')
     # coin_list = []
     # num = 0
+    # sv.mexc = True
     # for c in exchanges['MX']:
     #     if c in coins.all_coins:
     #         num+=1

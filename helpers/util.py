@@ -162,7 +162,7 @@ def load_etalon_positions():
     data = []
     
     curent_line = ''
-    file_path = f'etalon_profits.txt'
+    file_path = f'etalon_profits.txt' if sv.mexc == False else f'etalon_profits_mexc.txt'
     with open(file_path, 'r') as file:
         lines = file.readlines()
         for line in lines:

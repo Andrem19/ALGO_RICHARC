@@ -19,9 +19,9 @@
 
 # print(f'full_sum: {full_sum} full overpay: {full_sum-130000}')
 
-deals = [{"type_of_signal": "ham_60c"}, {"type_of_signal": "ham_60c"}, {"type_of_signal": "ham_60cc"}, {"type_of_signal": "ham_1b"}, {"type_of_signal": "ham_60cc"}, {"type_of_signal": "ham_60c"}]
+deals = [{"type_of_signal": "ham_60c", "volume": 14}, {"type_of_signal": "ham_60c", "volume": 8}, {"type_of_signal": "ham_60cc", "volume": 12}, {"type_of_signal": "ham_usdc", "volume": 2}, {"type_of_signal": "ham_1b", "volume": 7}, {"type_of_signal": "ham_60cc", "volume": 12}, {"type_of_signal": "ham_60c", "volume": 12}]
 
 
-deals.sort(key=lambda d: (not('ham_60cc' == d["type_of_signal"]), not('ham_60c' == d["type_of_signal"]), not('ham_1b' in d["type_of_signal"])))
+deals.sort(key=lambda d: (not('ham_usdc' in d["type_of_signal"]), not('ham_60cc' == d["type_of_signal"]), not('ham_60c' == d["type_of_signal"]), not('ham_1b' in d["type_of_signal"]), -d["volume"]))
 
 print(deals)

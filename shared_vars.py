@@ -83,3 +83,4 @@ month_profit = {}
 month_deal_count = {}
 
 prev_plus = True
+mexc = False
