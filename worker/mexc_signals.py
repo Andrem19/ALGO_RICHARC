@@ -123,7 +123,7 @@ def get_signal(i_1, data_1, settings: Settings):
                 sv.settings.amount = 10
 
         if 'ham_60c' in sv.signal.type_os_signal:
-            positions_openes_at_time = util.at_time_position_opened(sv.unfiltered_positions, data_1[i_1][0])
+            # positions_openes_at_time = util.at_time_position_opened(sv.unfiltered_positions, data_1[i_1][0])
             pos_list = util.filter_dicts(sv.etalon_positions, pos, 15, 0)
             types_7 = [val['type_of_signal'] for val in pos_list]
             if 'ham_usdc' in types_7:#len(positions_openes_at_time)>10:

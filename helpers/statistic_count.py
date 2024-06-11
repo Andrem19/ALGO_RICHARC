@@ -265,6 +265,10 @@ def filter_positions(deals, i5 = True):
         # last_60 = util.filter_dicts(filtered_deals, deals[i], 60, 15)
         lenth_active = len(active)
         # lenth_active_without_ham_60c = sum(1 for d in active if d.get('type_of_signal')!= 'ham_60c')
+        # types_7 = [val['type_of_signal'] for val in last_7]
+
+        # time_X = 'ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7 or 'ham_5a' in types_7
+        
         if on_off[deals[i]["type_of_signal"]] == 1:
             if all(d['coin'] != deals[i]["coin"] for d in active):
                 # types = [t['type_of_signal'] for t in active if 'type_of_signal' in t]
@@ -280,7 +284,8 @@ def filter_positions(deals, i5 = True):
                 ham_brg = sum(1 for d in active if 'ham_brg' in d.get('type_of_signal'))
 
                 limit = filter_val[deals[i]["type_of_signal"]]
-
+                # if not time_X and deals[i]['data_s'] != 5:
+                #     limit = 1
                 if ('ham_1b' in deals[i]["type_of_signal"] and lenth_active<limit)\
                     or (deals[i]["type_of_signal"] == 'ham_1a' and ham_1a<limit)\
                     or (deals[i]["type_of_signal"] == 'ham_1aa' and lenth_active<limit)\
@@ -371,11 +376,11 @@ def set_koof(position, types_7_last):
     elif 'ham_usdc' == position["type_of_signal"] and time_X:
         position["profit"]*=2
     elif 'ham_usdc' == position["type_of_signal"] and not time_X:
-        position["profit"]*=0.5
+        position["profit"]*=0.5 if not sv.mexc else 2
     elif 'ham_usdc_1' == position["type_of_signal"] and time_X:
-        position["profit"]*=1
+        position["profit"]*=1 if not sv.mexc else 1.5
     elif 'ham_usdc_1' == position["type_of_signal"] and not time_X:
-        position["profit"]*=0.5
+        position["profit"]*=0.5 if not sv.mexc else 1
     else:
         position["profit"]*=1
     return position
