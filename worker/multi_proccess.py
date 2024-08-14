@@ -68,7 +68,7 @@ def position_proccess(profit_list: list, dt: np.ndarray, is_first_iter: bool):
             close = data[-1][1]
             index = len(data)-1
 
-        if close<stop_loss:
+        if (close<stop_loss and sv.signal.signal == 1) or (close>stop_loss and sv.signal.signal == 2):
             close = stop_loss
 
         data_dict = {
@@ -80,10 +80,10 @@ def position_proccess(profit_list: list, dt: np.ndarray, is_first_iter: bool):
             'price_close': close
         }
         position = prof.process_profit(data_dict, is_first_iter)
-        
-        if sv.settings.printer and sv.settings.counter%sv.settings.iter_count==0 and sv.signal.type_os_signal == 'ham_60cc':
+
+        if sv.settings.printer and sv.settings.counter%sv.settings.iter_count==0:
             printer.print_position(copy.deepcopy(position))
-            if sv.settings.drawing and type_close == 'antitarget':
+            if sv.settings.drawing:
 
                 title = f'up {index}' if sv.signal.signal == 1 else f'down {index}'
                 viz.draw_candlesticks(dt[ind-50:ind+index+1], title+f' {sv.signal.type_os_signal}', 30)

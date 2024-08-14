@@ -58,7 +58,8 @@ max_border_accum = []
 min_border_accum = []
 sum_saldo = []
 
-
+mx_one_counter = 0
+mx_block = 0
 
 saldo_sum = 0
 btc_data = None
@@ -84,3 +85,5 @@ month_deal_count = {}
 
 prev_plus = True
 mexc = False
+
+model_1 = None

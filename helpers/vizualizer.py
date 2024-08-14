@@ -197,3 +197,17 @@ def plot_time_series(data_list: list, save_pic: bool, points: int, dont_show: bo
         plt.show()
         plt.close(fig)
     return None
+
+
+def save_candlesticks_pic(candles: list, path: str):
+    # Convert the candlesticks data into a pandas DataFrame
+    df = pd.DataFrame(candles, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
+    df['timestamp'] = df['timestamp'].astype(int)
+    df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms', utc=False).dt.tz_localize('UTC').dt.tz_convert('Europe/London')
+    df.set_index('timestamp', inplace=True)
+
+    # Define the style dictionary
+    my_style = mpf.make_mpf_style(base_mpf_style='binance', gridstyle='')
+
+    # Plot the candlestick chart using mpf.plot()
+    mpf.plot(df, type='candle', style=my_style, axisoff=True, figratio=(4,4), savefig=path)

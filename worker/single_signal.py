@@ -6,11 +6,12 @@ import helpers.util as util
 import shared_vars as sv
 from datetime import datetime
 import helpers.trend as tr
+import predict as prd
 
 def get_signal(i, data):
     try:
 
-        ln = 225
+        ln = 30
         # i_60 = util.get_candel_index(data[i][0], sv.candel_dict[60])
         
 
@@ -78,12 +79,13 @@ def get_signal(i, data):
         #             res = tr.analyze_pattern(expect_trend, closes[-20:])
         #             if res:
         #                 sg = 1
-        if closes[-1]>opens[-1]:
-            angle, expect_trend = tr.analyze_trend(closes[-30:-1], 4, 0.85)
-            if angle is not None:
-                if angle < -50:
-                    if tools.check_rise(highs, lows, 4, 5, 'bigger'):
-                        sg = 1
+        sg = prd.predict_image_class(data[-30:])
+
+        # if closes[-1]<opens[-1] and tools.check_high_candel(highs[-1], lows[-1], 0.01, sv.settings.coin):
+        #     if tools.trend(closes, 'down', 8, 1):
+        #         low_tail, high_tail, body = tools.get_tail_body(opens[-1], highs[-1], lows[-1], closes[-1])
+        #         if low_tail < body*0.01 and high_tail < body*0.5:
+        #             sg = 2
                 
    
         #=================END LOGIC=====================
@@ -99,13 +101,14 @@ def get_signal(i, data):
             #     sv.signal.signal = 3
             #     return
             sv.signal.data = sv.settings.time
-            sv.settings.init_stop_loss = 0.006#0.004
+            sv.settings.init_stop_loss = 0.015#0.004
+            # sv.settings.take_profit = 0.25
             # sv.settings.take_profit = 0.007#0.004
             # sv.settings.take_profit = 0.004
-            sv.settings.target_len = 4#3
-            sv.signal.type_os_signal = 'ham_60cc'
+            sv.settings.target_len = 2#3
+            sv.signal.type_os_signal = 'ham_60c'
             sv.signal.volume = abs(util.calculate_percent_difference(highs[-3], lows[-1]))
-            sv.signal.data = 1
+            sv.signal.data = 60
             sv.signal.index = i
         else:
             sv.signal.signal = 3

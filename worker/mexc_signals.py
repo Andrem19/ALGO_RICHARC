@@ -10,8 +10,8 @@ import helpers.util as util
 import shared_vars as sv
 
 def get_signal(i_1, data_1, settings: Settings):
-    if sv.ham_60c_triger > 0:
-        sv.ham_60c_triger-=1
+    if sv.mx_block > 0:
+        sv.mx_block-=1
     op5, hi5, lo5, cl5 = None, None, None, None
     op2, hi2, lo2, cl2 = None, None, None, None
     sv.signal.signal = 3
@@ -129,6 +129,10 @@ def get_signal(i_1, data_1, settings: Settings):
             if 'ham_usdc' in types_7:#len(positions_openes_at_time)>10:
                 sv.signal.type_os_signal = 'stub'
                 sv.settings.target_len = 3
+        
+        # if sv.mx_block > 0:
+        #     sv.signal.type_os_signal = 'stub'
+        #     sv.settings.target_len = 3
 
         # if 'ham_60c' in sv.signal.type_os_signal:
         #     index = sv.btc_cand_dict.get(data_1[i_1-1][0], -1)

@@ -23,7 +23,6 @@ def run(data, last_position, is_first_iter: bool):
             sg.get_signal(i, data)
 
             if sv.signal.signal in sv.settings.s:
-
                 tm1 = prc.position_proccess(profit_list, data, is_first_iter)
                 i+=tm1
             else: 

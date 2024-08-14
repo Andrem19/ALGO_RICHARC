@@ -262,6 +262,7 @@ def filter_positions(deals, i5 = True):
         active = [d for d in filtered_deals if d["close_time"] >= deals[i]["open_time"]]
         # last_7_min = [d for d in filtered_deals if d["open_time"] >= deals[i]["open_time"] - 7*60*1000]
         last_7 = util.filter_dicts(filtered_deals, deals[i], 7, 2)
+        last_0 = util.filter_dicts(filtered_deals, deals[i], 10, 0)
         # last_60 = util.filter_dicts(filtered_deals, deals[i], 60, 15)
         lenth_active = len(active)
         # lenth_active_without_ham_60c = sum(1 for d in active if d.get('type_of_signal')!= 'ham_60c')
@@ -298,7 +299,13 @@ def filter_positions(deals, i5 = True):
                     or (deals[i]["type_of_signal"] == 'ham_2a' and ham_2a<limit and lenth_active > 1 )\
                     or (deals[i]["type_of_signal"] == 'stub' and lenth_active<limit):
 
-                    pos = set_koof(copy.copy(deals[i]), last_7)
+                    if len(filtered_deals)>= 2 and sv.mexc:
+                        if all(d['profit']<0 and d['coin'] == deals[i]['coin'] and d['close_time']+1200000>deals[i]['open_time'] for d in filtered_deals[-2:]):
+                            continue
+                    if len(filtered_deals)>= 2 and sv.mexc and deals[i]["type_of_signal"] == 'ham_60c':
+                        if all(d['profit']<0 and d['close_time']+1800000>deals[i]['open_time'] for d in filtered_deals[-2:]):
+                            continue
+                    pos = set_koof(copy.copy(deals[i]), last_7, last_0)
                     filtered_deals.append(pos)
     
     if i5:
@@ -356,8 +363,9 @@ def recount_saldo(filtered_deals):
         sv.month_deal_count = {k: month_deal_count[k] for k in sorted(month_deal_count)}
         return filtered_deals
 
-def set_koof(position, types_7_last):
+def set_koof(position, types_7_last, types_0_last):
     types_7 = [val['type_of_signal'] for val in types_7_last]
+    types_0 = [val['type_of_signal'] for val in types_0_last]
 
     time_X = 'ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7 or 'ham_5a' in types_7
 
@@ -371,8 +379,6 @@ def set_koof(position, types_7_last):
         position["profit"]*=0.25
     elif 'ham_5a' == position["type_of_signal"] and time_X:
         position["profit"]*=1.5
-    elif position["type_of_signal"] in ['ham_60c']:
-        position["profit"]*=1
     elif 'ham_usdc' == position["type_of_signal"] and time_X:
         position["profit"]*=2
     elif 'ham_usdc' == position["type_of_signal"] and not time_X:
@@ -381,6 +387,10 @@ def set_koof(position, types_7_last):
         position["profit"]*=1 if not sv.mexc else 1.5
     elif 'ham_usdc_1' == position["type_of_signal"] and not time_X:
         position["profit"]*=0.5 if not sv.mexc else 1
+    elif 'ham_60c' ==  position["type_of_signal"] and any(p['coin'] == position["coin"] for p in types_0_last) and sv.mexc: #???
+        position["profit"]*=0.5
+    elif 'ham_60c' ==  position["type_of_signal"]:
+        position["profit"]*=1
     else:
         position["profit"]*=1
     return position

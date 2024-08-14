@@ -35,10 +35,10 @@ class Settings:
         self.maker_fee: float = 0.12
 
         self.curren_uid = ''
-        self.hot_count_on_off: int = 1
+        self.hot_count_on_off: int = 0
         self.cold_count_on_off: int = 0
         self.cold_count_iterations: int = 1000
-        self.cold_count_print_all = 1
+        self.cold_count_print_all = 0
         self.cold_count_print_res = {
                                         'final': 0,
                                         'ham_1a': 0,

@@ -66,13 +66,15 @@ def process_profit(dt: dict, is_first_iter: bool):
         'data_s': sv.signal.data,
         'type_of_signal': sv.signal.type_os_signal,
         'volume': round(sv.signal.volume, 4),
+
     }
     if validate_position(position):
         dt['profit_list'].append(position)
     # else:
     #     print('Invalid position')
     # dt['profit_list'].append(position)
-    
+    position['price_open'] = dt['price_open']
+    position['price_close'] = dt['price_close']
     return position
 
 def validate_position(position):

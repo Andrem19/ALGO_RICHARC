@@ -9,13 +9,13 @@ def setup():
     settings.init_stop_loss = 0.01
     settings.take_profit = 0.20
 
-    settings.main_variant = 2
+    settings.main_variant = 1
     settings.printer = False
     settings.drawing = False
     settings.send_pic = False
     settings.pic_collections = False
     settings.iter_count = 1
-    settings.time = 1
+    settings.time = 60
     settings.coin = 'BTCUSDT'
     settings.amount = 20
     settings.only = 0
@@ -37,11 +37,11 @@ def setup():
     settings.taker_fee = 0.2
     settings.maker_fee = 0.04
 
-    settings.curren_uid = 'bc53036e'
+    settings.curren_uid = '696cd5bf'
     settings.hot_count_on_off = 1
     settings.cold_count_on_off = 0
     settings.cold_count_iterations = 1
-    settings.cold_count_print_all = 1
+    settings.cold_count_print_all = 0
     settings.cold_count_print_res = {
                                     'final': 0,
                                     'ham_1a': 0,
