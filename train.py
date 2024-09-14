@@ -19,17 +19,29 @@ from sklearn.decomposition import PCA
 from pyts.image import GramianAngularField
 from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, LSTM
+import json
 import pandas as pd
 import numpy as np
 
 class MyCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
+        json_file_path = 'message.json'
+        with open(json_file_path, 'r') as file:
+            data = json.load(file)
+        if data['stop']:
+            self.model.stop_training = True
         if logs.get('accuracy') > 0.99 and logs.get('loss') < 0.02:
             print("\nReached 99% accuracy so cancelling training!")
             self.model.stop_training = True
+        
+        data['message'] = f"Epoch {epoch + 1}:\nloss = {round(logs['loss'], 4)}\naccuracy = {round(logs['accuracy'], 4)}\nval_loss = {round(logs['val_loss'], 4)}\nval_accuracy = {round(logs['val_accuracy'], 4)}"
+        data['is_new_message'] = True
+        
+        with open(json_file_path, 'w') as file:
+            json.dump(data, file)
 
-def train_2Dpic_model_2(softmsax: int, path: str):
-    callbacks = [MyCallback(), tf.keras.callbacks.EarlyStopping(patience=10)]
+def train_2Dpic_model_2(softmsax: int, path: str, start: bool):
+    callbacks = [MyCallback(), tf.keras.callbacks.EarlyStopping(patience=5, restore_best_weights=True)]
     train_dir = path
     batch_size = 32
     img_height = 340
@@ -56,42 +68,50 @@ def train_2Dpic_model_2(softmsax: int, path: str):
     val_ds = val_ds.map(lambda x, y: (normalization_layer(x), y))
 
     data_augmentation = tf.keras.Sequential([
-        tf.keras.layers.experimental.preprocessing.RandomFlip('horizontal'),
+        # tf.keras.layers.experimental.preprocessing.RandomFlip('horizontal'),
         tf.keras.layers.experimental.preprocessing.RandomRotation(0.2),
+        tf.keras.layers.experimental.preprocessing.RandomZoom(0.1),
+        tf.keras.layers.experimental.preprocessing.RandomTranslation(0.1, 0.1),
     ])
+    # data_augmentation = tf.keras.Sequential([
+    #     tf.keras.layers.experimental.preprocessing.RandomZoom(0.1),
+    #     tf.keras.layers.experimental.preprocessing.RandomTranslation(0.1, 0.1),
+    # ])
+    if start:
+        model = keras.Sequential([
+            # data_augmentation,
+            keras.layers.Conv2D(32, 3, activation='relu', input_shape=(img_height, img_width, 3)),
+            keras.layers.BatchNormalization(),
+            keras.layers.MaxPooling2D(2),
+            keras.layers.Conv2D(64, 3, activation='relu'),
+            keras.layers.BatchNormalization(),
+            keras.layers.MaxPooling2D(2),
+            keras.layers.Conv2D(128, 3, activation='relu'),
+            keras.layers.BatchNormalization(),
+            keras.layers.MaxPooling2D(2),
+            keras.layers.Dropout(0.5),
+            keras.layers.Flatten(),
+            keras.layers.Dense(128, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.01)),
+            keras.layers.Dense(softmsax, activation='softmax')
+        ])
 
-    model = keras.Sequential([
-        data_augmentation,
-        keras.layers.Conv2D(32, 3, activation='relu', input_shape=(img_height, img_width, 3)),
-        keras.layers.BatchNormalization(),
-        keras.layers.MaxPooling2D(2),
-        keras.layers.Conv2D(64, 3, activation='relu'),
-        keras.layers.BatchNormalization(),
-        keras.layers.MaxPooling2D(2),
-        keras.layers.Conv2D(128, 3, activation='relu'),
-        keras.layers.BatchNormalization(),
-        keras.layers.MaxPooling2D(2),
-        keras.layers.Dropout(0.5),
-        keras.layers.Flatten(),
-        keras.layers.Dense(128, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.01)),
-        keras.layers.Dense(softmsax, activation='softmax')
-    ])
+        model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),
+                    loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
+                    metrics=['accuracy'])
+    else:
+        model = tf.keras.models.load_model('_models/my_model_1.keras')
 
-    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),
-                loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
-                metrics=['accuracy'])
-
-    epochs = 12
+    epochs = 25
     history = model.fit(
     train_ds,
     validation_data=val_ds,
     epochs=epochs,
     callbacks=callbacks
     )
-    model.save('_models/my_model_3.keras')
+    model.save('_models/my_model_1.keras')
     return model
 
-def train_2Dpic_model(softmsax: int, path: str):
+def train_2Dpic_model(softmsax: int, path: str, min_sample: int):
     callbacks = MyCallback()
     # Загрузка и предобработка данных
     train_dir = path # путь к папке с тренировочными данными

@@ -250,17 +250,14 @@ def return_the_higest_candel(highs: np.ndarray, lows: np.ndarray, opens: np.ndar
     max_index = highs[-lenth:].argmax()
     return opens[max_index], highs[max_index], lows[max_index], closes[max_index]
 
-@jit(nopython=True)
 def last_lowest(lows: np.ndarray, lenth: int):
     min_in_last_20 = np.min(lows[-lenth:])
     return lows[-1] == min_in_last_20
 
-@jit(nopython=True)
 def last_highest(highs: np.ndarray, lenth: int):
     min_in_last_20 = np.max(highs[-lenth:])
     return highs[-1] == min_in_last_20
 
-@jit(nopython=True)
 def last_lowest_highest(highs, lows, lowest_highest_none, ln):
     if lowest_highest_none == 'none':
         return True
@@ -275,3 +272,12 @@ def rsi_repeater(rsi: np.ndarray, step: int, min: int, max: int):
         if any(r>min and r<max for r in rsi[i-step:i]):
             target+=1
     return target
+
+def range_not_lowest(lows: np.ndarray, length: int, rng: int):
+    min_value = float('inf')
+    for number in lows[-rng:]:
+        if number < min_value:
+            min_value = number
+
+    min_in_last_period = np.min(lows[-length:-rng])
+    return min_value > min_in_last_period

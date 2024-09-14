@@ -5,6 +5,7 @@ import matplotlib.dates as mdates
 from datetime import datetime
 import uuid
 import os
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import shared_vars as sv
 from PIL import Image
 import helpers.statistic_count as stat
@@ -211,3 +212,190 @@ def save_candlesticks_pic(candles: list, path: str):
 
     # Plot the candlestick chart using mpf.plot()
     mpf.plot(df, type='candle', style=my_style, axisoff=True, figratio=(4,4), savefig=path)
+
+
+def plot_profit(data):
+    # Разделение данных на даты и профиты
+    timestamps = [item['close_time'] for item in data]
+    dates = [datetime.fromtimestamp(ts/1000) for ts in timestamps]
+    profits = [item['profit'] for item in data]
+
+    # Определение цветов для столбцов
+    colors = ['green' if profit >= 0 else 'red' for profit in profits]
+
+    # Создание столбчатой диаграммы
+    plt.bar(dates, profits, color=colors)
+    plt.xlabel('Close Time')
+    plt.ylabel('Profit')
+    plt.title('Profit by Close Time')
+
+    # Настройка отображения дат вертикально и с более частыми метками
+    plt.xticks(rotation=90, fontsize=6)
+    plt.gca().xaxis.set_major_locator(plt.MaxNLocator(nbins=len(dates)))
+
+    # Создание директории, если она не существует
+    path = f'_pic/{datetime.now().date().strftime("%Y-%m-%d")}'
+    os.makedirs(path, exist_ok=True)
+
+    # Сохранение графика
+    file_path = os.path.join(path, f'{datetime.now().timestamp()}{sv.unique_ident}.png')
+    plt.savefig(file_path)
+    plt.close()
+
+    return file_path
+
+
+def plot_types(data):
+    # Extracting profits, types of signals, and close times
+    profits = [item['profit'] for item in data]
+    types_of_signal = [item['type_of_signal'] for item in data]
+    close_times = [datetime.fromtimestamp(item['close_time'] / 1000) for item in data]
+
+    # Defining colors for each type of signal
+    color_map = {
+        'ham_1a': 'blue',
+        'ham_2a': 'red',
+        'ham_5a': 'orange',
+        'ham_5b': 'purple',
+        'ham_60c': 'brown',
+        'ham_usdc_1': 'pink',
+        'ham_usdc': 'yellow',
+        'ham_long': 'cyan',
+        'long_1': 'black'
+    }
+    colors = [color_map[type_signal] for type_signal in types_of_signal]
+
+    # Creating the bar chart
+    bars = plt.bar(range(len(profits)), profits, color=colors)
+    plt.xlabel('Position Index')
+    plt.ylabel('Profit')
+    plt.title('Profit by Position Index')
+
+    # Adding legend
+    legend_labels = list(color_map.keys())
+    legend_colors = [color_map[label] for label in legend_labels]
+    patches = [plt.Line2D([0], [0], color=color, lw=4) for color in legend_colors]
+    plt.legend(patches, legend_labels, title="Type of Signal")
+
+    # Adding dates to the x-axis every 10 bars
+    ln_pos = len(data)
+    freq = 25 if ln_pos > 500 else 10 if ln_pos > 120 else 5
+    for i in range(0, len(profits), freq):
+        plt.text(i, min(profits) - (max(profits) - min(profits)) * 0.05, close_times[i].strftime('%Y-%m-%d'), 
+                 rotation=90, fontsize=4.5, ha='center')
+
+    # Creating directory if it doesn't exist
+    path = f'_pic/{datetime.now().date().strftime("%Y-%m-%d")}'
+    os.makedirs(path, exist_ok=True)
+
+    # Saving the plot
+    file_path = os.path.join(path, f'{datetime.now().timestamp()}.png')
+    plt.savefig(file_path)
+    plt.close()
+
+    return file_path
+
+def save_candlesticks_pic_2(candles: list, inset_candles: list, path: str):
+    # Convert the main candlesticks data into a pandas DataFrame
+    df = pd.DataFrame(candles, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
+    df['timestamp'] = df['timestamp'].astype(int)
+    df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms', utc=False).dt.tz_localize('UTC').dt.tz_convert('Europe/London')
+    df.set_index('timestamp', inplace=True)
+
+    # Convert the inset candlesticks data into a pandas DataFrame
+    inset_df = pd.DataFrame(inset_candles, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
+    inset_df['timestamp'] = inset_df['timestamp'].astype(int)
+    inset_df['timestamp'] = pd.to_datetime(inset_df['timestamp'], unit='ms', utc=False).dt.tz_localize('UTC').dt.tz_convert('Europe/London')
+    inset_df.set_index('timestamp', inplace=True)
+
+    # Define the style dictionary
+    my_style = mpf.make_mpf_style(base_mpf_style='binance', gridstyle='', y_on_right=False)
+
+    # Create the main plot
+    fig, ax = plt.subplots(figsize=(10, 10))
+    mpf.plot(df, type='candle', style=my_style, ax=ax, axisoff=True)
+
+    # Create the inset plot if inset_df is not empty
+    if not inset_df.empty:
+        ax_inset = inset_axes(ax, width="30%", height="30%", loc='lower left')
+        mpf.plot(inset_df, type='candle', style=my_style, ax=ax_inset, axisoff=True)
+
+        # Remove the frame and ticks from the inset plot
+        for spine in ax_inset.spines.values():
+            spine.set_visible(False)
+        ax_inset.set_xticks([])
+        ax_inset.set_yticks([])
+
+    # Remove the frame and ticks from the main plot
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+    # Save the figure
+    plt.savefig(path, bbox_inches='tight', pad_inches=0)
+    plt.close()
+
+def save_candlesticks_pic_3(candles: list, inset_candles: list, inset_candles_2: list, path: str):
+    # Convert the main candlesticks data into a pandas DataFrame
+    df = pd.DataFrame(candles, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
+    df['timestamp'] = df['timestamp'].astype(int)
+    df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms', utc=False).dt.tz_localize('UTC').dt.tz_convert('Europe/London')
+    df.set_index('timestamp', inplace=True)
+
+    # Convert the first inset candlesticks data into a pandas DataFrame
+    inset_df = pd.DataFrame(inset_candles, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
+    inset_df['timestamp'] = inset_df['timestamp'].astype(int)
+    inset_df['timestamp'] = pd.to_datetime(inset_df['timestamp'], unit='ms', utc=False).dt.tz_localize('UTC').dt.tz_convert('Europe/London')
+    inset_df.set_index('timestamp', inplace=True)
+
+    # Convert the second inset candlesticks data into a pandas DataFrame
+    inset_df_2 = pd.DataFrame(inset_candles_2, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
+    inset_df_2['timestamp'] = inset_df_2['timestamp'].astype(int)
+    inset_df_2['timestamp'] = pd.to_datetime(inset_df_2['timestamp'], unit='ms', utc=False).dt.tz_localize('UTC').dt.tz_convert('Europe/London')
+    inset_df_2.set_index('timestamp', inplace=True)
+
+    # Define the style dictionary
+    my_style = mpf.make_mpf_style(base_mpf_style='binance', gridstyle='', y_on_right=False)
+
+    # Create the main plot
+    fig, ax = plt.subplots(figsize=(10, 10))
+    mpf.plot(df, type='candle', style=my_style, ax=ax, axisoff=True)
+
+    # Create the first inset plot if inset_df is not empty
+    if not inset_df.empty:
+        ax_inset = inset_axes(ax, width="30%", height="30%", loc='lower left')
+        mpf.plot(inset_df, type='candle', style=my_style, ax=ax_inset, axisoff=True)
+
+        # Remove the frame and ticks from the first inset plot
+        for spine in ax_inset.spines.values():
+            spine.set_visible(False)
+        ax_inset.set_xticks([])
+        ax_inset.set_yticks([])
+
+    # Create the second inset plot if inset_df_2 is not empty
+    if not inset_df_2.empty:
+        ax_inset_2 = inset_axes(ax, width="30%", height="30%", loc='lower left', bbox_to_anchor=(0.35, 0.05, 1, 1), bbox_transform=ax.transAxes)
+        mpf.plot(inset_df_2, type='candle', style=my_style, ax=ax_inset_2, axisoff=True)
+
+        # Remove the frame and ticks from the second inset plot
+        for spine in ax_inset_2.spines.values():
+            spine.set_visible(False)
+        ax_inset_2.set_xticks([])
+        ax_inset_2.set_yticks([])
+
+    # Remove the frame and ticks from the main plot
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+    # Remove the "Price" label from the y-axis
+    ax.yaxis.label.set_visible(False)
+
+    # Save the figure
+    plt.savefig(path, bbox_inches='tight', pad_inches=0)
+    plt.close()
+
+
+

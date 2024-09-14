@@ -9,7 +9,7 @@ def setup():
     settings.init_stop_loss = 0.01
     settings.take_profit = 0.20
 
-    settings.main_variant = 1
+    settings.main_variant = 2
     settings.printer = False
     settings.drawing = False
     settings.send_pic = False
@@ -31,8 +31,8 @@ def setup():
             1440:0,
         }
 
-    settings.start_date = datetime(2017, 1, 1)
-    settings.finish_date = datetime(2024, 7, 1)
+    settings.start_date = datetime(2024, 5, 1)
+    settings.finish_date = datetime(2024, 10, 1)
 
     settings.taker_fee = 0.2
     settings.maker_fee = 0.04
@@ -41,7 +41,7 @@ def setup():
     settings.hot_count_on_off = 1
     settings.cold_count_on_off = 0
     settings.cold_count_iterations = 1
-    settings.cold_count_print_all = 0
+    settings.cold_count_print_all = 1
     settings.cold_count_print_res = {
                                     'final': 0,
                                     'ham_1a': 0,
@@ -62,6 +62,7 @@ def setup():
                                     'ham_1az': 0,
                                     'test_5': 0,
                                     'ham_long': 0,
+                                    'long_1': 0,
                                 }
     sv.settings = settings
 

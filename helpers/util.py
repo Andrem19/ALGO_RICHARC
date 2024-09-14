@@ -1,10 +1,9 @@
 import numpy as np
-from datetime import datetime
+import datetime
 import shared_vars as sv
 import helpers.get_data as gd
 import traceback
 import coins as coins
-import bisect
 import random
 import json
 from statistics import mean
@@ -14,6 +13,45 @@ import time
 import os
 from collections import defaultdict
 from sortedcontainers import SortedDict
+
+def sum_profits_by_day(trades):
+    daily_profits_positive = defaultdict(float)
+    daily_profits_negative = defaultdict(float)
+    first_trade_time = {}
+
+    for trade in trades:
+        # Преобразуем время закрытия в дату
+        close_time = datetime.datetime.fromtimestamp(trade['close_time'] / 1000)
+        date = close_time.date()
+
+        # Суммируем profit по дням
+        if trade['profit'] >= 0:
+            daily_profits_positive[date] += trade['profit']
+        else:
+            daily_profits_negative[date] += trade['profit']
+
+        # Сохраняем время первой сделки за день
+        if date not in first_trade_time:
+            first_trade_time[date] = close_time
+
+    # Формируем результат в нужном формате
+    result = []
+
+    for date in daily_profits_positive.keys() | daily_profits_negative.keys():
+        if date in daily_profits_positive:
+            result.append({
+                'close_time': int(first_trade_time[date].timestamp() * 1000),
+                'profit': daily_profits_positive[date],
+                'type': 'positive'
+            })
+        if date in daily_profits_negative:
+            result.append({
+                'close_time': int(first_trade_time[date].timestamp() * 1000),
+                'profit': daily_profits_negative[date],
+                'type': 'negative'
+            })
+
+    return result
 
 def filter_dicts_less_10(dict_list, number, more_less):
     count_dict = defaultdict(int)
@@ -365,9 +403,6 @@ def check_and_clean_data(file_path):
     else:
         print("File didnt change")
 
-
-import datetime
-
 def format_data(data):
     result = ''
     prev_date = None
@@ -457,3 +492,21 @@ def process_month_saldo_dict(d):
     print(f"Maximum value: {sv.month_profit[max_key]}")
     print(f"Average value: {avg_value}")
     print(f"Value that occurs most frequently: {most_common_bin}")
+
+
+def find_index(timestamp, data):
+
+    for i in range(len(data)):
+        if data[i][0] > timestamp:
+            if i > 0:
+                return i - 1
+            else:
+                print(datetime.datetime.fromtimestamp(int(timestamp/1000)))
+                return None
+
+    return len(data) - 1
+
+
+def split_list(lst, n):
+    k, m = divmod(len(lst), n)
+    return [lst[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n)]

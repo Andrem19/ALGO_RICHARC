@@ -172,12 +172,13 @@ def proceed_positions(positions: list):
         else:
             percent = 0.5
         saldo = positions[-1]['saldo'] if len_pos > 0 else 0
-        am = 0
+        am = 1
         if len(all_minus)>0:
             am = round(sum(all_minus) / len(all_minus), 3)
-        ap = 0
+        ap = 1
         if len(all_plus)>0:
             ap = round(sum(all_plus) / len(all_plus), 3)
+
         result = {
             'saldo': round(saldo, 3),
             'all': len_pos,
@@ -186,8 +187,8 @@ def proceed_positions(positions: list):
             'long_pl': long_plus,
             # 'short_mn': short_minus,
             'long_mn': long_minus,
-            'med_pl': ap,
-            'med_mn': am,
+            'med_pl': ap if am != 0 else 1,
+            'med_mn': am if am != 0 else 1,
             'anttrg': round(close_antitarget/len_pos,2),
             'k': round((abs(ap)/abs(am))*percent, 2),
         }
@@ -233,6 +234,7 @@ def filter_positions(deals, i5 = True):
         'ham_5b': 2,#2
         'test_5': 5,
         'test_10': 5,
+        'long_1': 1,
     }
     on_off = {
         'stub': 1,
@@ -254,6 +256,7 @@ def filter_positions(deals, i5 = True):
         'ham_5b': 1,
         'test_5': 1,
         'test_10': 1,
+        'long_1': 1,
     }
 
     for i in range(len(deals)):
@@ -276,6 +279,7 @@ def filter_positions(deals, i5 = True):
                 ham_5a = sum(1 for d in active if d.get('type_of_signal') == 'ham_5a')
                 ham_5b = sum(1 for d in active if d.get('type_of_signal') == 'ham_5b')
                 ham_1a = sum(1 for d in active if d.get('type_of_signal') == 'ham_1a')
+                long_1 = sum(1 for d in active if d.get('type_of_signal') == 'long_1')
                 ham_2a = sum(1 for d in active if d.get('type_of_signal') == 'ham_2a')
                 ham_60c = sum(1 for d in active if 'ham_60c' in d.get('type_of_signal'))
                 ham_60cc = sum(1 for d in active if 'ham_60c' in d.get('type_of_signal'))
@@ -288,6 +292,7 @@ def filter_positions(deals, i5 = True):
                 # if not time_X and deals[i]['data_s'] != 5:
                 #     limit = 1
                 if ('ham_1b' in deals[i]["type_of_signal"] and lenth_active<limit)\
+                    or (deals[i]["type_of_signal"] == 'long_1')\
                     or (deals[i]["type_of_signal"] == 'ham_1a' and ham_1a<limit)\
                     or (deals[i]["type_of_signal"] == 'ham_1aa' and lenth_active<limit)\
                     or (deals[i]["type_of_signal"] == 'ham_5a' and ham_5a<limit)\

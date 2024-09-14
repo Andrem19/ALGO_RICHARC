@@ -8,6 +8,7 @@ import coins
 import numpy as np
 import helpers.util as util
 import shared_vars as sv
+import predict as prd
 
 def get_signal(i_1, data_1, settings: Settings):
     if sv.ham_60c_triger > 0:
@@ -15,6 +16,9 @@ def get_signal(i_1, data_1, settings: Settings):
     op5, hi5, lo5, cl5 = None, None, None, None
     op2, hi2, lo2, cl2 = None, None, None, None
     sv.signal.signal = 3
+
+    if sv.long_counter >= 1:
+        sv.long_counter+=1
     
     lenth = 210
     # btc_rsi = util.get_previous_day_rsi(data_1[i_1][0], sv.btc_rsi_dict)
@@ -35,6 +39,24 @@ def get_signal(i_1, data_1, settings: Settings):
     # if btc_index != -1:
     #     btc_closes = sv.btc_data[btc_index-210:btc_index, 4]
     #     btc_rsi = talib.RSI(btc_closes, 14)
+    # if settings.coin == 'ETHUSDT':
+    #     pos = {'open_time': data_1[i_1][0]}
+    #     pos_list = util.filter_dicts(sv.etalon_positions, pos, 40, 0, tp='close_time')
+    #     types_7 = [val['type_of_signal'] for val in pos_list if val['type_of_signal'] != 'ham_60c']
+    #     if len(types_7)>7:
+    #         sv.long_counter = 1
+
+    # if sv.long_counter == 25 and settings.coin == 'ETHUSDT':
+    #     sv.signal.type_os_signal = 'long_1'
+    #     sv.settings.init_stop_loss = 0.02#serv.set_stls(0.020, abs(vol_can))#0.004
+    #     sv.settings.target_len = 200#5
+    #     sv.settings.amount = 200#20
+    #     signal_1 = 1
+    #     sv.long_counter = 0
+
+    
+
+
     if settings.coin in coins.usdc_set:
         #==================USDC===========================
         if signal_1 == 3:
@@ -101,18 +123,18 @@ def get_signal(i_1, data_1, settings: Settings):
                         sv.settings.amount = 20
                         signal_1 = 1
         
-        if signal_1 == 3:
-            if closes_1[-1] < opens_1[-1]:
-                rsi_1 = talib.RSI(closes_1, 14)
-                op15, hi15, lo15, cl15 = tools.convert_timeframe(opens_1, highs_1, lows_1, closes_1, 15, 2)
-                if rsi_1[-1]<16 and tools.check_high_candel(hi15[-1], lo15[-1], 0.026, sv.settings.coin):
-                    if tools.rsi_repeater(rsi_1[-60:], 5, 0, 46)>5:
-                        # if not tools.check_high_candel(closes_1[-2], lows_1[-2], 0.018, settings.coin) or closes_1[-2]>opens_1[-2] or closes_1[-1]>opens_1[-1]:
-                        sv.signal.type_os_signal = 'ham_60c'
-                        sv.settings.init_stop_loss = 0.006
-                        sv.settings.target_len = 20#5
-                        sv.settings.amount = 20
-                        signal_1 = 1
+        # if signal_1 == 3:
+        #     if closes_1[-1] < opens_1[-1]:
+        #         rsi_1 = talib.RSI(closes_1, 14)
+        #         op15, hi15, lo15, cl15 = tools.convert_timeframe(opens_1, highs_1, lows_1, closes_1, 15, 2)
+        #         if rsi_1[-1]<16 and tools.check_high_candel(hi15[-1], lo15[-1], 0.026, sv.settings.coin):
+        #             if tools.rsi_repeater(rsi_1[-60:], 5, 0, 46)>5:
+        #                 # if not tools.check_high_candel(closes_1[-2], lows_1[-2], 0.018, settings.coin) or closes_1[-2]>opens_1[-2] or closes_1[-1]>opens_1[-1]:
+        #                 sv.signal.type_os_signal = 'ham_60c'
+        #                 sv.settings.init_stop_loss = 0.006
+        #                 sv.settings.target_len = 20#5
+        #                 sv.settings.amount = 20
+        #                 signal_1 = 1
 
         
         
@@ -133,7 +155,7 @@ def get_signal(i_1, data_1, settings: Settings):
         #==================USDT===========================
         if signal_1 == 3:
             if rsi_1[-1]<19:#18
-                if closes_1[-1] > opens_1[-1]:
+                if closes_1[-1]>opens_1[-1]:
                     if tools.check_high_candel(highs_1[-1], lows_1[-1], 0.02, settings.coin):
                         low_tail, high_tail, body = tools.get_tail_body(opens_1[-1], highs_1[-1], lows_1[-1], closes_1[-1])
                         if high_tail < body*1:
@@ -146,7 +168,7 @@ def get_signal(i_1, data_1, settings: Settings):
                                 signal_1 = 1
 
         if rsi_1[-1]<40 and signal_1 == 3:
-            if closes_1[-1] > opens_1[-1]:
+            if closes_1[-1]>opens_1[-1]:
                 if tools.all_True_any_False(closes_1, opens_1, 5, 'all', True, 3):
                     low_tail, high_tail, body = tools.get_tail_body(opens_1[-1], highs_1[-1], lows_1[-1], closes_1[-1])
                     if high_tail < body*1:#5 3
@@ -167,7 +189,7 @@ def get_signal(i_1, data_1, settings: Settings):
         
         if signal_1 == 3:
             if rsi_1[-1]<20:# or sv.rsi_was_low10>0:#20
-                if closes_1[-1] > opens_1[-1]:
+                if closes_1[-1]>opens_1[-1]:
                     low_tail, high_tail, body = tools.get_tail_body(opens_1[-1], highs_1[-1], lows_1[-1], closes_1[-1])
                     if high_tail < body*1:
                         low_tail, high_tail, body = tools.get_tail_body(opens_1[-2], highs_1[-2], lows_1[-2], closes_1[-2])
@@ -209,7 +231,7 @@ def get_signal(i_1, data_1, settings: Settings):
                                     signal_1 = 1
 
         if signal_1 == 3:
-            if closes_1[-1] > opens_1[-1]:
+            if closes_1[-1]>opens_1[-1]:
                 low_tail_1, high_tail_1, body_1 = tools.get_tail_body(opens_1[-1], highs_1[-1], lows_1[-1], closes_1[-1])
                 if  high_tail_1 < body_1*1:
                     if op2 is None:
@@ -241,7 +263,26 @@ def get_signal(i_1, data_1, settings: Settings):
 
     if signal_1 in sv.settings.s:
 
+        
+
         sv.signal.signal = signal_1
+        # if sv.signal.type_os_signal == 'long_1':
+        #     # index = util.find_index(data_1[i_1][0], sv.btc_data)
+        #     # if index < 960:
+        #     #     sv.signal.signal = 3
+        #     #     return
+        #     # btc_lows = sv.btc_data[index-960:index, 3]
+
+        #     # rnl = tools.range_not_lowest(btc_lows, 940, 20)
+        #     # if rnl:
+        #     #     sv.signal.signal = 3
+        #     #     return
+        #     sv.signal.volume = abs(util.calculate_percent_difference(highs_1[-3], lows_1[-1]))
+        #     sv.signal.index = i_1
+        #     sv.signal.data = 1
+        #     return
+        # sv.long_counter = 0
+
         sv.signal.data = 1
         pos = {'open_time': data_1[i_1][0]}
         pos_list = util.filter_dicts(sv.etalon_positions, pos, 15, 5)
@@ -251,6 +292,11 @@ def get_signal(i_1, data_1, settings: Settings):
                 sv.signal.data = 5
                 sv.settings.init_stop_loss = 0.05
                 sv.settings.target_len = 7#20
+        
+        # pos_list = util.filter_dicts(sv.etalon_positions, pos, 40, 0, tp='close_time')
+        # types_7 = [val['type_of_signal'] for val in pos_list if val['type_of_signal'] != 'ham_60c']
+        # if len(types_7)>5:
+        #     sv.long_counter = 1
 
 
         if 'ham_60c' == sv.signal.type_os_signal:
@@ -276,6 +322,21 @@ def get_signal(i_1, data_1, settings: Settings):
             if ('ham_1a' in types_7 or 'ham_2a' in types_7 or 'ham_5b' in types_7):# or res >15:
                 sv.signal.type_os_signal = 'stub'
                 sv.settings.target_len = 3
+
+        
+        if sv.signal.data != 5:# sv.signal.type_os_signal != 'ham_60c':
+            index = util.find_index(data_1[i_1][0], sv.btc_data_1)
+            if index is not None and index > 100:
+                sample_2 = sv.btc_data_1[index-100:index]
+
+                index = util.find_index(data_1[i_1][0], sv.btc_data_2)
+                if index is not None and index>40:
+                    sample_3 = sv.btc_data_2[index-40:index]
+
+                    prediction = prd.predict_image_class(data_1[i_1-100:i_1], sample_2, sample_3)
+                    if not prediction:
+                        sv.signal.signal = 3
+                        return
         
         # if sv.signal.type_os_signal in ['ham_1a', 'ham_2a', 'ham_5a', 'ham_5b']:
         #     positions_openes_at_time = util.at_time_position_opened(sv.unfiltered_positions, data_1[i_1][0])

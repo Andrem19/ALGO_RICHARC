@@ -10,6 +10,8 @@ import predict as prd
 
 def get_signal(i, data):
     try:
+        if sv.long_counter >= 1:
+            sv.long_counter+=1
 
         ln = 30
         # i_60 = util.get_candel_index(data[i][0], sv.candel_dict[60])
@@ -37,6 +39,20 @@ def get_signal(i, data):
         opens = data[i-ln:i, 1]
         # volume = data[i-sv.settings.chunk_len*2:i, 5]
         sg = 3
+
+        pos = {'open_time': data[i][0]}
+        pos_list = util.filter_dicts(sv.etalon_positions, pos, 30, 0, tp='close_time')
+        types_7 = [val['type_of_signal'] for val in pos_list]
+        if len(types_7)>10:
+            sv.long_counter = 1
+
+        if sv.long_counter == 45 and sv.settings.coin == 'ETHUSDT':
+            sv.signal.type_os_signal = 'long_1'
+            sv.settings.init_stop_loss = 0.02#serv.set_stls(0.020, abs(vol_can))#0.004
+            sv.settings.target_len = 1380#5
+            sv.settings.amount = 200#20
+            sg = 1
+            sv.long_counter = 0
         #=================START LOGIC===================
         
         # low_tail, high_tail, body = tools.get_tail_body(opens_60[-1], highs_60[-1], lows_60[-1], closes_60[-1])
@@ -79,7 +95,7 @@ def get_signal(i, data):
         #             res = tr.analyze_pattern(expect_trend, closes[-20:])
         #             if res:
         #                 sg = 1
-        sg = prd.predict_image_class(data[-30:])
+        # sg = prd.predict_image_class(data[-30:])
 
         # if closes[-1]<opens[-1] and tools.check_high_candel(highs[-1], lows[-1], 0.01, sv.settings.coin):
         #     if tools.trend(closes, 'down', 8, 1):
@@ -91,7 +107,7 @@ def get_signal(i, data):
         #=================END LOGIC=====================
 
         if sg in sv.settings.s:
-            sv.settings.amount = 20#20
+            sv.settings.amount = 200#20
             sv.signal.signal = sg
             # pos = {'open_time': data[i][0]}
             # pos_list = util.filter_dicts(sv.etalon_positions, pos, 60, 1)
@@ -101,12 +117,12 @@ def get_signal(i, data):
             #     sv.signal.signal = 3
             #     return
             sv.signal.data = sv.settings.time
-            sv.settings.init_stop_loss = 0.015#0.004
+            # sv.settings.init_stop_loss = 0.015#0.004
             # sv.settings.take_profit = 0.25
             # sv.settings.take_profit = 0.007#0.004
             # sv.settings.take_profit = 0.004
-            sv.settings.target_len = 2#3
-            sv.signal.type_os_signal = 'ham_60c'
+            # sv.settings.target_len = 2#3
+            # sv.signal.type_os_signal = 'ham_60c'
             sv.signal.volume = abs(util.calculate_percent_difference(highs[-3], lows[-1]))
             sv.signal.data = 60
             sv.signal.index = i

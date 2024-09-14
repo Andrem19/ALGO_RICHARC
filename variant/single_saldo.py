@@ -35,8 +35,8 @@ def do_job(coin: str, profit_path: str, lock):
         print(f'{coin} doesnt exist')
         return
     
-    # etalon_positions = util.load_etalon_positions()
-    # sv.etalon_positions = stat.filter_positions(etalon_positions)
+    etalon_positions = util.load_etalon_positions()
+    sv.etalon_positions = stat.filter_positions(etalon_positions)
     util.load_add_data()
     sv.settings.coin = coin
     if sv.settings.multi_tf == 0:

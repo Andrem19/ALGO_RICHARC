@@ -25,7 +25,7 @@ sv.telegram_api = 'API_TOKEN_1'
 coin_list = coins.best_set#coins.long_str_collection# coins.best_set
 
 async def main(args):
-    sv.model_1 = tr.load_model('_models/my_model_3.keras')
+    sv.model_1 = tr.load_model('_models/my_model_1.keras')
     # for c in coins.all_coins:
     #     if c not in coins.best_set:
     #         coin_list.append(c)
@@ -61,7 +61,7 @@ async def main(args):
         await ss.mp_saldo(coin_list, False)
     elif sv.settings.main_variant == 2:
         if sv.settings.hot_count_on_off==1:
-            await ms.mp_saldo(coin_list, True)
+            await ms.mp_saldo(coin_list, False)
         if sv.settings.cold_count_on_off==1:
             if sv.settings.hot_count_on_off==0:
                 sv.unique_ident = sv.settings.curren_uid

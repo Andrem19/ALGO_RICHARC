@@ -214,7 +214,7 @@ all_coins = [
 
 
 best_set = [
-    # 'ETHUSDT', 
+    'ETHUSDT',
     'ADAUSDT', 
     'XRPUSDT', 
     'LINKUSDT', 

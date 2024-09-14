@@ -62,7 +62,8 @@ mx_one_counter = 0
 mx_block = 0
 
 saldo_sum = 0
-btc_data = None
+btc_data_1 = None
+btc_data_2 = None
 btc_cand_dict = {}
 btc_rsi_dict = {}
 
@@ -87,3 +88,4 @@ prev_plus = True
 mexc = False
 
 model_1 = None
+long_counter = 0

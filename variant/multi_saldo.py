@@ -45,13 +45,15 @@ def do_job(coin: str, profit_path: str, lock):
             print(f'{coin} doesnt exist')
             return None
         
-        # sv.settings.coin = 'BTCUSDT'
-        # sv.btc_data = gd.load_data_sets(1)
+        sv.settings.coin = 'BTCUSDT'
+        sv.btc_data_1 = gd.load_data_sets(60)
+        sv.btc_data_2 = gd.load_data_sets(1440)
         # sv.btc_cand_dict = util.create_candle_dict(sv.btc_data)
 
         sv.unfiltered_positions = util.load_etalon_positions()
         sv.etalon_positions = stat.filter_positions(sv.unfiltered_positions, False)
         sv.settings.coin = coin
+        
         
         data_gen_1m = gd.load_data_in_chunks(sv.settings, 100000, 1)
         position_collector = []
@@ -136,13 +138,25 @@ async def mp_saldo(coin_list, use_multiprocessing=True):
         # print(sv.max_val)
         dict_splited = stat.sort_by_type(copy.deepcopy(filtred_positions))
         for key, pos in dict_splited.items():
+
             if sv.settings.cold_count_print_all or sv.settings.cold_count_print_res[key] ==1:
                 drdw, type_collection = stat.dangerous_moments(pos)
                 points = util.get_points_value(len(pos))
                 path = viz.plot_time_series(pos, True, points, True, drdw, {})
                 await tel.send_inform_message(f'{key}', path, True)
                 time.sleep(0.5)
+                if key == 'long_1':
+                    path_2 = viz.plot_profit(pos)
+                    await tel.send_inform_message(f'Profit list', path_2, True)
 
         points = util.get_points_value(len(filtred_positions))
         path = viz.plot_time_series(filtred_positions, True, points, True, dropdowns, {})
         await tel.send_inform_message(f'{full_report}', path, True)
+
+        # path_2 = viz.plot_profit(util.sum_profits_by_day(filtred_positions))
+        # await tel.send_inform_message(f'Profit list', path_2, True)
+        divider = 1 if len(filtred_positions)<100 else 4 if len(filtred_positions)< 400 else 6
+        div_list = util.split_list(filtred_positions, divider)
+        for i, part in enumerate(div_list):
+            path_3 = viz.plot_types(part)
+            await tel.send_inform_message(f'Types list {i}', path_3, True)
