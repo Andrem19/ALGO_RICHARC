@@ -3,12 +3,15 @@ from tensorflow import keras
 import shared_vars as sv
 from imblearn.over_sampling import SMOTE
 import numpy as np
+from keras.callbacks import ModelCheckpoint
 import matplotlib.pyplot as plt
 from joblib import dump
 from keras.regularizers import L1L2
+from keras.layers import BatchNormalization
 from keras.layers import GaussianNoise
 from sklearn.utils import resample
 from keras.models import Sequential
+from sklearn.preprocessing import MinMaxScaler
 from keras.layers import Dense, Dropout, Conv1D, Flatten, MaxPooling1D
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, accuracy_score
@@ -40,8 +43,17 @@ class MyCallback(tf.keras.callbacks.Callback):
         with open(json_file_path, 'w') as file:
             json.dump(data, file)
 
+class MCallback(tf.keras.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs=None):
+        json_file_path = 'message.json'
+        with open(json_file_path, 'r') as file:
+            data = json.load(file)
+        if data['stop']:
+            self.model.stop_training = True
+
 def train_2Dpic_model_2(softmsax: int, path: str, start: bool):
-    callbacks = [MyCallback(), tf.keras.callbacks.EarlyStopping(patience=5, restore_best_weights=True)]
+    checkpoint = ModelCheckpoint(f'_models/my_model_{sv.mod_example}.h5', monitor='val_loss', save_best_only=True, mode='min')
+    callbacks = [MyCallback(), tf.keras.callbacks.EarlyStopping(patience=12, restore_best_weights=True), checkpoint]
     train_dir = path
     batch_size = 32
     img_height = 340
@@ -49,7 +61,7 @@ def train_2Dpic_model_2(softmsax: int, path: str, start: bool):
 
     train_ds = tf.keras.preprocessing.image_dataset_from_directory(
     train_dir,
-    validation_split=0.2,
+    validation_split=0.1,
     subset="training",
     seed=123,
     image_size=(img_height, img_width),
@@ -57,7 +69,7 @@ def train_2Dpic_model_2(softmsax: int, path: str, start: bool):
 
     val_ds = tf.keras.preprocessing.image_dataset_from_directory(
     train_dir,
-    validation_split=0.2,
+    validation_split=0.1,
     subset="validation",
     seed=123,
     image_size=(img_height, img_width),
@@ -67,31 +79,32 @@ def train_2Dpic_model_2(softmsax: int, path: str, start: bool):
     train_ds = train_ds.map(lambda x, y: (normalization_layer(x), y))
     val_ds = val_ds.map(lambda x, y: (normalization_layer(x), y))
 
-    data_augmentation = tf.keras.Sequential([
-        # tf.keras.layers.experimental.preprocessing.RandomFlip('horizontal'),
-        tf.keras.layers.experimental.preprocessing.RandomRotation(0.2),
-        tf.keras.layers.experimental.preprocessing.RandomZoom(0.1),
-        tf.keras.layers.experimental.preprocessing.RandomTranslation(0.1, 0.1),
-    ])
     # data_augmentation = tf.keras.Sequential([
+    #     # tf.keras.layers.experimental.preprocessing.RandomFlip('horizontal'),
+    #     tf.keras.layers.experimental.preprocessing.RandomRotation(0.2),
     #     tf.keras.layers.experimental.preprocessing.RandomZoom(0.1),
     #     tf.keras.layers.experimental.preprocessing.RandomTranslation(0.1, 0.1),
     # ])
     if start:
         model = keras.Sequential([
             # data_augmentation,
-            keras.layers.Conv2D(32, 3, activation='relu', input_shape=(img_height, img_width, 3)),
+            keras.layers.Conv2D(64, 3, activation='relu', input_shape=(img_height, img_width, 3)),
             keras.layers.BatchNormalization(),
             keras.layers.MaxPooling2D(2),
-            keras.layers.Conv2D(64, 3, activation='relu'),
-            keras.layers.BatchNormalization(),
-            keras.layers.MaxPooling2D(2),
+            # keras.layers.Dropout(0.2),
             keras.layers.Conv2D(128, 3, activation='relu'),
             keras.layers.BatchNormalization(),
             keras.layers.MaxPooling2D(2),
-            keras.layers.Dropout(0.5),
+            # keras.layers.Dropout(0.2),
+            keras.layers.Conv2D(256, 3, activation='relu'),
+            keras.layers.BatchNormalization(),
+            keras.layers.MaxPooling2D(2),
+            keras.layers.Dropout(0.3),
             keras.layers.Flatten(),
+            # tf.keras.layers.GlobalAveragePooling2D(),
+            # keras.layers.Dense(256, activation='relu'),
             keras.layers.Dense(128, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.01)),
+            
             keras.layers.Dense(softmsax, activation='softmax')
         ])
 
@@ -99,16 +112,16 @@ def train_2Dpic_model_2(softmsax: int, path: str, start: bool):
                     loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
                     metrics=['accuracy'])
     else:
-        model = tf.keras.models.load_model('_models/my_model_1.keras')
+        model = tf.keras.models.load_model(f'_models/my_model_{sv.mod_example}.h5')
 
-    epochs = 25
+    epochs = 100
     history = model.fit(
     train_ds,
     validation_data=val_ds,
     epochs=epochs,
     callbacks=callbacks
     )
-    model.save('_models/my_model_1.keras')
+    model.save(f'_models/my_model_{sv.mod_example}.keras')
     return model
 
 def train_2Dpic_model(softmsax: int, path: str, min_sample: int):
@@ -478,5 +491,80 @@ def train_LSTM_classif(path: str):
     # print('Training loss:', loss)
     # print('Training accuracy:', accuracy)
     model.save('_models/my_model_3.keras')
+
+    return model
+
+
+
+# Определение и тренировка модели LSTM
+def train_lstm_model(file_path, n_steps=84, epochs=50, batch_size=32):
+    data = pd.read_csv(file_path, header=None)
+    X = data.iloc[:, :-1].values
+    y = data.iloc[:, -1].values
+
+    # Разделение данных на тренировочный и валидационный наборы
+    X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    # Форматирование данных для LSTM
+    X_train = X_train.reshape((X_train.shape[0], X_train.shape[1], 1))
+    X_val = X_val.reshape((X_val.shape[0], X_val.shape[1], 1))
+
+    # Создание модели
+    model = tf.keras.models.Sequential([
+        tf.keras.layers.LSTM(50, activation='relu', return_sequences=True, input_shape=(X_train.shape[1], 1)),
+        BatchNormalization(),
+        tf.keras.layers.Dropout(0.3),
+        tf.keras.layers.LSTM(256, activation='relu', return_sequences=True),
+        BatchNormalization(),
+        tf.keras.layers.Dropout(0.3),
+        tf.keras.layers.LSTM(128, activation='relu'),
+        BatchNormalization(),
+        tf.keras.layers.Dropout(0.3),
+        tf.keras.layers.Dense(1, kernel_regularizer=tf.keras.regularizers.l2(0.01))
+    ])
+    checkpoint = ModelCheckpoint('_models/my_model_5.h5', monitor='val_loss', save_best_only=True, mode='min')
+    callbacks = [MCallback(), checkpoint]
+
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+    model.compile(optimizer=optimizer, loss='mse')
+
+    # Тренировка модели с валидационными данными
+    model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=epochs, batch_size=batch_size, verbose=1, callbacks=callbacks)
+
+    return model
+
+def train_lstm_model_2(file_path, n_steps=84, epochs=50, batch_size=32):
+    data = pd.read_csv(file_path, header=None)
+    X = data.iloc[:, :-1].values
+    y = data.iloc[:, -1].values
+
+    # Разделение данных на тренировочный и валидационный наборы
+    X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    # Форматирование данных для LSTM
+    X_train = X_train.reshape((X_train.shape[0], X_train.shape[1], 1))
+    X_val = X_val.reshape((X_val.shape[0], X_val.shape[1], 1))
+
+    # Создание модели
+    model = tf.keras.models.Sequential([
+        tf.keras.layers.LSTM(128, activation='tanh', return_sequences=True, input_shape=(X_train.shape[1], 1)),
+        BatchNormalization(),
+        tf.keras.layers.Dropout(0.3),
+        tf.keras.layers.LSTM(256, activation='tanh', return_sequences=True),
+        BatchNormalization(),
+        tf.keras.layers.Dropout(0.3),
+        tf.keras.layers.LSTM(128, activation='tanh'),
+        BatchNormalization(),
+        tf.keras.layers.Dropout(0.3),
+        tf.keras.layers.Dense(1, activation='sigmoid', kernel_regularizer=tf.keras.regularizers.l2(0.01))
+    ])
+    checkpoint = ModelCheckpoint('_models/my_model_5.h5', monitor='val_loss', save_best_only=True, mode='min')
+    callbacks = [MCallback(), checkpoint]
+
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.0005)
+    model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
+
+    # Тренировка модели с валидационными данными
+    model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=epochs, batch_size=batch_size, verbose=1, callbacks=callbacks)
 
     return model

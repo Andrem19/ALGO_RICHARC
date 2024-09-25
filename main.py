@@ -22,33 +22,10 @@ import train as tr
 import helpers.tel as tel
 
 sv.telegram_api = 'API_TOKEN_1'
-coin_list = coins.best_set#coins.long_str_collection# coins.best_set
+coin_list = ['BTCUSDT']#coins.best_set#coins.long_str_collection# coins.best_set
 
 async def main(args):
-    sv.model_1 = tr.load_model('_models/my_model_1.keras')
-    # for c in coins.all_coins:
-    #     if c not in coins.best_set:
-    #         coin_list.append(c)
-    # coin_list_2 = []
-
-    # exchanges = util.load_data_from_file('contracts.json')
-    # coin_list = []
-    # num = 0
-    # sv.mexc = True
-    # for c in exchanges['MX']:
-    #     if c in coins.all_coins:
-    #         num+=1
-    #         print(num, c)
-    #         coin_list.append(c)
-
-    # for c in exchanges['HL']:
-    #     if c in coins.all_coins:
-    #         coin_list_2.append(c)
-    #         num = 0
-    # for co in coin_list_2:
-    #     if co not in coin_list:
-    #         num+=1
-    #         print(num, co)
+    util.delete_folder_contents('_temp_pic')
 
     sv.time_start = datetime.now().timestamp()
     sv.unique_ident = str(uuid.uuid4())[:8]
@@ -61,7 +38,7 @@ async def main(args):
         await ss.mp_saldo(coin_list, False)
     elif sv.settings.main_variant == 2:
         if sv.settings.hot_count_on_off==1:
-            await ms.mp_saldo(coin_list, False)
+            await ms.mp_saldo(coin_list, True)
         if sv.settings.cold_count_on_off==1:
             if sv.settings.hot_count_on_off==0:
                 sv.unique_ident = sv.settings.curren_uid

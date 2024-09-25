@@ -3,6 +3,7 @@ import datetime
 import shared_vars as sv
 import helpers.get_data as gd
 import traceback
+import helpers.tools as tools
 import coins as coins
 import random
 import json
@@ -311,6 +312,7 @@ def chose_arr(start_ind: int, arr: np.ndarray, step: int):
 def calculate_percent_difference(close, high_or_low):
     return (high_or_low - close) / close
 
+    
 def spread_imitation(profit: float) -> float:
     choice_list = [False, False, False, True]
     ch = random.choice(choice_list)
@@ -510,3 +512,81 @@ def find_index(timestamp, data):
 def split_list(lst, n):
     k, m = divmod(len(lst), n)
     return [lst[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n)]
+
+def get_time_segment(start_timestamp, end_timestamp, data):
+    result = []
+    for sublist in data:
+        timestamp = sublist[0]
+        if start_timestamp <= timestamp < end_timestamp:
+            result.append(sublist)
+    return np.array(result)
+
+def combine_last_candle(start_timestamp, end_timestamp, dt):
+    data = get_time_segment(start_timestamp, end_timestamp, dt)
+    if len(data) < 2:
+        return None
+
+    close = data[-1][4]
+    highs = data[:, 2]
+    lows = data[:, 3]
+    open = data[0][1]
+
+    high = np.max(highs)
+    low = np.min(lows)
+
+    return [data[0][0], open, high, low, close, 999]
+
+def check_long_rise(data, border):
+
+    close = data[-1][4]
+    highs = data[:, 2]
+    lows = data[:, 3]
+    open = data[0][1]
+
+    high = np.max(highs)
+    low = np.min(lows)
+
+    if open > close:
+        return False
+    
+    if tools.check_high_candel(open, low, 0.015):
+        return False
+
+    return tools.check_high_candel(close, open, border)
+
+
+def get_viz_time(h: int) -> str:
+    line = '|'
+    for _ in range(h):
+        line += '=|'
+    return line
+
+def get_ident_type(signal: str):
+    signals = {
+            'ham_1a': '**',
+            'ham_2a': '//',
+            'ham_5a': '()()',
+            'ham_5b': '##',
+            'ham_60c': '<>',
+            'ham_usdc': '==',
+            'ham_usdc_1': "__",
+            'ham_long': 'WW',
+            'long_1': '@@',
+        }
+    return signals.get(signal, '')
+
+
+def combine_time_candles(days, hours, d1, d2):
+
+    combined = days[-d1:]
+    # ind = d2-1
+    # last_day_timestamp = combined[ind][0]
+    
+    combined = combined[:-d2]
+    
+    last_day_timestamp = combined[-1][0] + 86400000
+    
+    h_list = [hour for hour in hours if hour[0] >= last_day_timestamp]
+    combined = np.vstack((combined, h_list))
+    
+    return combined

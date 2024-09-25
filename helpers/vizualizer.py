@@ -2,12 +2,14 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import mplfinance as mpf
 import matplotlib.dates as mdates
+import helpers.util as util
 from datetime import datetime
 import uuid
 import os
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import shared_vars as sv
 from PIL import Image
+import talib
 import helpers.statistic_count as stat
 import numpy as np
 from matplotlib.ticker import MultipleLocator
@@ -312,25 +314,21 @@ def save_candlesticks_pic_2(candles: list, inset_candles: list, path: str):
     my_style = mpf.make_mpf_style(base_mpf_style='binance', gridstyle='', y_on_right=False)
 
     # Create the main plot
-    fig, ax = plt.subplots(figsize=(10, 10))
-    mpf.plot(df, type='candle', style=my_style, ax=ax, axisoff=True)
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 10))
+    
 
-    # Create the inset plot if inset_df is not empty
-    if not inset_df.empty:
-        ax_inset = inset_axes(ax, width="30%", height="30%", loc='lower left')
-        mpf.plot(inset_df, type='candle', style=my_style, ax=ax_inset, axisoff=True)
-
-        # Remove the frame and ticks from the inset plot
-        for spine in ax_inset.spines.values():
+    # Plot the main candlesticks
+    mpf.plot(df, type='candle', style=my_style, ax=ax1, axisoff=True)
+    # ax1.set_title(util.get_ident_type(sv.signal.type_os_signal))
+    # Plot the inset candlesticks
+    mpf.plot(inset_df, type='candle', style=my_style, ax=ax2, axisoff=True)
+    # ax2.set_title(util.get_viz_time(int(datetime.fromtimestamp(candles[-1][0]/1000).hour)))
+    # Remove the frame and ticks from both plots
+    for ax in [ax1, ax2]:
+        for spine in ax.spines.values():
             spine.set_visible(False)
-        ax_inset.set_xticks([])
-        ax_inset.set_yticks([])
-
-    # Remove the frame and ticks from the main plot
-    for spine in ax.spines.values():
-        spine.set_visible(False)
-    ax.set_xticks([])
-    ax.set_yticks([])
+        ax.set_xticks([])
+        ax.set_yticks([])
 
     # Save the figure
     plt.savefig(path, bbox_inches='tight', pad_inches=0)
@@ -360,11 +358,12 @@ def save_candlesticks_pic_3(candles: list, inset_candles: list, inset_candles_2:
 
     # Create the main plot
     fig, ax = plt.subplots(figsize=(10, 10))
-    mpf.plot(df, type='candle', style=my_style, ax=ax, axisoff=True)
+    ax_main = fig.add_axes([0.05, 0.5, 0.9, 0.45])  # Main plot in the upper half
+    mpf.plot(df, type='candle', style=my_style, ax=ax_main, axisoff=True)
 
     # Create the first inset plot if inset_df is not empty
     if not inset_df.empty:
-        ax_inset = inset_axes(ax, width="30%", height="30%", loc='lower left')
+        ax_inset = fig.add_axes([0.05, 0.05, 0.2, 0.45])  # First inset plot in the lower left
         mpf.plot(inset_df, type='candle', style=my_style, ax=ax_inset, axisoff=True)
 
         # Remove the frame and ticks from the first inset plot
@@ -375,7 +374,7 @@ def save_candlesticks_pic_3(candles: list, inset_candles: list, inset_candles_2:
 
     # Create the second inset plot if inset_df_2 is not empty
     if not inset_df_2.empty:
-        ax_inset_2 = inset_axes(ax, width="30%", height="30%", loc='lower left', bbox_to_anchor=(0.35, 0.05, 1, 1), bbox_transform=ax.transAxes)
+        ax_inset_2 = fig.add_axes([0.3, 0.05, 0.65, 0.45])  # Second inset plot in the lower right
         mpf.plot(inset_df_2, type='candle', style=my_style, ax=ax_inset_2, axisoff=True)
 
         # Remove the frame and ticks from the second inset plot
@@ -385,17 +384,78 @@ def save_candlesticks_pic_3(candles: list, inset_candles: list, inset_candles_2:
         ax_inset_2.set_yticks([])
 
     # Remove the frame and ticks from the main plot
-    for spine in ax.spines.values():
+    for spine in ax_main.spines.values():
         spine.set_visible(False)
-    ax.set_xticks([])
-    ax.set_yticks([])
+    ax_main.set_xticks([])
+    ax_main.set_yticks([])
 
-    # Remove the "Price" label from the y-axis
-    ax.yaxis.label.set_visible(False)
+    # Remove the "Price" label from the y-axis of the main plot
+    ax_main.yaxis.label.set_visible(False)
+
+    # Remove the "Price" label from the y-axis of the inset plots
+    if not inset_df.empty:
+        ax_inset.yaxis.label.set_visible(False)
+    if not inset_df_2.empty:
+        ax_inset_2.yaxis.label.set_visible(False)
 
     # Save the figure
     plt.savefig(path, bbox_inches='tight', pad_inches=0)
     plt.close()
 
+def save_candlesticks_pic_2BB(candles: list, inset_candles: list, path: str):
+    # Convert the main candlesticks data into a pandas DataFrame
+    df = pd.DataFrame(candles, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
+    df['timestamp'] = df['timestamp'].astype(int)
+    df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms', utc=False).dt.tz_localize('UTC').dt.tz_convert('Europe/London')
+    df.set_index('timestamp', inplace=True)
 
+    # Convert the inset candlesticks data into a pandas DataFrame
+    inset_df = pd.DataFrame(inset_candles, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
+    inset_df['timestamp'] = inset_df['timestamp'].astype(int)
+    inset_df['timestamp'] = pd.to_datetime(inset_df['timestamp'], unit='ms', utc=False).dt.tz_localize('UTC').dt.tz_convert('Europe/London')
+    inset_df.set_index('timestamp', inplace=True)
 
+    # Define the style dictionary
+    my_style = mpf.make_mpf_style(base_mpf_style='binance', gridstyle='', y_on_right=False)
+
+    # Calculate Bollinger Bands for both datasets
+    def calculate_bollinger_bands(df):
+        upper_band, middle_band, lower_band = talib.BBANDS(df['close'], timeperiod=20, nbdevup=2, nbdevdn=2, matype=0)
+        return upper_band, middle_band, lower_band
+
+    # Create the main plot
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 10))
+
+    # Calculate Bollinger Bands for the main plot
+    upper_band, middle_band, lower_band = calculate_bollinger_bands(df)
+    addplots_main = [
+        mpf.make_addplot(upper_band, ax=ax1, color='red'),
+        mpf.make_addplot(middle_band, ax=ax1, color='yellow'),
+        mpf.make_addplot(lower_band, ax=ax1, color='blue')
+    ]
+
+    # Calculate Bollinger Bands for the inset plot
+    upper_band_inset, middle_band_inset, lower_band_inset = calculate_bollinger_bands(inset_df)
+    addplots_inset = [
+        mpf.make_addplot(upper_band_inset, ax=ax2, color='red'),
+        mpf.make_addplot(middle_band_inset, ax=ax2, color='yellow'),
+        mpf.make_addplot(lower_band_inset, ax=ax2, color='blue')
+    ]
+    ax2.set_title(util.get_viz_time(int(datetime.fromtimestamp(candles[-1][0]/1000).hour)))
+
+    # Plot the main candlesticks with Bollinger Bands
+    mpf.plot(df, type='candle', style=my_style, ax=ax1, addplot=addplots_main, axisoff=True)
+
+    # Plot the inset candlesticks with Bollinger Bands
+    mpf.plot(inset_df, type='candle', style=my_style, ax=ax2, addplot=addplots_inset, axisoff=True)
+
+    # Remove the frame and ticks from both plots
+    for ax in [ax1, ax2]:
+        for spine in ax.spines.values():
+            spine.set_visible(False)
+        ax.set_xticks([])
+        ax.set_yticks([])
+
+    # Save the figure
+    plt.savefig(path, bbox_inches='tight', pad_inches=0)
+    plt.close()

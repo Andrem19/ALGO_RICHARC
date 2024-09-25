@@ -6,6 +6,7 @@ import json
 import time
 import threading
 import asyncio
+import shared_vars as sv
 import requests
 import helpers.tel as tel
 
@@ -33,9 +34,9 @@ def remove_files_to_limit(directory: str):
             
             for file in files_to_remove:
                 os.remove(file)
-                print(f"File deleted: {file}")
+    print(f"Files left in each directory: {min_file_count}")
 
-remove_files_to_limit('_pic_train_data')
+remove_files_to_limit(f'_pic_train_data/{sv.model_number}')
 
 
 def check_new_message():
@@ -62,7 +63,7 @@ def check_new_message():
 thread = threading.Thread(target=check_new_message)
 thread.start()
 
-tr.train_2Dpic_model_2(2, '_pic_train_data', True)
+tr.train_2Dpic_model_2(3, f'_pic_train_data/{sv.model_number}', True)
 
 stop_thread = True
 thread.join()

@@ -10,13 +10,13 @@ import traceback
 def run(data, last_position, is_first_iter: bool):
     try:
         data_len = len(data)
-        data_len_for_loop = data_len - 500
+        data_len_for_loop = data_len - 90
         profit_list: list = []
         if last_position:
             profit_list.append(last_position)
 
 
-        i = 225
+        i = 1200
 
         while i < data_len_for_loop:
             
@@ -24,6 +24,10 @@ def run(data, last_position, is_first_iter: bool):
 
             if sv.signal.signal in sv.settings.s:
                 tm1 = prc.position_proccess(profit_list, data, is_first_iter)
+                if profit_list[-1]['profit']<=0:
+                    sv.minus+=1
+                else:
+                    sv.plus+=1
                 i+=tm1
             else: 
                 i+=1

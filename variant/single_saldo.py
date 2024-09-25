@@ -35,10 +35,17 @@ def do_job(coin: str, profit_path: str, lock):
         print(f'{coin} doesnt exist')
         return
     
+    sv.settings.coin = 'BTCUSDT'
+    sv.btc_data_1 = gd.load_data_sets(30)
+    # sv.btc_data_2 = gd.load_data_sets(1)
+    
     etalon_positions = util.load_etalon_positions()
     sv.etalon_positions = stat.filter_positions(etalon_positions)
     util.load_add_data()
     sv.settings.coin = coin
+
+    # sv.btc_data_3 = gd.load_data_sets(60)
+
     if sv.settings.multi_tf == 0:
         data_gen = gd.load_data_in_chunks(sv.settings, 100000, sv.settings.time)
     else:
@@ -101,7 +108,7 @@ async def mp_saldo(coin_list, use_multiprocessing=True):
     if os.path.exists(f'_profits/{sv.unique_ident}_profits.txt'):
         all_positions = util.load_positions('_profits')
         if len(all_positions) > 0:
-            filtred_positions = stat.filter_positions(all_positions)
+            filtred_positions = all_positions# stat.filter_positions(all_positions)
             dropdowns, type_collection = stat.dangerous_moments(filtred_positions)
             med_dur = stat.calc_med_duration(filtred_positions)
             stat_dict = stat.get_type_statistic(filtred_positions)
@@ -120,6 +127,8 @@ async def mp_saldo(coin_list, use_multiprocessing=True):
             path = viz.plot_time_series(filtred_positions, True, points, True, dropdowns, full_report)
             # if sv.saldo_sum>70 and len(filtred_positions)>600:
             await tel.send_inform_message(f'{full_report}', path, True)
+            path_3 = viz.plot_types(filtred_positions)
+            await tel.send_inform_message(f'', path_3, True)
             #     time.sleep(2)
             #await tel.send_inform_message(f'{sv.reactor.pattern_info()}', path, True)
                 

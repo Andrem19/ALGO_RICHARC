@@ -234,7 +234,7 @@ def filter_positions(deals, i5 = True):
         'ham_5b': 2,#2
         'test_5': 5,
         'test_10': 5,
-        'long_1': 1,
+        'long_1': 3,
     }
     on_off = {
         'stub': 1,

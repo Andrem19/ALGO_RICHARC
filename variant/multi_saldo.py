@@ -47,12 +47,14 @@ def do_job(coin: str, profit_path: str, lock):
         
         sv.settings.coin = 'BTCUSDT'
         sv.btc_data_1 = gd.load_data_sets(60)
-        sv.btc_data_2 = gd.load_data_sets(1440)
+        sv.btc_data_2 = gd.load_data_sets(1)
+        # sv.btc_data_3 = gd.load_data_sets(60)
         # sv.btc_cand_dict = util.create_candle_dict(sv.btc_data)
 
         sv.unfiltered_positions = util.load_etalon_positions()
         sv.etalon_positions = stat.filter_positions(sv.unfiltered_positions, False)
         sv.settings.coin = coin
+        sv.btc_data_3 = gd.load_data_sets(5)
         
         
         data_gen_1m = gd.load_data_in_chunks(sv.settings, 100000, 1)

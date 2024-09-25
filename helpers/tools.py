@@ -152,6 +152,25 @@ def convert_timeframe(opens: np.ndarray, highs: np.ndarray, lows: np.ndarray, cl
 
     return new_opens, new_highs, new_lows, new_closes
 
+@jit(nopython=True)
+def convert_timeframe_with_timestamps(timestamps: np.ndarray, opens: np.ndarray, highs: np.ndarray, lows: np.ndarray, closes: np.ndarray, timeframe: int, ln: int):
+    length_opens = len(opens)
+    length = length_opens // timeframe if ln == 0 else ln
+
+    result = np.zeros((length, 6))
+
+    for i in range(length):
+        start = length_opens - (i + 1) * timeframe
+        end = length_opens - i * timeframe
+
+        result[-(i + 1), 0] = timestamps[end - 1]
+        result[-(i + 1), 1] = opens[start]
+        result[-(i + 1), 2] = np.max(highs[start:end])
+        result[-(i + 1), 3] = np.min(lows[start:end])
+        result[-(i + 1), 4] = closes[end - 1]
+        result[-(i + 1), 5] = 999
+
+    return result
 
 def check_high_candel(high: float, low: float, border, coin: str = 'XRPUSDT'):
     vol_can = util.calculate_percent_difference(high, low)

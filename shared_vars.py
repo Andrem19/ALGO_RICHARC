@@ -6,6 +6,9 @@ from datetime import datetime, timedelta
 from commander.com import Commander
 from database.core import RycharaDB
 from models.reactor import Reactor
+import joblib
+import tensorflow as tf
+import uuid
 
 days_gap = {}
 telegram_api = 'API_TOKEN_1'
@@ -64,6 +67,7 @@ mx_block = 0
 saldo_sum = 0
 btc_data_1 = None
 btc_data_2 = None
+btc_data_3 = None
 btc_cand_dict = {}
 btc_rsi_dict = {}
 
@@ -87,5 +91,17 @@ month_deal_count = {}
 prev_plus = True
 mexc = False
 
-model_1 = None
+mod_example = 36
+# model_1 = tf.keras.models.load_model(f'_models/my_model_35.h5')
+# model_2 = tf.keras.models.load_model('_models/my_model_29.h5')
+# model_3 = tf.keras.models.load_model('_models/my_model_22.h5')
 long_counter = 0
+
+was_pos_before = 0
+image_ident = str(uuid.uuid4())[:8]
+model_number = 13
+prev_val = 0
+plus = 0
+minus = 0
+scaler_1 = joblib.load('scaler_1.pkl')
+scaler_2 = joblib.load('scaler_2.pkl')

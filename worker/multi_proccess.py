@@ -86,7 +86,7 @@ def position_proccess(profit_list: list, dt: np.ndarray, is_first_iter: bool):
             if sv.settings.drawing:
 
                 title = f'up {index}' if sv.signal.signal == 1 else f'down {index}'
-                viz.draw_candlesticks(dt[ind-50:ind+index+1], title+f' {sv.signal.type_os_signal}', 30)
+                viz.draw_candlesticks(dt[ind-60:ind+index+1], title+f' {sv.signal.type_os_signal}', 30)
         index = index-1 if type_close == 'timefinish' else index
 
         return index+1
