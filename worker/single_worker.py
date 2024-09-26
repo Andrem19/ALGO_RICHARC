@@ -25,9 +25,15 @@ def run(data, last_position, is_first_iter: bool):
             if sv.signal.signal in sv.settings.s:
                 tm1 = prc.position_proccess(profit_list, data, is_first_iter)
                 if profit_list[-1]['profit']<=0:
-                    sv.minus+=1
+                    if f'{sv.cl}_minus' in sv.report:
+                        sv.report[f'{sv.cl}_minus']+=1
+                    else:
+                        sv.report[f'{sv.cl}_minus']=1
                 else:
-                    sv.plus+=1
+                    if f'{sv.cl}_plus' in sv.report:
+                        sv.report[f'{sv.cl}_plus']+=1
+                    else:
+                        sv.report[f'{sv.cl}_plus']=1
                 i+=tm1
             else: 
                 i+=1

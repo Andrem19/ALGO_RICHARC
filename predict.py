@@ -57,22 +57,35 @@ def predict_image_class(model, variant: int, data: np.ndarray, sample_2: np.ndar
 import numpy as np
 from keras.models import Model
 
-def make_prediction(model: Model, input_data: list, scaler: StandardScaler) -> float:
+def make_prediction(model: Model, input_data: list, scaler: StandardScaler, variant: int) -> float:
     # Проверяем, что входные данные имеют правильный размер
-    if len(input_data) != 150:
+    if len(input_data) != 75:
         raise ValueError("input_data должно содержать 200 значений (50 свечей по 4 параметра).")
     
     # input_array = np.array(input_data).reshape(-1, 4)
-    scaled_input = scaler.transform([input_data])
+    scaled_input =  scaler.transform([input_data])#np.array(input_data)#
     # Преобразуем входные данные в нужную форму (50, 4)
     scaled_input = scaled_input.reshape(1, 25, 3)
     
     # Делаем предсказание
     prediction = model.predict(scaled_input, verbose=0)
     predicted_class = np.argmax(prediction, axis=1)[0]
-    print(prediction)
+    print(prediction[0])
+    return predicted_class, prediction[0]
     # Возвращаем первое (и единственное) предсказанное значение
-    return predicted_class
+    # if variant == 1:
+    #     if prediction[0][1] > 0.70:    
+    #         return True
+    #     else:
+    #         return False
+    # elif variant == 2:
+    #     return predicted_class
+    # elif variant == 3:
+    #     if prediction[0][2] > 0.50 and prediction[0][1]<0.20:
+    #         return True
+    #     else:
+    #         return False
+    # return predicted_class
 
 def make_prediction_2(model: Model, input_data: list, scaler1: StandardScaler, scaler2: StandardScaler, variant: int) -> int:
     # Проверяем, что входные данные имеют правильный размер

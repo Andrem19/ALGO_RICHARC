@@ -58,8 +58,6 @@ def trend(closes: np.ndarray, variant: str, step: int, minus_last: int):
     return trend
 
 def what_trend(closes: np.ndarray, step: int, minus_last: int):
-    if len(closes) < 60:
-        return 'none'
     row_1 = util.chose_arr(0, closes[:-minus_last], step)
     row_2 = util.chose_arr(3, closes[:-minus_last], step)
     row_3 = util.chose_arr(6, closes[:-minus_last], step)

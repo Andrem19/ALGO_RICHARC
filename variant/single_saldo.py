@@ -36,7 +36,7 @@ def do_job(coin: str, profit_path: str, lock):
         return
     
     sv.settings.coin = 'BTCUSDT'
-    sv.btc_data_1 = gd.load_data_sets(30)
+    sv.btc_data_1 = gd.load_data_sets(1440)
     # sv.btc_data_2 = gd.load_data_sets(1)
     
     etalon_positions = util.load_etalon_positions()
@@ -129,6 +129,7 @@ async def mp_saldo(coin_list, use_multiprocessing=True):
             await tel.send_inform_message(f'{full_report}', path, True)
             path_3 = viz.plot_types(filtred_positions)
             await tel.send_inform_message(f'', path_3, True)
+            print('REPORT: ', sv.report)
             #     time.sleep(2)
             #await tel.send_inform_message(f'{sv.reactor.pattern_info()}', path, True)
                 

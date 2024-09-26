@@ -20,11 +20,11 @@ class MyCallback(tf.keras.callbacks.Callback):
             data = json.load(file)
         if data['stop']:
             self.model.stop_training = True
-        if logs.get('loss') < 0.002:
+        if logs.get('loss') < 0.00002:
             print("\nLoss is below 0.02, stopping training!")
             self.model.stop_training = True
         
-        # data['message'] = f"Epoch {epoch + 1}:\nloss = {round(logs['loss'], 4)}\nval_loss = {round(logs['val_loss'], 4)}"
+        #data['message'] = f"Epoch {epoch + 1}:\nloss = {round(logs['loss'], 4)}\nval_loss = {round(logs['val_loss'], 4)}"
         data['message'] = f"Epoch {epoch + 1}:\nloss = {round(logs['loss'], 4)}\naccuracy = {round(logs['accuracy'], 4)}\nval_loss = {round(logs['val_loss'], 4)}\nval_accuracy = {round(logs['val_accuracy'], 4)}"
         data['is_new_message'] = True
         
@@ -99,7 +99,7 @@ def train_2Dpic_model_regression(path: str):
 
 def train_model(csv_file):
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=6, min_lr=0.00001)
-    checkpoint = ModelCheckpoint(f'_models/my_model_{sv.mod_example}.h5', monitor='val_loss', save_best_only=True, mode='min')
+    checkpoint = ModelCheckpoint(f'_models/my_model_{sv.mod_example}.h5', monitor='val_accuracy', save_best_only=True, mode='max')
     callbacks = [MyCallback(), checkpoint, reduce_lr]
     # 1. Чтение данных из CSV
     data = pd.read_csv(csv_file, header=None)
@@ -107,10 +107,9 @@ def train_model(csv_file):
     # Допустим, у нас 200 столбцов для 50 свечей (OHLC) и 1 столбец для target
     n_features = 75  # 4 (OHLC) * 50 свечей
     X = data.iloc[:, :n_features].values  # Признаки (OHLC)
-    y = data.iloc[:, n_features].values   # Target (процент изменения закрытия)
-    y = to_categorical(y, num_classes=3)
+    y = data.iloc[:, n_features].values#:n_features+3].values   # Target (процент изменения закрытия)
+    y = to_categorical(y, num_classes=5)
     # 2. Нормализация данных (очень важно для LSTM)
-    # scaler = MinMaxScaler(feature_range=(0, 1))
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
     joblib.dump(scaler, 'scaler.pkl')
@@ -119,25 +118,23 @@ def train_model(csv_file):
     X_lstm = X_scaled.reshape(X_scaled.shape[0], 25, 3)  # 50 свечей, 4 значения на свечу (OHLC)
 
     # 4. Разделение на обучающие и валидационные данные
-    X_train, X_val, y_train, y_val = train_test_split(X_lstm, y, test_size=0.05, random_state=42)
+    X_train, X_val, y_train, y_val = train_test_split(X_lstm, y, test_size=0.15, random_state=42)
 
     # 5. Создание LSTM модели
     model = tf.keras.models.Sequential([
         tf.keras.layers.LSTM(128, return_sequences=True, input_shape=(25, 3)),
         tf.keras.layers.BatchNormalization(),
-        tf.keras.layers.Dropout(0.5),
-        tf.keras.layers.LSTM(64),#, return_sequences=True),
-        # tf.keras.layers.LSTM(64),
+        tf.keras.layers.Dropout(0.3),
+        tf.keras.layers.LSTM(64),
         tf.keras.layers.BatchNormalization(),
-        tf.keras.layers.Dropout(0.5),
-        # tf.keras.layers.Dense(128),
-        # tf.keras.layers.Dropout(0.2),
-        tf.keras.layers.Dense(32, kernel_regularizer=tf.keras.regularizers.l2(0.02)),
-        tf.keras.layers.Dense(3, activation='softmax')
+        tf.keras.layers.Dropout(0.3),
+        tf.keras.layers.Dense(32, kernel_regularizer=tf.keras.regularizers.l2(0.01)),
+        tf.keras.layers.Dense(5, activation='softmax')
     ])
     # Компиляция модели
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
-    model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
+
+    model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])#loss='mse'
 
     # 6. Тренировка модели
     history = model.fit(

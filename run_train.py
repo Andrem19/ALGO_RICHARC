@@ -51,7 +51,7 @@ def balance_csv(file_path, output_path):
     
     # Подсчет количества классов
     class_counts = y.value_counts()
-    
+    print('class_counts: ', class_counts)
     # Определение меньшего класса
     minority_class = class_counts.idxmin()
     majority_class = class_counts.idxmax()
@@ -78,7 +78,7 @@ def balance_csv(file_path, output_path):
 balance_csv(f'_train_data/train_data_{sv.model_number}.csv', f'_train_data/train_data_{sv.model_number}.csv')
 
 # trr.train_2Dpic_model_regression(f'_pic_train_data/{sv.model_number}')
-trr.train_model_with_two_series(f'_train_data/train_data_{sv.model_number}.csv')
+trr.train_model(f'_train_data/train_data_{sv.model_number}.csv')
 
 stop_thread = True
 thread.join()
