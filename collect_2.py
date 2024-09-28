@@ -20,15 +20,16 @@ def return_class(diff: float, coefficient: float) -> int:
 
 sv.settings.coin = 'BTCUSDT'
 data_1 = gd.load_data_sets(30)
-# data_2 = gd.load_data_sets(1440)
+# data_2 = gd.load_data_sets(240)
+# data_3 = gd.load_data_sets(1440)
 len_data = len(data_1)
 print(f'Data length: {len_data}')
 path = f'_train_data/train_data_{sv.model_number}.csv'
-for i in range(100, len_data-4):
-    closes = data_1[i-25:i, 4]
-    trend = tools.what_trend(closes, 5, 5)
-    if trend != 'up':
-        continue
+for i in range(1200, len_data-4):
+    # closes = data_1[i-25:i, 4]
+    # trend = tools.what_trend(closes, 5, 5)
+    # if trend != 'down':
+    #     continue
     # if i%2==0:
     #     diff = round(util.calculate_percent_difference(data_1[i][1], data_1[i][4])*100, 3)
     #     if diff < 0.4 and diff > -0.4:
@@ -38,21 +39,36 @@ for i in range(100, len_data-4):
     
     list_to_save = []
     # rsi = talib.RSI(closes)
-
-    # index = util.find_index(data_1[i][0], data_2)
+    # index = util.find_index(data_1[i][0], data_3)
     # if index is not None and index > 25:
-    #     last_cand = util.combine_last_candle(data_2[index][0], data_1[i][0], data_1)
+    #     last_cand = util.combine_last_candle(data_3[index][0], data_1[i][0], data_1)
     #     if last_cand is not None:
-    #         sample_2 = data_2[index-24:index]
-    #         sample_2 = np.append(sample_2, [last_cand], axis=0)
+    #         sample_3 = data_3[index-24:index]
+    #         sample_3 = np.append(sample_3, [last_cand], axis=0)
     #     else:
-    #         sample_2 = data_2[index-25:index]
+    #         sample_3 = data_3[index-25:index]
 
-        # if len(sample_2)==25:
-        #     for p in range(len(sample_2)):
-        #         list_to_save.append(round(util.calculate_percent_difference(sample_2[p][1], sample_2[p][4])*100, 3))
-        #         list_to_save.append(round(util.calculate_percent_difference(sample_2[p][1], sample_2[p][2])*100, 3))
-        #         list_to_save.append(round(util.calculate_percent_difference(sample_2[p][1], sample_2[p][3])*100, 3))
+    #     if len(sample_3)==25:
+    #         for l in range(len(sample_3)):
+    #             list_to_save.append(round(util.calculate_percent_difference(sample_3[l][1], sample_3[l][4])*100, 3))
+    #             list_to_save.append(round(util.calculate_percent_difference(sample_3[l][1], sample_3[l][2])*100, 3))
+    #             list_to_save.append(round(util.calculate_percent_difference(sample_3[l][1], sample_3[l][3])*100, 3))
+
+    #     index = util.find_index(data_1[i][0], data_2)
+    #     if index is not None and index > 25:
+    #         last_cand = util.combine_last_candle(data_2[index][0], data_1[i][0], data_1)
+    #         if last_cand is not None:
+    #             sample_2 = data_2[index-24:index]
+    #             sample_2 = np.append(sample_2, [last_cand], axis=0)
+    #         else:
+    #             sample_2 = data_2[index-25:index]
+
+    #         if len(sample_2)==25:
+    #             for p in range(len(sample_2)):
+    #                 list_to_save.append(round(util.calculate_percent_difference(sample_2[p][1], sample_2[p][4])*100, 3))
+    #                 list_to_save.append(round(util.calculate_percent_difference(sample_2[p][1], sample_2[p][2])*100, 3))
+    #                 list_to_save.append(round(util.calculate_percent_difference(sample_2[p][1], sample_2[p][3])*100, 3))
+            
 
     for j in range(len(chunk)):
         list_to_save.append(round(util.calculate_percent_difference(chunk[j][1], chunk[j][4])*100, 3))
@@ -77,7 +93,7 @@ for i in range(100, len_data-4):
     # diff_3 = round(util.calculate_percent_difference(data_1[i][1], data_1[i][3])*100, 3)
     # list_to_save.append(return_class(diff_1, 1.2))
     
-    list_to_save.append(return_class(diff_1, 1))
+    list_to_save.append(return_class(diff_1, 1.6))
 
         
     # list_to_save.append(diff_2)

@@ -75,7 +75,8 @@ def balance_csv(file_path, output_path):
     # Сохранение сбалансированного набора данных в новый CSV файл
     balanced_data.to_csv(output_path, header=False, index=False)
 
-balance_csv(f'_train_data/train_data_{sv.model_number}.csv', f'_train_data/train_data_{sv.model_number}.csv')
+util.balance_csv(f'_train_data/train_data_{sv.model_number}.csv', f'_train_data/train_data_{sv.model_number}.csv')
+# balance_csv(f'_train_data/train_data_{sv.model_number}.csv', f'_train_data/train_data_{sv.model_number}.csv')
 
 # trr.train_2Dpic_model_regression(f'_pic_train_data/{sv.model_number}')
 trr.train_model(f'_train_data/train_data_{sv.model_number}.csv')

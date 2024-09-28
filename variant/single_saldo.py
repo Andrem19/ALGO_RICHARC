@@ -36,8 +36,8 @@ def do_job(coin: str, profit_path: str, lock):
         return
     
     sv.settings.coin = 'BTCUSDT'
-    sv.btc_data_1 = gd.load_data_sets(1440)
-    # sv.btc_data_2 = gd.load_data_sets(1)
+    sv.btc_data_1 = gd.load_data_sets(240)
+    # sv.btc_data_2 = gd.load_data_sets(1440)
     
     etalon_positions = util.load_etalon_positions()
     sv.etalon_positions = stat.filter_positions(etalon_positions)

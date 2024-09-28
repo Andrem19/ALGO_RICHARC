@@ -16,25 +16,42 @@ import threading
 import asyncio
 import helpers.tel as tel
 
+def return_class(diff: float, coefficient: float) -> int:
+    if diff <= -0.006 * coefficient:
+        return 0
+    elif -0.006 * coefficient < diff <= -0.002 * coefficient:
+        return 1
+    elif -0.002 * coefficient < diff <= 0.002 * coefficient:
+        return 2
+    elif 0.002 * coefficient < diff <= 0.006 * coefficient:
+        return 3
+    elif diff > 0.006 * coefficient:
+        return 4
 
 
 sv.settings.coin = 'BTCUSDT'
-data_1 = gd.load_data_sets(30)
-data = gd.load_data_sets(5)
+data_1 = gd.load_data_sets(1440)
+data = gd.load_data_sets(30)
 
 len_data = len(data)-1
 print(f'Data length: {len_data}')
 for i in range(1000, len_data):
     path = None
-    if data[i][1]<data[i][4] and tools.check_high_candel(data[i][4], data[i][1], 0.004):
-        path = f'_pic_train_data/{sv.model_number}/1/{i}_{sv.settings.coin}.png'
-    elif data[i][1]>data[i][4] and tools.check_high_candel(data[i][4], data[i][1], 0.004):
-        path = f'_pic_train_data/{sv.model_number}/2/{i}_{sv.settings.coin}.png'
-    else:
-        path = f'_pic_train_data/{sv.model_number}/0/{i}_{sv.settings.coin}.png'
-        if i%2==0:
-                continue
-    
+    diff_1 = round(util.calculate_percent_difference(data[i][1], data[i][4]), 4)
+    cl = return_class(diff_1, 1)
+    path = f'_pic_train_data/{sv.model_number}/{cl}/{i}_{sv.settings.coin}.png'
+    # if data[i][1]<data[i][4] and tools.check_high_candel(data[i][4], data[i][1], 0.004):
+    #     path = f'_pic_train_data/{sv.model_number}/1/{i}_{sv.settings.coin}.png'
+    # elif data[i][1]>data[i][4] and tools.check_high_candel(data[i][4], data[i][1], 0.004):
+    #     path = f'_pic_train_data/{sv.model_number}/2/{i}_{sv.settings.coin}.png'
+    # else:
+    #     path = f'_pic_train_data/{sv.model_number}/0/{i}_{sv.settings.coin}.png'
+    #     if i%2==0:
+    #             continue
+    closes = data[i-25:i, 4]
+    trend = tools.what_trend(closes, 5, 5)
+    if trend != 'down':
+        continue
     if path:
         sample = data[i-25:i]
 

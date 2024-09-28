@@ -322,7 +322,7 @@ def save_candlesticks_pic_2(candles: list, inset_candles: list, path: str):
     # ax1.set_title(util.get_ident_type(sv.signal.type_os_signal))
     # Plot the inset candlesticks
     mpf.plot(inset_df, type='candle', style=my_style, ax=ax2, axisoff=True)
-    # ax2.set_title(util.get_viz_time(int(datetime.fromtimestamp(candles[-1][0]/1000).hour)))
+    ax2.set_title(util.get_viz_time(int(datetime.fromtimestamp(candles[-1][0]/1000).hour)))
     # Remove the frame and ticks from both plots
     for ax in [ax1, ax2]:
         for spine in ax.spines.values():

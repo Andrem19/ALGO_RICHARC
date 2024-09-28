@@ -15,7 +15,7 @@ def setup():
     settings.send_pic = False
     settings.pic_collections = False
     settings.iter_count = 1
-    settings.time = 30
+    settings.time = 60
     settings.coin = 'BTCUSDT'
     settings.amount = 20
     settings.only = 0
@@ -31,9 +31,9 @@ def setup():
             1440:0,
         }
     switch = 1
-    tren_s = datetime(2021, 1, 1)
-    tren_f = datetime(2024, 5, 1)
-    val_s = datetime(2024, 5, 1)
+    tren_s = datetime(2017, 1, 1)
+    tren_f = datetime(2024, 2, 1)
+    val_s = datetime(2024, 1, 20)
     val_f = datetime(2024, 10, 1)
 
     settings.start_date = tren_s if switch == 0 else val_s

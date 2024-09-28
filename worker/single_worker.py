@@ -4,6 +4,7 @@ import worker.loop_proccess_3 as prc_3
 import signal as sg
 import shared_vars as sv
 import worker.single_signal as sg
+import csv
 import traceback
 
 
@@ -16,7 +17,7 @@ def run(data, last_position, is_first_iter: bool):
             profit_list.append(last_position)
 
 
-        i = 1200
+        i = 800
 
         while i < data_len_for_loop:
             
@@ -24,16 +25,20 @@ def run(data, last_position, is_first_iter: bool):
 
             if sv.signal.signal in sv.settings.s:
                 tm1 = prc.position_proccess(profit_list, data, is_first_iter)
-                if profit_list[-1]['profit']<=0:
-                    if f'{sv.cl}_minus' in sv.report:
-                        sv.report[f'{sv.cl}_minus']+=1
-                    else:
-                        sv.report[f'{sv.cl}_minus']=1
-                else:
-                    if f'{sv.cl}_plus' in sv.report:
-                        sv.report[f'{sv.cl}_plus']+=1
-                    else:
-                        sv.report[f'{sv.cl}_plus']=1
+                # if sv.cl >=3:
+                #     if profit_list[-1]['profit']>0:
+                #         sv.data_list.append(3)
+                #     elif profit_list[-1]['profit']<=0:
+                #         sv.data_list.append(1)
+                # elif sv.cl <=1:
+                #     if profit_list[-1]['profit']>0:
+                #         sv.data_list.append(2)
+                #     elif profit_list[-1]['profit']<=0:
+                #         sv.data_list.append(0)
+                # path = f'_train_data/train_data_{sv.model_number}.csv'
+                # with open(path, mode='a', newline='') as file:
+                #     writer = csv.writer(file)
+                #     writer.writerow(sv.data_list)
                 i+=tm1
             else: 
                 i+=1

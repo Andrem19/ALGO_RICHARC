@@ -7,6 +7,7 @@ import helpers.tools as tools
 import coins as coins
 import random
 import json
+import pandas as pd
 from statistics import mean
 from collections import Counter
 import msvcrt
@@ -590,3 +591,47 @@ def combine_time_candles(days, hours, d1, d2):
     combined = np.vstack((combined, h_list))
     
     return combined
+
+def balance_csv(file_path, output_path):
+    # Загрузка данных из CSV файла
+    data = pd.read_csv(file_path, header=None)
+    
+    # Разделение данных на признаки и ответы
+    X = data.iloc[:, :-1]
+    y = data.iloc[:, -1]
+    
+    # Подсчет количества классов
+    class_counts = y.value_counts()
+    print('class_counts: ', class_counts)
+    
+    # Определение меньшего класса
+    minority_count = class_counts.min()
+    print('min_count: ', minority_count)
+    
+    # Индексы классов
+    indices_to_keep = []
+    
+    for class_value, count in class_counts.items():
+        class_indices = y[y == class_value].index
+        if count > minority_count:
+            np.random.seed(42)
+            class_indices = np.random.choice(class_indices, size=minority_count, replace=False)
+        indices_to_keep.extend(class_indices)
+    
+    # Создание сбалансированного набора данных
+    balanced_data = data.loc[indices_to_keep]
+    
+    # Сохранение сбалансированного набора данных в новый CSV файл
+    balanced_data.to_csv(output_path, header=False, index=False)
+
+
+def read_and_split_csv(file_path):
+    result = []
+    with open(file_path, newline='') as csvfile:
+        reader = csv.reader(csvfile)
+        for row in reader:
+            # Разделить строку на 2D массивы по 6 значений в каждом внутреннем массиве
+            split_row = [[float(row[i])] + [float(x) for x in row[i+1:i+6]] for i in range(0, len(row), 6)]
+            result.append(split_row)
+    return result
+

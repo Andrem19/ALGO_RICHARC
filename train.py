@@ -52,7 +52,7 @@ class MCallback(tf.keras.callbacks.Callback):
             self.model.stop_training = True
 
 def train_2Dpic_model_2(softmsax: int, path: str, start: bool):
-    checkpoint = ModelCheckpoint(f'_models/my_model_{sv.mod_example}.h5', monitor='val_loss', save_best_only=True, mode='min')
+    checkpoint = ModelCheckpoint(f'_models/my_model_{sv.mod_example}.h5', monitor='val_accuracy', save_best_only=True, mode='max')
     callbacks = [MyCallback(), tf.keras.callbacks.EarlyStopping(patience=12, restore_best_weights=True), checkpoint]
     train_dir = path
     batch_size = 32
@@ -88,22 +88,38 @@ def train_2Dpic_model_2(softmsax: int, path: str, start: bool):
     if start:
         model = keras.Sequential([
             # data_augmentation,
-            keras.layers.Conv2D(64, 3, activation='relu', input_shape=(img_height, img_width, 3)),
+            keras.layers.Conv2D(32, 3, strides=(1, 1), padding='same', activation='relu', input_shape=(img_height, img_width, 3),kernel_initializer='he_normal', kernel_regularizer=tf.keras.regularizers.l2(0.01)),
             keras.layers.BatchNormalization(),
             keras.layers.MaxPooling2D(2),
             # keras.layers.Dropout(0.2),
-            keras.layers.Conv2D(128, 3, activation='relu'),
+            # keras.layers.Conv2D(64, 3, activation='relu'),
+            keras.layers.Conv2D(
+                filters=64,
+                kernel_size=(3, 3),
+                strides=(1, 1),
+                padding='same',
+                activation='relu',
+                kernel_initializer='he_normal',
+            ),
             keras.layers.BatchNormalization(),
             keras.layers.MaxPooling2D(2),
             # keras.layers.Dropout(0.2),
-            keras.layers.Conv2D(256, 3, activation='relu'),
+            # keras.layers.Conv2D(128, 3, activation='relu'),
+            keras.layers.Conv2D(
+                filters=128,
+                kernel_size=(3, 3),
+                strides=(1, 1),
+                padding='same',
+                activation='relu',
+                kernel_initializer='he_normal',
+            ),
             keras.layers.BatchNormalization(),
             keras.layers.MaxPooling2D(2),
-            keras.layers.Dropout(0.3),
+            # keras.layers.Dropout(0.3),
             keras.layers.Flatten(),
             # tf.keras.layers.GlobalAveragePooling2D(),
             # keras.layers.Dense(256, activation='relu'),
-            keras.layers.Dense(128, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.01)),
+            keras.layers.Dense(128, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.001)),
             
             keras.layers.Dense(softmsax, activation='softmax')
         ])
@@ -114,7 +130,7 @@ def train_2Dpic_model_2(softmsax: int, path: str, start: bool):
     else:
         model = tf.keras.models.load_model(f'_models/my_model_{sv.mod_example}.h5')
 
-    epochs = 100
+    epochs = 1000
     history = model.fit(
     train_ds,
     validation_data=val_ds,

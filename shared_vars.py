@@ -91,21 +91,55 @@ month_deal_count = {}
 prev_plus = True
 mexc = False
 
-mod_example = 43
-model_1 = tf.keras.models.load_model(f'_models/my_model_42.h5')
-# model_2 = tf.keras.models.load_model('_models/my_model_29.h5')
+
+def custom_loss(y_true, y_pred):
+    # Матрица штрафов
+    penalty_matrix = tf.constant([
+        [0.0, 1.0, 2.0, 3.0, 4.0],  # Штрафы для ошибки в классе 0
+        [1.0, 0.0, 1.0, 3.0, 3.0],  # Штрафы для ошибки в классе 1
+        [2.0, 1.0, 0.0, 1.0, 2.0],  # Штрафы для ошибки в классе 2
+        [3.0, 3.0, 1.0, 0.0, 1.0],  # Штрафы для ошибки в классе 3
+        [4.0, 3.0, 2.0, 1.0, 0.0],  # Штрафы для ошибки в классе 4
+    ], dtype=tf.float32)
+    
+    # Получение индексов реальных классов
+    true_idx = tf.argmax(y_true, axis=-1)
+
+    # Применение softmax к предсказаниям
+    y_pred_softmax = tf.nn.softmax(y_pred)
+
+    # Использование индексов для нахождения штрафов для каждого предсказанного класса
+    penalties = tf.tensordot(y_pred_softmax, penalty_matrix, axes=1)
+    
+    # Выбор штрафа в зависимости от правильного класса
+    true_penalties = tf.gather_nd(penalties, tf.expand_dims(true_idx, axis=-1), batch_dims=1)
+
+    # Среднее значение штрафов для всех примеров в батче
+    penalty_loss = tf.reduce_mean(true_penalties)
+
+    # Основная функция потерь - categorical crossentropy
+    cross_entropy_loss = tf.reduce_mean(tf.keras.losses.categorical_crossentropy(y_true, y_pred))
+
+    # Совмещение штрафов и crossentropy
+    return cross_entropy_loss + 0.1 * penalty_loss
+
+mod_example = 58
+# model_1 = tf.keras.models.load_model(f'_models/my_model_{mod_example}.h5')#, custom_objects={'custom_loss': custom_loss})
+model_1 = tf.keras.models.load_model('_models/1h_trend/model_0.8358.h5')
+model_2 = tf.keras.models.load_model('_models/my_model_56.h5')
 # model_3 = tf.keras.models.load_model('_models/my_model_22.h5')
 long_counter = 0
 
 was_pos_before = 0
 image_ident = str(uuid.uuid4())[:8]
-model_number = 20
+model_number = 37
 prev_val = 0
 plus = 0
 minus = 0
 scaler = joblib.load('scaler.pkl')
-scaler_1 = joblib.load('scaler_1.pkl')
+scaler_1 = joblib.load('scaler_51.pkl')
 scaler_2 = joblib.load('scaler_2.pkl')
-
+scaler_3 = joblib.load('scaler_3.pkl')
 report = {}
 cl = 0
+data_list = []

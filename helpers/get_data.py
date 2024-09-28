@@ -18,6 +18,8 @@ def load_data_sets(timeframe: int):
         tm = '1h'
     elif timeframe == 1440:
         tm = '1d'
+    elif timeframe == 240:
+        tm = '4h'
     else:
         tm = f'{timeframe}m'
 
@@ -47,6 +49,10 @@ def load_data_in_chunks(settings: Settings, chunk_size, timeframe):
     tm = ''
     if timeframe == 60:
         tm = '1h'
+    elif timeframe == 1440:
+        tm = '1d'
+    elif timeframe == 240:
+        tm = '4h'
     else:
         tm = f'{timeframe}m'
     with open(f'{sv.base_data}\_crypto_data/{settings.coin}/{settings.coin}_{tm}.csv', 'r') as file:

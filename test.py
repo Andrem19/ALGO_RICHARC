@@ -63,7 +63,7 @@ def check_new_message():
 thread = threading.Thread(target=check_new_message)
 thread.start()
 
-tr.train_2Dpic_model_2(3, f'_pic_train_data/{sv.model_number}', True)
+tr.train_2Dpic_model_2(5, f'_pic_train_data/{sv.model_number}', True)
 
 stop_thread = True
 thread.join()
