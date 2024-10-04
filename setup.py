@@ -15,7 +15,7 @@ def setup():
     settings.send_pic = False
     settings.pic_collections = False
     settings.iter_count = 1
-    settings.time = 60
+    settings.time = 1
     settings.coin = 'BTCUSDT'
     settings.amount = 20
     settings.only = 0
@@ -33,7 +33,7 @@ def setup():
     switch = 1
     tren_s = datetime(2017, 1, 1)
     tren_f = datetime(2024, 2, 1)
-    val_s = datetime(2024, 1, 20)
+    val_s = datetime(2024, 2, 1)
     val_f = datetime(2024, 10, 1)
 
     settings.start_date = tren_s if switch == 0 else val_s
@@ -67,7 +67,10 @@ def setup():
                                     'ham_1az': 0,
                                     'test_5': 0,
                                     'ham_long': 0,
-                                    'long_1': 0,
+                                    'long_1': 1,
+                                    'short_1': 1,
+                                    'long_2': 1,
+                                    'short_2': 1,
                                 }
     sv.settings = settings
 

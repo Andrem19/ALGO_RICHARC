@@ -40,7 +40,9 @@ def get_signal(i, data):
 
         
         sg = 3
-
+        if datetime.fromtimestamp(data[i-1][0]/1000).minute !=59:
+            sv.signal.signal = 3
+            return
         
         prediction_1 = False
         prediction_2 = 0
@@ -48,48 +50,56 @@ def get_signal(i, data):
         chunk = data[i-100:i]
         list_to_save = []
         list_to_save_2 = []
-        # index = util.find_index(data[i][0], sv.btc_data_2)
-        # if index is not None and index > 25:
-        #     last_cand = util.combine_last_candle(sv.btc_data_2[index][0], data[i][0], data)
-        #     if last_cand is not None:
-        #         sample_3 = sv.btc_data_2[index-24:index]
-        #         sample_3 = np.append(sample_3, [last_cand], axis=0)
-        #     else:
-        #         sample_3 = sv.btc_data_2[index-25:index]
+        list_to_save_3 = []
 
-        #     if len(sample_3)==25:
-        #         for l in range(len(sample_3)):
-        #             list_to_save.append(round(util.calculate_percent_difference(sample_3[l][1], sample_3[l][4])*100, 3))
-        #             list_to_save.append(round(util.calculate_percent_difference(sample_3[l][1], sample_3[l][2])*100, 3))
-        #             list_to_save.append(round(util.calculate_percent_difference(sample_3[l][1], sample_3[l][3])*100, 3))
-
-        index = util.find_index(data[i][0], sv.btc_data_1)
+        index = util.find_index(data[i][0], sv.btc_data_2)
         if index is not None and index > 100:
-            last_cand = util.combine_last_candle(sv.btc_data_1[index][0], data[i][0], data)
+            last_cand = util.combine_last_candle(sv.btc_data_2[index][0], data[i][0], data)
             if last_cand is not None:
-                sample_2 = sv.btc_data_1[index-99:index]
-                sample_2 = np.append(sample_2, [last_cand], axis=0)
+                sample_3 = sv.btc_data_2[index-99:index]
+                sample_3 = np.append(sample_3, [last_cand], axis=0)
             else:
-                sample_2 = sv.btc_data_1[index-100:index]
-        # sample_2 = data[i-100:i]
-            for p in range(len(sample_2)):
-                list_to_save_2.append(round(util.calculate_percent_difference(sample_2[p][1], sample_2[p][4])*100, 3))
-                list_to_save_2.append(round(util.calculate_percent_difference(sample_2[p][1], sample_2[p][2])*100, 3))
-                list_to_save_2.append(round(util.calculate_percent_difference(sample_2[p][1], sample_2[p][3])*100, 3))
-    
-            
-            # trend = tools.what_trend(closes[-25:], 5, 5)
-            # if global_vol < -0.05:# or true_count > false_count:
-            #     sv.signal.signal = sg
-            #     return
-            for j in range(len(chunk)):
-                list_to_save.append(round(util.calculate_percent_difference(chunk[j][1], chunk[j][4])*100, 3))
-                list_to_save.append(round(util.calculate_percent_difference(chunk[j][1], chunk[j][2])*100, 3))
-                list_to_save.append(round(util.calculate_percent_difference(chunk[j][1], chunk[j][3])*100, 3))
+                sample_3 = sv.btc_data_2[index-100:index]
 
-            # predicted_class, prediction = prd.make_prediction(sv.model_1, list_to_save, sv.scaler_1, 1, 25)
-            predicted_class_1, prediction_1 = prd.make_prediction(sv.model_1, list_to_save, sv.scaler, 1, 100)
-            predicted_class_2, prediction_2 = prd.make_prediction(sv.model_2, list_to_save_2, sv.scaler, 1, 100)
+            if len(sample_3)==100:
+                for l in range(len(sample_3)):
+                    list_to_save_3.append(round(util.calculate_percent_difference(sample_3[l][1], sample_3[l][4])*100, 3))
+                    list_to_save_3.append(round(util.calculate_percent_difference(sample_3[l][1], sample_3[l][2])*100, 3))
+                    list_to_save_3.append(round(util.calculate_percent_difference(sample_3[l][1], sample_3[l][3])*100, 3))
+
+            index = util.find_index(data[i][0], sv.btc_data_1)
+            if index is not None and index > 100:
+                last_cand = util.combine_last_candle(sv.btc_data_1[index][0], data[i][0], data)
+                if last_cand is not None:
+                    sample_2 = sv.btc_data_1[index-99:index]
+                    sample_2 = np.append(sample_2, [last_cand], axis=0)
+                else:
+                    sample_2 = sv.btc_data_1[index-100:index]
+            # sample_2 = data[i-100:i]
+                for p in range(len(sample_2)):
+                    list_to_save_2.append(round(util.calculate_percent_difference(sample_2[p][1], sample_2[p][4])*100, 3))
+                    list_to_save_2.append(round(util.calculate_percent_difference(sample_2[p][1], sample_2[p][2])*100, 3))
+                    list_to_save_2.append(round(util.calculate_percent_difference(sample_2[p][1], sample_2[p][3])*100, 3))
+        
+                sv.data_list = list_to_save_2
+                # trend = tools.what_trend(closes[-25:], 5, 5)
+                # if global_vol < -0.05:# or true_count > false_count:
+                #     sv.signal.signal = sg
+                #     return
+            # for j in range(len(chunk)):
+            #     list_to_save.append(round(util.calculate_percent_difference(chunk[j][1], chunk[j][4])*100, 3))
+            #     list_to_save.append(round(util.calculate_percent_difference(chunk[j][1], chunk[j][2])*100, 3))
+            #     list_to_save.append(round(util.calculate_percent_difference(chunk[j][1], chunk[j][3])*100, 3))
+
+    # predicted_class, prediction = prd.make_prediction(sv.model_1, list_to_save, sv.scaler_1, 1, 25)
+            predicted_class_3 = 0
+            predicted_class_2 = 0
+            predicted_class_1 = 0
+            predicted_class_3, prediction_3 = prd.make_prediction(sv.model_3, list_to_save_3, sv.scaler_2, 1, 100)
+            if predicted_class_3 == 1:
+                predicted_class_1, prediction_1 = prd.make_prediction(sv.model_1, list_to_save_2, sv.scaler, 1, 100)
+            predicted_class_2, prediction_2 = prd.make_prediction(sv.model_2, list_to_save_2, sv.scaler_1, 1, 100)
+            
                 # predicted_class, prediction = prd.make_prediction_2(sv.model_1, list_to_save, sv.scaler_1, sv.scaler_2, sv.scaler_3, 1)
         # predicted_class_2, prediction_2 = prd.make_prediction(sv.model_2, list_to_save, sv.scaler, 1)
         # sv.data_list = list_to_save
@@ -130,22 +140,43 @@ def get_signal(i, data):
     # print('pred: ', pred, closes[-1], pred > closes[-1])
     # if pred > closes[-1]:
                 #predicted_class>=3 and predicted_class<=1 and 
-        if predicted_class_1 in [1] and predicted_class_2 not in [2]:# and not block_long_token:# and predicted_class_2!=1:# and (prediction_2[2] > -0.15 and prediction_2[1] > 0.20):# and sv.prev_val>0:
-            sv.signal.type_os_signal = 'long_1'
-            sv.settings.init_stop_loss = 0.01#serv.set_stls(0.020, abs(vol_can))#0.004
-            sv.settings.take_profit = 0.10
-            sv.settings.target_len = 4#5
-            sv.settings.amount = 20#20
-            # sv.cl = predicted_class
-            sg = 1
-        if predicted_class_1 in [2] and predicted_class_2 not in [1]:
-            sv.signal.type_os_signal = 'long_1'
-            sv.settings.init_stop_loss = 0.01#serv.set_stls(0.020, abs(vol_can))#0.004
-            sv.settings.take_profit = 0.10
-            sv.settings.target_len = 4#5
-            sv.settings.amount = 20#20
-            # sv.cl = predicted_class
-            sg = 2
+          
+            
+            if predicted_class_2 == 2 and predicted_class_3 != 1:
+                sv.signal.type_os_signal = 'short_2'
+                sv.settings.init_stop_loss = 0.012#serv.set_stls(0.020, abs(vol_can))#0.004
+                sv.settings.take_profit = 0.10
+                sv.settings.target_len = 179#5
+                sv.settings.amount = 20#20
+                # sv.cl = predicted_class
+                sg = 2
+            elif (predicted_class_2 == 1 or predicted_class_1 == 1) and predicted_class_3 == 1:
+                sv.signal.type_os_signal = 'long_2'
+                sv.settings.init_stop_loss = 0.01#serv.set_stls(0.020, abs(vol_can))#0.004
+                sv.settings.take_profit = 0.10
+                sv.settings.target_len = 179#5
+                sv.settings.amount = 20#20
+                # sv.cl = predicted_class
+                sg = 1
+
+            # if sg == 3:
+            #     if (predicted_class_1==1 or predicted_class_2 == 1) and predicted_class_3 != 2:# and predicted_class_2==2:# and predicted_class_3==1:#predicted_class_1 in [1] and predicted_class_2 not in [2]:# and not block_long_token:# and predicted_class_2!=1:# and (prediction_2[2] > -0.15 and prediction_2[1] > 0.20):# and sv.prev_val>0:
+            #         sv.signal.type_os_signal = 'long_1'
+            #         sv.settings.init_stop_loss = 0.01#serv.set_stls(0.020, abs(vol_can))#0.004
+            #         sv.settings.take_profit = 0.10
+            #         sv.settings.target_len = 4#5
+            #         sv.settings.amount = 20#20
+            #         # sv.cl = predicted_class
+            #         sg = 1
+            #     if (predicted_class_1==2 or predicted_class_2 ==2) and predicted_class_3 != 1:# and not block_short_token:# and predicted_class_2==1:# and not block_short_token:#predicted_class_1 in [2] and predicted_class_2 not in [1]:
+            #         sv.signal.type_os_signal = 'short_1'
+            #         sv.settings.init_stop_loss = 0.01#serv.set_stls(0.020, abs(vol_can))#0.004
+            #         sv.settings.take_profit = 0.10
+            #         sv.settings.target_len = 4#5
+            #         sv.settings.amount = 20#20
+            #         # sv.cl = predicted_class
+            #         sg = 2
+        
         #=================START LOGIC===================
         
                 

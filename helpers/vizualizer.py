@@ -263,7 +263,10 @@ def plot_types(data):
         'ham_usdc_1': 'pink',
         'ham_usdc': 'yellow',
         'ham_long': 'cyan',
-        'long_1': 'black'
+        'long_1': 'black',
+        'short_1': 'red',
+        'long_2': 'blue',
+        'short_2': 'orange'
     }
     colors = [color_map[type_signal] for type_signal in types_of_signal]
 

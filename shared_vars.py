@@ -123,22 +123,24 @@ def custom_loss(y_true, y_pred):
     # Совмещение штрафов и crossentropy
     return cross_entropy_loss + 0.1 * penalty_loss
 
-mod_example = 58
+mod_example = 59
 # model_1 = tf.keras.models.load_model(f'_models/my_model_{mod_example}.h5')#, custom_objects={'custom_loss': custom_loss})
-model_1 = tf.keras.models.load_model('_models/1h_trend/model_0.8358.h5')
-model_2 = tf.keras.models.load_model('_models/my_model_56.h5')
-# model_3 = tf.keras.models.load_model('_models/my_model_22.h5')
+model_1 = tf.keras.models.load_model('_models/30m2_trend/model_0.8174.h5')#0.8358
+model_2 = tf.keras.models.load_model('_models/1h_trend/model_0.8358.h5')
+model_3 = tf.keras.models.load_model('_models/4h_trend/model_0.9098.h5')
+# model_4 = tf.keras.models.load_model('_models/arb_short_1/model_0.6410.h5')
+# model_5 = tf.keras.models.load_model('_models/arb_long_1/model_0.7054.h5')
 long_counter = 0
 
 was_pos_before = 0
 image_ident = str(uuid.uuid4())[:8]
-model_number = 37
+model_number = 50
 prev_val = 0
 plus = 0
 minus = 0
-scaler = joblib.load('scaler.pkl')
-scaler_1 = joblib.load('scaler_51.pkl')
-scaler_2 = joblib.load('scaler_2.pkl')
+scaler = joblib.load('_models/30m2_trend/scaler_30m.pkl')
+scaler_1 = joblib.load('_models/1h_trend/scaler_1h.pkl')
+scaler_2 = joblib.load('_models/4h_trend/scaler_4h.pkl')
 scaler_3 = joblib.load('scaler_3.pkl')
 report = {}
 cl = 0

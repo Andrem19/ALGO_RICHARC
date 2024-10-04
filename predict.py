@@ -61,14 +61,14 @@ def make_prediction(model: Model, input_data: list, scaler: StandardScaler, vari
     # Проверяем, что входные данные имеют правильный размер
     
     # input_array = np.array(input_data).reshape(-1, 4)
-    scaled_input =  scaler.transform([input_data])#np.array(input_data)#
+    scaled_input = scaler.transform([input_data])#np.array(input_data)#
     # Преобразуем входные данные в нужную форму (50, 4)
     scaled_input = scaled_input.reshape(1, shape_1, 3)
     
     # Делаем предсказание
     prediction = model.predict(scaled_input, verbose=0)
     predicted_class = np.argmax(prediction, axis=1)[0]
-    print(prediction[0])
+    # print(prediction[0])
     return predicted_class, prediction[0]
     # Возвращаем первое (и единственное) предсказанное значение
     # if variant == 1:

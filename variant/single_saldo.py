@@ -9,6 +9,7 @@ from datetime import datetime
 import worker.single_worker as w
 import concurrent.futures
 import helpers.vizualizer as viz
+import copy
 import helpers.print_info as printer
 import time
 import random
@@ -36,8 +37,8 @@ def do_job(coin: str, profit_path: str, lock):
         return
     
     sv.settings.coin = 'BTCUSDT'
-    sv.btc_data_1 = gd.load_data_sets(240)
-    # sv.btc_data_2 = gd.load_data_sets(1440)
+    sv.btc_data_1 = gd.load_data_sets(60)
+    sv.btc_data_2 = gd.load_data_sets(240)
     
     etalon_positions = util.load_etalon_positions()
     sv.etalon_positions = stat.filter_positions(etalon_positions)
@@ -129,6 +130,15 @@ async def mp_saldo(coin_list, use_multiprocessing=True):
             await tel.send_inform_message(f'{full_report}', path, True)
             path_3 = viz.plot_types(filtred_positions)
             await tel.send_inform_message(f'', path_3, True)
+            dict_splited = stat.sort_by_type(copy.deepcopy(filtred_positions))
+            for key, pos in dict_splited.items():
+
+                if sv.settings.cold_count_print_all or sv.settings.cold_count_print_res[key] ==1:
+                    drdw, type_collection = stat.dangerous_moments(pos)
+                    points = util.get_points_value(len(pos))
+                    path = viz.plot_time_series(pos, True, points, True, drdw, {})
+                    await tel.send_inform_message(f'{key}', path, True)
+                    time.sleep(0.5)
             print('REPORT: ', sv.report)
             #     time.sleep(2)
             #await tel.send_inform_message(f'{sv.reactor.pattern_info()}', path, True)

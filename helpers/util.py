@@ -313,6 +313,10 @@ def chose_arr(start_ind: int, arr: np.ndarray, step: int):
 def calculate_percent_difference(close, high_or_low):
     return (high_or_low - close) / close
 
+def compare_perc(close, hl, close_2, hl_2):
+    r1 = (hl - close) / close
+    r2 = (hl_2 - close_2) / close_2
+    return abs(r2)>abs(r1)
     
 def spread_imitation(profit: float) -> float:
     choice_list = [False, False, False, True]

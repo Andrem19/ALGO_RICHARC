@@ -2,6 +2,8 @@ import tensorflow as tf
 from keras.callbacks import ModelCheckpoint, ReduceLROnPlateau
 import json
 import shared_vars as sv
+from xgboost import XGBClassifier
+from sklearn.metrics import accuracy_score, classification_report
 import os
 import pandas as pd
 import numpy as np
@@ -167,7 +169,7 @@ def train_2Dpic_model_regression(path: str):
 def train_model(csv_file):
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=6, min_lr=0.00001)
     # checkpoint = ModelCheckpoint(f'_models/my_model_{sv.mod_example}.h5', monitor='val_accuracy', save_best_only=True, mode='max')
-    save_path = f'_models/1h_trend'
+    save_path = f'_models/arb_long_1'
     checkpoint = CustomModelCheckpoint(save_path=save_path, monitor='val_accuracy', save_best_only=True, min_accuracy=0.60)
     callbacks = [MyCallback(), checkpoint, reduce_lr]
     # 1. Чтение данных из CSV
@@ -177,11 +179,11 @@ def train_model(csv_file):
     n_features = 300  # 4 (OHLC) * 50 свечей
     X = data.iloc[:, :n_features].values  # Признаки (OHLC)
     y = data.iloc[:, n_features].values#:n_features+3].values   # Target (процент изменения закрытия)
-    y = to_categorical(y, num_classes=3)
+    y = to_categorical(y, num_classes=2)
     # 2. Нормализация данных (очень важно для LSTM)
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
-    joblib.dump(scaler, 'scaler.pkl')
+    joblib.dump(scaler, 'scaler_4h.pkl')
 
     # 3. Преобразуем данные в формат (samples, timesteps, features) для LSTM
     X_lstm = X_scaled.reshape(X_scaled.shape[0], 100, 3)  # 50 свечей, 4 значения на свечу (OHLC)
@@ -199,14 +201,14 @@ def train_model(csv_file):
         # tf.keras.layers.Dropout(0.3),
         tf.keras.layers.Dense(32, kernel_regularizer=tf.keras.regularizers.l2(0.01)),
         # tf.keras.layers.Dropout(0.2),
-        # tf.keras.layers.Dense(64),
-        tf.keras.layers.Dense(3, activation='softmax')
+        # tf.keras.layers.Dense(32),
+        tf.keras.layers.Dense(2, activation='softmax')
     ])
     # Компиляция модели
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
 
     model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])#loss='mse''categorical_crossentropy'
-    # class_weights = {0: 1.5, 1: 1.2, 2: 1.0, 3: 1.2, 4: 1.5}
+    # class_weights = {0: 1, 1: 2, 2: 2}
     # 6. Тренировка модели
     history = model.fit(
         X_train, 
@@ -466,3 +468,33 @@ def train_model_with_three_series(csv_file):
 
     # Возвращаем модель и историю обучения
     return model, history
+
+# def train_model_XGBoost(path: str):
+#     data = pd.read_csv(path, header=None)
+#     # random.shuffle(data)
+#     # data = data.iloc[:, 10:] # delete first columns
+#     X = data.iloc[:, :-1]
+#     y = data.iloc[:, -1]
+
+
+#     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+#     xgb_model = XGBClassifier(n_estimators=1000, random_state=42)
+
+#     xgb_model.fit(X_train, y_train, eval_metric="logloss", verbose=True)
+
+#     y_pred = xgb_model.predict(X_test)
+
+#     accuracy = accuracy_score(y_test, y_pred)
+
+#     feature_importance = xgb_model.feature_importances_
+#     print('Feature Importances:')
+#     for i, importance in enumerate(feature_importance):
+#         print(f'Feature {i+1}: {importance:.4f}')
+
+#     class_report = classification_report(y_test, y_pred)
+#     print('Classification Report:')
+#     print(class_report)
+#     save_path = f'_models/my_model_{sv.mod_example}.h5'
+#     joblib.dump(xgb_model, save_path)
+#     return xgb_model

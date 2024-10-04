@@ -93,7 +93,7 @@ for i in range(1200, len_data-4):
     # diff_3 = round(util.calculate_percent_difference(data_1[i][1], data_1[i][3])*100, 3)
     # list_to_save.append(return_class(diff_1, 1.2))
     
-    list_to_save.append(return_class(diff_1, 1.6))
+    list_to_save.append(return_class(diff_1, 1))
 
         
     # list_to_save.append(diff_2)

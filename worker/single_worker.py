@@ -6,12 +6,13 @@ import shared_vars as sv
 import worker.single_signal as sg
 import csv
 import traceback
+import worker.loop_dynamic_sl as prc_4
 
 
 def run(data, last_position, is_first_iter: bool):
     try:
         data_len = len(data)
-        data_len_for_loop = data_len - 90
+        data_len_for_loop = data_len - 180
         profit_list: list = []
         if last_position:
             profit_list.append(last_position)
@@ -24,21 +25,23 @@ def run(data, last_position, is_first_iter: bool):
             sg.get_signal(i, data)
 
             if sv.signal.signal in sv.settings.s:
-                tm1 = prc.position_proccess(profit_list, data, is_first_iter)
-                # if sv.cl >=3:
-                #     if profit_list[-1]['profit']>0:
-                #         sv.data_list.append(3)
-                #     elif profit_list[-1]['profit']<=0:
-                #         sv.data_list.append(1)
-                # elif sv.cl <=1:
-                #     if profit_list[-1]['profit']>0:
-                #         sv.data_list.append(2)
-                #     elif profit_list[-1]['profit']<=0:
-                #         sv.data_list.append(0)
-                # path = f'_train_data/train_data_{sv.model_number}.csv'
-                # with open(path, mode='a', newline='') as file:
-                #     writer = csv.writer(file)
-                #     writer.writerow(sv.data_list)
+                tm1 = prc_4.position_proccess(profit_list, data, is_first_iter)
+                if sv.signal.signal == 1:
+                    path = f'_train_data/train_data_{sv.model_number+1}.csv'
+                    if profit_list[-1]['profit']>0.20:
+                        sv.data_list.append(1)
+                    elif profit_list[-1]['profit']<=-0.20:
+                        sv.data_list.append(0)
+                elif sv.signal.signal == 2:
+                    path = f'_train_data/train_data_{sv.model_number}.csv'
+                    if profit_list[-1]['profit']>0.20:
+                        sv.data_list.append(1)
+                    elif profit_list[-1]['profit']<=-0.20:
+                        sv.data_list.append(0)
+                
+                with open(path, mode='a', newline='') as file:
+                    writer = csv.writer(file)
+                    writer.writerow(sv.data_list)
                 i+=tm1
             else: 
                 i+=1
