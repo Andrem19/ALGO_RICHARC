@@ -169,7 +169,7 @@ def train_2Dpic_model_regression(path: str):
 def train_model(csv_file):
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=6, min_lr=0.00001)
     # checkpoint = ModelCheckpoint(f'_models/my_model_{sv.mod_example}.h5', monitor='val_accuracy', save_best_only=True, mode='max')
-    save_path = f'_models/arb_long_1'
+    save_path = f'_models/SP_1'
     checkpoint = CustomModelCheckpoint(save_path=save_path, monitor='val_accuracy', save_best_only=True, min_accuracy=0.60)
     callbacks = [MyCallback(), checkpoint, reduce_lr]
     # 1. Чтение данных из CSV
@@ -179,11 +179,11 @@ def train_model(csv_file):
     n_features = 300  # 4 (OHLC) * 50 свечей
     X = data.iloc[:, :n_features].values  # Признаки (OHLC)
     y = data.iloc[:, n_features].values#:n_features+3].values   # Target (процент изменения закрытия)
-    y = to_categorical(y, num_classes=2)
+    y = to_categorical(y, num_classes=3)
     # 2. Нормализация данных (очень важно для LSTM)
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
-    joblib.dump(scaler, 'scaler_4h.pkl')
+    joblib.dump(scaler, 'scaler_SP1d.pkl')
 
     # 3. Преобразуем данные в формат (samples, timesteps, features) для LSTM
     X_lstm = X_scaled.reshape(X_scaled.shape[0], 100, 3)  # 50 свечей, 4 значения на свечу (OHLC)
@@ -202,7 +202,7 @@ def train_model(csv_file):
         tf.keras.layers.Dense(32, kernel_regularizer=tf.keras.regularizers.l2(0.01)),
         # tf.keras.layers.Dropout(0.2),
         # tf.keras.layers.Dense(32),
-        tf.keras.layers.Dense(2, activation='softmax')
+        tf.keras.layers.Dense(3, activation='softmax')
     ])
     # Компиляция модели
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)

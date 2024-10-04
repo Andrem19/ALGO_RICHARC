@@ -95,9 +95,10 @@ def position_proccess(profit_list: list, dt: np.ndarray, is_first_iter: bool):
         
         if sv.settings.printer and sv.settings.counter%sv.settings.iter_count==0:
             printer.print_position(copy.deepcopy(position))
-            if sv.settings.drawing:
+            if sv.settings.drawing and profit_list[-1]['profit']<=-0.0:
                 title = f'up {index}' if sv.signal.signal == 1 else f'down {index}'
-                viz.draw_candlesticks(dt[ind-100:ind+5], title+f' {sv.signal.type_os_signal}', 5)
+                # viz.draw_candlesticks(dt[ind-100:ind+5], title+f' {sv.signal.type_os_signal}', 5)
+                viz.draw_candlesticks(np.append(sv.data_list, sv.next_list, axis=0), title+f' {sv.signal.type_os_signal}', 5)
         index = index-1 if type_close == 'timefinish' or type_close == 'timefinish_plus' else index
 
         return index+1

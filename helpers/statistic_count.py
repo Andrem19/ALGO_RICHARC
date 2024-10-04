@@ -336,6 +336,7 @@ def calc_med_duration(positions):
 
 def recount_saldo(filtered_deals):
     if len(filtered_deals)>0:
+        sv.days_gap = {}
         filtered_deals[0]['saldo'] = filtered_deals[0]['profit']
         monthly_saldo = {}
         month_deal_count = {}

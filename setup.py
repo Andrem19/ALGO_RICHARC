@@ -39,8 +39,8 @@ def setup():
     settings.start_date = tren_s if switch == 0 else val_s
     settings.finish_date = tren_f if switch == 0 else val_f
 
-    settings.taker_fee = 0.01
-    settings.maker_fee = 0.04
+    settings.taker_fee = 0.02
+    settings.maker_fee = 0.02
 
     settings.curren_uid = '696cd5bf'
     settings.hot_count_on_off = 1

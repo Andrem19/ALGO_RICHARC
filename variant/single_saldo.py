@@ -110,6 +110,7 @@ async def mp_saldo(coin_list, use_multiprocessing=True):
         all_positions = util.load_positions('_profits')
         if len(all_positions) > 0:
             filtred_positions = all_positions# stat.filter_positions(all_positions)
+            stat.recount_saldo(filtred_positions)
             dropdowns, type_collection = stat.dangerous_moments(filtred_positions)
             med_dur = stat.calc_med_duration(filtred_positions)
             stat_dict = stat.get_type_statistic(filtred_positions)

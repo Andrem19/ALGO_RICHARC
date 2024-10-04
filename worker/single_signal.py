@@ -80,8 +80,10 @@ def get_signal(i, data):
                     list_to_save_2.append(round(util.calculate_percent_difference(sample_2[p][1], sample_2[p][4])*100, 3))
                     list_to_save_2.append(round(util.calculate_percent_difference(sample_2[p][1], sample_2[p][2])*100, 3))
                     list_to_save_2.append(round(util.calculate_percent_difference(sample_2[p][1], sample_2[p][3])*100, 3))
-        
-                sv.data_list = list_to_save_2
+
+                # sv.data_list = list_to_save_2
+                sv.data_list = sample_2
+                sv.next_list = sv.btc_data_1[index:index+5]
                 # trend = tools.what_trend(closes[-25:], 5, 5)
                 # if global_vol < -0.05:# or true_count > false_count:
                 #     sv.signal.signal = sg
@@ -95,9 +97,10 @@ def get_signal(i, data):
             predicted_class_3 = 0
             predicted_class_2 = 0
             predicted_class_1 = 0
+            prediction_1 = [0,0,0]
             predicted_class_3, prediction_3 = prd.make_prediction(sv.model_3, list_to_save_3, sv.scaler_2, 1, 100)
-            if predicted_class_3 == 1:
-                predicted_class_1, prediction_1 = prd.make_prediction(sv.model_1, list_to_save_2, sv.scaler, 1, 100)
+            # if predicted_class_3 == 1:
+            predicted_class_1, prediction_1 = prd.make_prediction(sv.model_1, list_to_save_2, sv.scaler, 1, 100)
             predicted_class_2, prediction_2 = prd.make_prediction(sv.model_2, list_to_save_2, sv.scaler_1, 1, 100)
             
                 # predicted_class, prediction = prd.make_prediction_2(sv.model_1, list_to_save, sv.scaler_1, sv.scaler_2, sv.scaler_3, 1)
@@ -142,7 +145,7 @@ def get_signal(i, data):
                 #predicted_class>=3 and predicted_class<=1 and 
           
             
-            if predicted_class_2 == 2 and predicted_class_3 != 1:
+            if prediction_2[2]>0.50 and predicted_class_3 != 1:
                 sv.signal.type_os_signal = 'short_2'
                 sv.settings.init_stop_loss = 0.012#serv.set_stls(0.020, abs(vol_can))#0.004
                 sv.settings.take_profit = 0.10
@@ -150,32 +153,17 @@ def get_signal(i, data):
                 sv.settings.amount = 20#20
                 # sv.cl = predicted_class
                 sg = 2
-            elif (predicted_class_2 == 1 or predicted_class_1 == 1) and predicted_class_3 == 1:
-                sv.signal.type_os_signal = 'long_2'
-                sv.settings.init_stop_loss = 0.01#serv.set_stls(0.020, abs(vol_can))#0.004
+            elif (
+                (prediction_2[1]>0.60 and predicted_class_3!=2) or 
+                (prediction_1[1]>0.60 and predicted_class_3==1 and predicted_class_2!=2)
+                  ):
+                sv.signal.type_os_signal = 'long_2' if predicted_class_2 == 1 else 'long_1'
+                sv.settings.init_stop_loss = 0.01
                 sv.settings.take_profit = 0.10
-                sv.settings.target_len = 179#5
+                sv.settings.target_len = 200#5
                 sv.settings.amount = 20#20
                 # sv.cl = predicted_class
                 sg = 1
-
-            # if sg == 3:
-            #     if (predicted_class_1==1 or predicted_class_2 == 1) and predicted_class_3 != 2:# and predicted_class_2==2:# and predicted_class_3==1:#predicted_class_1 in [1] and predicted_class_2 not in [2]:# and not block_long_token:# and predicted_class_2!=1:# and (prediction_2[2] > -0.15 and prediction_2[1] > 0.20):# and sv.prev_val>0:
-            #         sv.signal.type_os_signal = 'long_1'
-            #         sv.settings.init_stop_loss = 0.01#serv.set_stls(0.020, abs(vol_can))#0.004
-            #         sv.settings.take_profit = 0.10
-            #         sv.settings.target_len = 4#5
-            #         sv.settings.amount = 20#20
-            #         # sv.cl = predicted_class
-            #         sg = 1
-            #     if (predicted_class_1==2 or predicted_class_2 ==2) and predicted_class_3 != 1:# and not block_short_token:# and predicted_class_2==1:# and not block_short_token:#predicted_class_1 in [2] and predicted_class_2 not in [1]:
-            #         sv.signal.type_os_signal = 'short_1'
-            #         sv.settings.init_stop_loss = 0.01#serv.set_stls(0.020, abs(vol_can))#0.004
-            #         sv.settings.take_profit = 0.10
-            #         sv.settings.target_len = 4#5
-            #         sv.settings.amount = 20#20
-            #         # sv.cl = predicted_class
-            #         sg = 2
         
         #=================START LOGIC===================
         
@@ -186,20 +174,7 @@ def get_signal(i, data):
         if sg in sv.settings.s:
             sv.settings.amount = 20
             sv.signal.signal = sg
-            # pos = {'open_time': data[i][0]}
-            # pos_list = util.filter_dicts(sv.etalon_positions, pos, 60, 1)
-            # types_7 = [val['type_of_signal'] for val in pos_list]
-            # if len(types_7)>1:
-            #     # sv.settings.amount*=0.5
-            #     sv.signal.signal = 3
-            #     return
             sv.signal.data = sv.settings.time
-            # sv.settings.init_stop_loss = 0.015#0.004
-            # sv.settings.take_profit = 0.25
-            # sv.settings.take_profit = 0.007#0.004
-            # sv.settings.take_profit = 0.004
-            # sv.settings.target_len = 2#3
-            # sv.signal.type_os_signal = 'ham_60c'
             sv.signal.volume = abs(util.calculate_percent_difference(highs[-3], lows[-1]))
             sv.signal.data = 60
             sv.signal.index = i
