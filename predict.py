@@ -2,8 +2,9 @@ import tensorflow as tf
 import numpy as np
 import helpers.vizualizer as viz
 from keras.preprocessing import image
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.preprocessing import StandardScaler
 import shared_vars as sv
+
 
 def predict_image_class(model, variant: int, data: np.ndarray, sample_2: np.ndarray, sample_3: np.ndarray = None, var: int = 2) -> int:
     # Загрузка модели
@@ -54,16 +55,17 @@ def predict_image_class(model, variant: int, data: np.ndarray, sample_2: np.ndar
 #     prediction = sv.model_1.predict(data_list, verbose=1)
 #     return prediction[0][0]
 
+
 import numpy as np
 from keras.models import Model
 
-def make_prediction(model: Model, input_data: list, scaler: StandardScaler, variant: int, shape_1: int) -> float:
+def make_prediction(model: Model, input_data: list, scaler: StandardScaler, variant: int, shape_1: int, shape_2: int) -> float:
     # Проверяем, что входные данные имеют правильный размер
     
     # input_array = np.array(input_data).reshape(-1, 4)
     scaled_input = scaler.transform([input_data])#np.array(input_data)#
     # Преобразуем входные данные в нужную форму (50, 4)
-    scaled_input = scaled_input.reshape(1, shape_1, 3)
+    scaled_input = scaled_input.reshape(1, shape_1, shape_2)
     
     # Делаем предсказание
     prediction = model.predict(scaled_input, verbose=0)

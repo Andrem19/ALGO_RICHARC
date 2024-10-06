@@ -19,7 +19,7 @@ def run(data, last_position, is_first_iter: bool):
             profit_list.append(last_position)
 
 
-        i = 1000
+        i = 800
 
         while i < data_len_for_loop:
             

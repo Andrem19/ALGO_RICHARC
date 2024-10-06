@@ -169,31 +169,31 @@ def train_2Dpic_model_regression(path: str):
 def train_model(csv_file):
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=6, min_lr=0.00001)
     # checkpoint = ModelCheckpoint(f'_models/my_model_{sv.mod_example}.h5', monitor='val_accuracy', save_best_only=True, mode='max')
-    save_path = f'_models/SP_1'
-    checkpoint = CustomModelCheckpoint(save_path=save_path, monitor='val_accuracy', save_best_only=True, min_accuracy=0.60)
+    save_path = f'_models/1h3_trend'
+    checkpoint = CustomModelCheckpoint(save_path=save_path, monitor='val_accuracy', save_best_only=True, min_accuracy=0.65)
     callbacks = [MyCallback(), checkpoint, reduce_lr]
     # 1. Чтение данных из CSV
     data = pd.read_csv(csv_file, header=None)
 
     # Допустим, у нас 200 столбцов для 50 свечей (OHLC) и 1 столбец для target
-    n_features = 300  # 4 (OHLC) * 50 свечей
+    n_features = 500  # 4 (OHLC) * 50 свечей
     X = data.iloc[:, :n_features].values  # Признаки (OHLC)
     y = data.iloc[:, n_features].values#:n_features+3].values   # Target (процент изменения закрытия)
     y = to_categorical(y, num_classes=3)
     # 2. Нормализация данных (очень важно для LSTM)
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
-    joblib.dump(scaler, 'scaler_SP1d.pkl')
+    joblib.dump(scaler, 'scaler_1h.pkl')
 
     # 3. Преобразуем данные в формат (samples, timesteps, features) для LSTM
-    X_lstm = X_scaled.reshape(X_scaled.shape[0], 100, 3)  # 50 свечей, 4 значения на свечу (OHLC)
+    X_lstm = X_scaled.reshape(X_scaled.shape[0], 100, 5)  # 50 свечей, 4 значения на свечу (OHLC)
 
     # 4. Разделение на обучающие и валидационные данные
     X_train, X_val, y_train, y_val = train_test_split(X_lstm, y, test_size=0.15, random_state=42)
 
     # 5. Создание LSTM модели
     model = tf.keras.models.Sequential([
-        tf.keras.layers.LSTM(128, return_sequences=True, input_shape=(100, 3), dropout=0.2, recurrent_dropout=0.1),
+        tf.keras.layers.LSTM(128, return_sequences=True, input_shape=(100, 5), dropout=0.2, recurrent_dropout=0.1),
         tf.keras.layers.BatchNormalization(),
         # tf.keras.layers.Dropout(0.3),
         tf.keras.layers.LSTM(64, dropout=0.2, recurrent_dropout=0.1),

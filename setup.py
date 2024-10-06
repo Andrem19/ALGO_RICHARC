@@ -34,7 +34,7 @@ def setup():
     tren_s = datetime(2017, 1, 1)
     tren_f = datetime(2024, 2, 1)
     val_s = datetime(2024, 2, 1)
-    val_f = datetime(2024, 10, 1)
+    val_f = datetime(2024, 11, 1)
 
     settings.start_date = tren_s if switch == 0 else val_s
     settings.finish_date = tren_f if switch == 0 else val_f

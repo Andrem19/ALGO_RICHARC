@@ -18,31 +18,36 @@ def get_signal(i, data):
         highs = data[i-ln:i, 2]
         lows = data[i-ln:i, 3]
         opens = data[i-ln:i, 1]
-
+        sg = 3
         chunk = data[i-100:i]
         list_to_save = []
        
-        for j in range(len(chunk)):
-            list_to_save.append(round(util.calculate_percent_difference(chunk[j][1], chunk[j][4])*100, 3))
-            list_to_save.append(round(util.calculate_percent_difference(chunk[j][1], chunk[j][2])*100, 3))
-            list_to_save.append(round(util.calculate_percent_difference(chunk[j][1], chunk[j][3])*100, 3))
+        for p in range(len(chunk)):
+            # cand = round(util.calculate_percent_difference(chunk[p][1], chunk[p][4])*100, 3)
+            # list_to_save.append(cand)  # open-close
+            # up_frm = chunk[p][1] if cand <0 else chunk[p][4]
+            # list_to_save.append(round(util.calculate_percent_difference(up_frm, chunk[p][2])*100, 3))  # open-high
+            # dwn_frm = chunk[p][1] if cand >0 else chunk[p][4]
+            # list_to_save.append(round(util.calculate_percent_difference(dwn_frm, chunk[p][3])*100, 3))  # open-low
+            list_to_save.append(round(util.calculate_percent_difference(chunk[p][1], chunk[p][4])*100, 3))
+            list_to_save.append(round(util.calculate_percent_difference(chunk[p][1], chunk[p][2])*100, 3))
+            list_to_save.append(round(util.calculate_percent_difference(chunk[p][1], chunk[p][3])*100, 3))
 
-
-        predicted_class_1, prediction_1 = prd.make_prediction(sv.model_4, list_to_save, sv.scaler_3, 1, 100)
+        predicted_class_1, prediction_1 = prd.make_prediction(sv.model_4, list_to_save, sv.scaler_3, 1, 100, 3)
 
           
             
-        if prediction_1[1]>0.80:
+        if prediction_1[2]>0.60:
             sv.signal.type_os_signal = 'short_2'
-            sv.settings.init_stop_loss = 0.02#serv.set_stls(0.020, abs(vol_can))#0.004
+            sv.settings.init_stop_loss = 0.01#serv.set_stls(0.020, abs(vol_can))#0.004
             sv.settings.take_profit = 0.20
-            sv.settings.target_len = 3#5
+            sv.settings.target_len = 4#5
             sv.settings.amount = 20#20
             # sv.cl = predicted_class
             sg = 2
-        elif prediction_1[2]>0.80:
+        elif prediction_1[1]>0.60:
             sv.signal.type_os_signal = 'long_2'
-            sv.settings.init_stop_loss = 0.02#serv.set_stls(0.020, abs(vol_can))#0.004
+            sv.settings.init_stop_loss = 0.01#serv.set_stls(0.020, abs(vol_can))#0.004
             sv.settings.take_profit = 0.20
             sv.settings.target_len = 4#5
             sv.settings.amount = 20#20
