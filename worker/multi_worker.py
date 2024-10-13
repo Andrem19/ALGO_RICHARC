@@ -8,6 +8,7 @@ import copy
 from models.settings import Settings
 import helpers.tools as tools
 import numpy as np
+import csv
 import traceback
 from models.signal import Signal
 import helpers.vizualizer as viz
@@ -39,14 +40,25 @@ def run(data, last_position, is_first_iter: bool):
                 else:
                     tm = prc.position_proccess(profit_list, data, is_first_iter)
 
-                if sv.signal.type_os_signal == 'long_1' and (profit_list[-1]['profit'] < -0.05 or profit_list[-1]['profit'] > 0.05):# and (profit_list[-1]['close_time'] - profit_list[-1]['open_time'] < 121000):
                 
-                
-                    path = None
+                if 'ham_60c' in sv.signal.type_os_signal:
+                    list_to_save = []
+                    path = f'_train_data/train_data_{sv.model_number}.csv'
+                    for j in range(len(sv.data_list)):
+                        cand = round(util.calculate_percent_difference(sv.data_list[j][1], sv.data_list[j][4])*100, 3)
+                        list_to_save.append(cand)  # open-close
+                        up_frm = sv.data_list[j][1] if cand <0 else sv.data_list[j][4]
+                        list_to_save.append(round(util.calculate_percent_difference(up_frm, sv.data_list[j][2])*100, 3))  # open-high
+                        dwn_frm = sv.data_list[j][1] if cand >0 else sv.data_list[j][4]
+                        list_to_save.append(round(util.calculate_percent_difference(dwn_frm, sv.data_list[j][3])*100, 3))
                     if profit_list[-1]['profit']<=0 and profit_list[-1]['type_close'] == 'antitarget':
-                        path = f'_pic_train_data/{sv.model_number}/0/{i_1}_{sv.settings.coin}.png'
+                        list_to_save.append(0)
                     elif profit_list[-1]['profit']>0:
-                        path = f'_pic_train_data/{sv.model_number}/1/{i_1}_{sv.settings.coin}.png'
+                        list_to_save.append(1)
+                    
+                    with open(path, mode='a', newline='') as file:
+                        writer = csv.writer(file)
+                        writer.writerow(list_to_save)
                     
                     
                     # if util.check_long_rise(data[i_1:i_1+60], 0.03):

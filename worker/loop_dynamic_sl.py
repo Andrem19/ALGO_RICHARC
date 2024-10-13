@@ -17,7 +17,7 @@ def position_proccess(profit_list: list, dt: np.ndarray, is_first_iter: bool):
         step_sl = 0.006
         step_up = 0.006
         if sv.signal.signal == 2:
-            step_up = 0.004
+            step_up = 0.006
 
         take_profit = 0
         price_open = 0

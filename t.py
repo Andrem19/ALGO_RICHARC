@@ -5,10 +5,10 @@ import helpers.util as util
 import csv
 import numpy as np
 
-data_path = 'D:\\PYTHON\\Data_Collector\\Datasets_1h'
+data_path = 'D:\\PYTHON\\Data_Collector\\Datasets'
 data_1 = util.read_and_split_csv(data_path + '\\1.csv')
 data_2 = util.read_and_split_csv(data_path + '\\2.csv')
-data_0 = util.read_and_split_csv(data_path + '\\3.csv')
+data_0 = util.read_and_split_csv(data_path + '\\0.csv')
 
 # Период для RSI и Bollinger Bands
 # rsi_period = 14
@@ -41,9 +41,6 @@ for i, d in enumerate([data_0, data_1, data_2]):
             dwn_frm = example[j][1] if cand >0 else example[j][4]
             list_to_save.append(round(util.calculate_percent_difference(dwn_frm, example[j][3])*100, 3))  # open-low
 
-            list_to_save.append(round(util.calculate_percent_difference(example[j][1], example[j][2])*100, 3))
-            list_to_save.append(round(util.calculate_percent_difference(example[j][1], example[j][3])*100, 3))
-
             # Добавляем RSI (0, если нет значения)
             # rsi_value = rsi[j] if not np.isnan(rsi[j]) else 0
             # list_to_save.append(round(rsi_value/100, 3))
@@ -69,6 +66,7 @@ for i, d in enumerate([data_0, data_1, data_2]):
             # list_to_save.append(round(lowerband_value, 3))
 
         # Добавляем метку класса (i - для каждого набора данных)
+
         list_to_save.append(i)
 
         # Сохраняем данные в CSV

@@ -23,7 +23,7 @@ def get_signal(i_1, data_1, settings: Settings):
 
     if sv.long_counter >= 1:
         sv.long_counter+=1
-    
+    sv.data_list = data_1[i_1-100:i_1]
     lenth = 210
     # btc_rsi = util.get_previous_day_rsi(data_1[i_1][0], sv.btc_rsi_dict)
     # print(btc_rsi)
@@ -127,18 +127,18 @@ def get_signal(i_1, data_1, settings: Settings):
                         sv.settings.amount = 20
                         signal_1 = 1
         
-        # if signal_1 == 3:
-        #     if closes_1[-1] < opens_1[-1]:
-        #         rsi_1 = talib.RSI(closes_1, 14)
-        #         op15, hi15, lo15, cl15 = tools.convert_timeframe(opens_1, highs_1, lows_1, closes_1, 15, 2)
-        #         if rsi_1[-1]<16 and tools.check_high_candel(hi15[-1], lo15[-1], 0.026*koff, sv.settings.coin):
-        #             if tools.rsi_repeater(rsi_1[-60:], 5, 0, 46)>5:
-        #                 # if not tools.check_high_candel(closes_1[-2], lows_1[-2], 0.018, settings.coin) or closes_1[-2]>opens_1[-2] or closes_1[-1]>opens_1[-1]:
-        #                 sv.signal.type_os_signal = 'ham_60c'
-        #                 sv.settings.init_stop_loss = 0.006
-        #                 sv.settings.target_len = 20#5
-        #                 sv.settings.amount = 20
-        #                 signal_1 = 1
+        if signal_1 == 3:
+            if closes_1[-1] < opens_1[-1]:
+                rsi_1 = talib.RSI(closes_1, 14)
+                op15, hi15, lo15, cl15 = tools.convert_timeframe(opens_1, highs_1, lows_1, closes_1, 15, 2)
+                if rsi_1[-1]<16 and tools.check_high_candel(hi15[-1], lo15[-1], 0.026*koff, sv.settings.coin):
+                    if tools.rsi_repeater(rsi_1[-60:], 5, 0, 46)>5:
+                        # if not tools.check_high_candel(closes_1[-2], lows_1[-2], 0.018, settings.coin) or closes_1[-2]>opens_1[-2] or closes_1[-1]>opens_1[-1]:
+                        sv.signal.type_os_signal = 'ham_60c'
+                        sv.settings.init_stop_loss = 0.006
+                        sv.settings.target_len = 20#5
+                        sv.settings.amount = 20
+                        signal_1 = 1
 
         
         
@@ -250,17 +250,6 @@ def get_signal(i_1, data_1, settings: Settings):
                                 sv.settings.target_len = 5#5
                                 sv.settings.amount = 20#20
                                 signal_1 = 1
-        
-        if signal_1 == 3:
-            if closes_1[-1]>opens_1[-1]:
-                rsi = talib.RSI(closes_1, 22)#22
-                if rsi[-1]>70:
-                    if tools.check_high_candel(highs_1[-1], lows_1[-1], 0.015*koff, settings.coin):
-                        sv.signal.type_os_signal = 'long_1'
-                        sv.settings.init_stop_loss = 0.005
-                        sv.settings.target_len = 5#5
-                        sv.settings.amount = 20#20
-                        signal_1 = 2
 
         # if signal_1 == 3:
         #     rsi_1 = talib.RSI(closes_1, 14)
@@ -307,6 +296,21 @@ def get_signal(i_1, data_1, settings: Settings):
                 sv.signal.data = 5
                 sv.settings.init_stop_loss = 0.05
                 sv.settings.target_len = 7#20
+
+        if 'ham_60c' in sv.signal.type_os_signal:
+            list_to_save = []
+            for j in range(len(sv.data_list)):
+                cand = round(util.calculate_percent_difference(sv.data_list[j][1], sv.data_list[j][4])*100, 3)
+                list_to_save.append(cand)  # open-close
+                up_frm = sv.data_list[j][1] if cand <0 else sv.data_list[j][4]
+                list_to_save.append(round(util.calculate_percent_difference(up_frm, sv.data_list[j][2])*100, 3))  # open-high
+                dwn_frm = sv.data_list[j][1] if cand >0 else sv.data_list[j][4]
+                list_to_save.append(round(util.calculate_percent_difference(dwn_frm, sv.data_list[j][3])*100, 3))
+            
+            predicted_class_1, prediction_1 = prd.make_prediction(sv.model_4, list_to_save, sv.scaler_3, 1, 100, 3)
+            if prediction_1[1]< 0.70:
+                sv.signal.signal = 3
+                return
         
         # pos_list = util.filter_dicts(sv.etalon_positions, pos, 40, 0, tp='close_time')
         # types_7 = [val['type_of_signal'] for val in pos_list if val['type_of_signal'] != 'ham_60c']

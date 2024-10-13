@@ -25,7 +25,7 @@ data_1 = gd.load_data_sets(60)
 len_data = len(data_1)
 print(f'Data length: {len_data}')
 path = f'_train_data/train_data_{sv.model_number}.csv'
-for i in range(100, len_data-4):
+for i in range(114, len_data-4):
     # closes = data_1[i-25:i, 4]
     # trend = tools.what_trend(closes, 5, 5)
     # if trend != 'down':
@@ -35,7 +35,7 @@ for i in range(100, len_data-4):
     #     if diff < 0.4 and diff > -0.4:
     #         continue
 
-    chunk = data_1[i-100:i]
+    chunk = data_1[i-114:i+1]
     
     list_to_save = []
     # rsi = talib.RSI(closes)
@@ -69,11 +69,13 @@ for i in range(100, len_data-4):
     #                 list_to_save.append(round(util.calculate_percent_difference(sample_2[p][1], sample_2[p][2])*100, 3))
     #                 list_to_save.append(round(util.calculate_percent_difference(sample_2[p][1], sample_2[p][3])*100, 3))
             
+    rsi = talib.RSI(chunk[:, 4])
+    rsi_cleaned = np.round(rsi[~np.isnan(rsi)], 2)
 
-    for p in range(len(chunk)):
-        list_to_save.append(round(util.calculate_percent_difference(chunk[p][1], chunk[p][4])*100, 3))
-        list_to_save.append(round(util.calculate_percent_difference(chunk[p][1], chunk[p][2])*100, 3))
-        list_to_save.append(round(util.calculate_percent_difference(chunk[p][1], chunk[p][3])*100, 3))
+    # for p in range(len(chunk)):
+    #     list_to_save.append(round(util.calculate_percent_difference(chunk[p][1], chunk[p][4])*100, 3))
+    #     list_to_save.append(round(util.calculate_percent_difference(chunk[p][1], chunk[p][2])*100, 3))
+    #     list_to_save.append(round(util.calculate_percent_difference(chunk[p][1], chunk[p][3])*100, 3))
         # cand = round(util.calculate_percent_difference(chunk[p][1], chunk[p][4])*100, 3)
         # list_to_save.append(cand)  # open-close
         # up_frm = chunk[p][1] if cand <0 else chunk[p][4]
@@ -95,19 +97,19 @@ for i in range(100, len_data-4):
     
     # diff_2 = round(util.calculate_percent_difference(data_1[i+1][1], data_1[i+1][4]), 3)
     # diff_3 = round(util.calculate_percent_difference(data_1[i+2][1], data_1[i+2][4]), 3)
-    diff_1 = round(util.calculate_percent_difference(data_1[i][1], data_1[i+2][4]), 4)
-    high = max(data_1[i][2],data_1[i+1][2], data_1[i+2][2])
-    low = min(data_1[i][3],data_1[i+1][3], data_1[i+2][3])
+    # diff_1 = round(util.calculate_percent_difference(data_1[i][1], data_1[i+2][4]), 4)
+    # high = max(data_1[i][2],data_1[i+1][2], data_1[i+2][2])
+    # low = min(data_1[i][3],data_1[i+1][3], data_1[i+2][3])
 
     # diff_2 = round(util.calculate_percent_difference(data_1[i][1], data_1[i][2])*100, 3)
     # diff_3 = round(util.calculate_percent_difference(data_1[i][1], data_1[i][3])*100, 3)
     # list_to_save.append(return_class(diff_1, 1.2))
-    cl = 0
-    if diff_1>0.005 and util.calculate_percent_difference(data_1[i][1], high) > 0.01 and util.calculate_percent_difference(data_1[i][1], low)>-0.004:
-        cl = 1
-    elif diff_1<-0.005 and util.calculate_percent_difference(data_1[i][1], high) < 0.004 and util.calculate_percent_difference(data_1[i][1], low)<-0.01:
-        cl = 2
-    list_to_save.append(cl)
+    # cl = 0
+    # if diff_1>0.005 and util.calculate_percent_difference(data_1[i][1], high) > 0.01 and util.calculate_percent_difference(data_1[i][1], low)>-0.004:
+    #     cl = 1
+    # elif diff_1<-0.005 and util.calculate_percent_difference(data_1[i][1], high) < 0.004 and util.calculate_percent_difference(data_1[i][1], low)<-0.01:
+    #     cl = 2
+    # list_to_save.append(cl)
 
         
     # list_to_save.append(diff_2)
@@ -121,7 +123,7 @@ for i in range(100, len_data-4):
 
     with open(path, mode='a', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(list_to_save)
+        writer.writerow(rsi_cleaned)
 
     if i%100==0:
         print(i)

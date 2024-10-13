@@ -9,7 +9,9 @@ import shared_vars as sv
 def predict_image_class(model, variant: int, data: np.ndarray, sample_2: np.ndarray, sample_3: np.ndarray = None, var: int = 2) -> int:
     # Загрузка модели
     path = f'_temp_pic/{sv.image_ident}{variant}_sample.png'
-    if var == 2:
+    if var == 1:
+        viz.save_candlesticks_pic_1(data, path)
+    elif var == 2:
         viz.save_candlesticks_pic_2(data, sample_2, path)
     elif var == 3:
         viz.save_candlesticks_pic_3(sample_2, data, sample_3, path)
@@ -27,7 +29,7 @@ def predict_image_class(model, variant: int, data: np.ndarray, sample_2: np.ndar
     predicted_class = np.argmax(predictions, axis=1)[0]
     # if predictions[0][-1]> predictions[0][0]:
     print(predictions)
-
+    return predictions[0]
     if variant == 1:
         if predictions[0][1] > 0.85:
             return True

@@ -127,8 +127,8 @@ def get_signal(i, data):
                     # list_to_save_2.append(round(lowerband_value, 3))
 
                 # sv.data_list = list_to_save_2
-                sv.data_list = sample_2
-                sv.next_list = sv.btc_data_1[index:index+5]
+                sv.data_list = list_to_save_1
+                # sv.next_list = sv.btc_data_1[index:index+5]
                 # trend = tools.what_trend(closes[-25:], 5, 5)
                 # if global_vol < -0.05:# or true_count > false_count:
                 #     sv.signal.signal = sg
@@ -146,9 +146,10 @@ def get_signal(i, data):
             
             # if predicted_class_3 == 1:
             predicted_class_1, prediction_1 = prd.make_prediction(sv.model_1, list_to_save_1, sv.scaler, 1, 100, 3)
+            # # predicted_class_4, prediction_4 = prd.make_prediction(sv.model_5, list_to_save_1, sv.scaler_4, 1, 100, 3)
             predicted_class_2, prediction_2 = prd.make_prediction(sv.model_2, list_to_save_2, sv.scaler_1, 1, 100, 3)
-            if prediction_2[1]>0.60 and prediction_1[1]>0.50:
-                predicted_class_3, prediction_3 = prd.make_prediction(sv.model_3, list_to_save_3, sv.scaler_2, 1, 100, 3)
+            # if prediction_2[1]>0.60 and prediction_1[1]>0.50:
+            predicted_class_3, prediction_3 = prd.make_prediction(sv.model_3, list_to_save_3, sv.scaler_2, 1, 100, 3)
 
                 # predicted_class, prediction = prd.make_prediction_2(sv.model_1, list_to_save, sv.scaler_1, sv.scaler_2, sv.scaler_3, 1)
         # predicted_class_2, prediction_2 = prd.make_prediction(sv.model_2, list_to_save, sv.scaler, 1)
@@ -173,7 +174,7 @@ def get_signal(i, data):
             #     last_cand_3 = util.combine_last_candle(data_3[index][0], data[i][0], data)
             #     if last_cand_3 is not None:
             #         sample_3 = np.append(sample_3, [last_cand_3], axis=0)
-            # prediction_1 = prd.predict_image_class(sv.model_1, 1, sample, sample_2, None, 2)
+            #prediction_1 = prd.predict_image_class(sv.model_4, 1, sample_2, None, None, 1)
             # if prediction_1:
             # prediction_2, predicted_class = prd.predict_image_class(sv.model_1, 4, chunk, sample_2, None, 2)
             # if prediction_2 > 0.4:
@@ -190,9 +191,44 @@ def get_signal(i, data):
     # print('pred: ', pred, closes[-1], pred > closes[-1])
     # if pred > closes[-1]:
                 #predicted_class>=3 and predicted_class<=1 and 
+            # and sample_2[-1][3]<sample_2[-2][3] and sample_2[-1][3]<sample_2[-3][3]):#prediction_2[2]>0.65#prediction_1[2]>0.60 and 
+                # predicted_class, prediction = prd.make_prediction(sv.model_6, list_to_save_1, sv.scaler_5, 1, 100, 3)
+                # if prediction[1]>0.60:
+            # if prediction_1[2]>0.60:
+            # predicted_class, prediction = prd.make_prediction(sv.model_6, list_to_save_1, sv.scaler_5, 1, 100, 3)
+            # if (prediction[1]< 0.50):
+            #     sv.signal.type_os_signal = 'short_2'
+            #     sv.settings.init_stop_loss = 0.012
+            #     sv.settings.take_profit = 0.10
+            #     sv.settings.target_len = 59#5
+            #     sv.settings.amount = 20#20
+            #     # sv.cl = predicted_class
+            #     sg = 2
+            # elif (
+            #     (prediction_1[1]>0.60) and
+            #     (sample_2[-1][2]>sample_2[-2][2] and sample_2[-1][2]>sample_2[-3][2]) and 
+            #     (sample_2[-1][3]>sample_2[-2][3] or sample_2[-1][3]>sample_2[-3][3])
+            #       ):
+            #         # predicted_class, prediction = prd.make_prediction(sv.model_5, list_to_save_1, sv.scaler_4, 1, 100, 3)#(prediction_1[1]>0.50) and
+            #         # if prediction[1]>0.60:
+            #         sv.signal.type_os_signal = 'long_2'
+            #         sv.settings.init_stop_loss = 0.01
+            #         sv.settings.take_profit = 0.10
+            #         sv.settings.target_len = 200#5
+            #         sv.settings.amount = 20#20
+            #         # sv.cl = predicted_class
+            #         sg = 1
+            rsi = talib.RSI(sample_2[-45:, 4])
+            #             sg = 1
 
-  
-            if prediction_1[2]>0.60 and predicted_class_2 != 1 and (sample_2[-1][3]<sample_2[-2][3] and sample_2[-1][3]<sample_2[-3][3]):#prediction_2[2]>0.65
+            
+            # diff_1 = util.calculate_percent_difference(sample_2[-1][2], sample_2[-1][3])
+            # if prediction_1[2]>0.50:#rsi[-1] > 19 and rsi[-1]<40 and prediction_1[2]>0.50:# and predicted_class_2 != 1:# and (sample_2[-1][3]<sample_2[-2][3] and sample_2[-1][3]<sample_2[-3][3]):#prediction_2[2]>0.65
+            if (
+                # (prediction_1[2]>0.50 and tools.all_short(sample_2[-4:-1, 1], sample_2[-4:-1, 4]) and sample_2[-1][1] < sample_2[-1][4] and sample_2[-1][2] < sample_2[-2][2]) or
+                (prediction_1[2]>0.70 and predicted_class_2 != 1 and prediction_3[1]<prediction_3[2] and (sample_2[-1][3]<sample_2[-2][3] and sample_2[-1][3]<sample_2[-3][3]))
+            ):
+                # if not tools.is_last_bigger(sample_2[-4:, 1], sample_2[-4:, 4], 0.4):
                 sv.signal.type_os_signal = 'short_2'
                 sv.settings.init_stop_loss = 0.012
                 sv.settings.take_profit = 0.10

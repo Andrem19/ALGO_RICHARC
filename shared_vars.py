@@ -128,21 +128,28 @@ mod_example = 59
 model_1 = tf.keras.models.load_model('_models/1h2_trend/model_0.7124.h5')#model_0.7124
 model_2 = tf.keras.models.load_model('_models/1h_trend/model_0.8358.h5')#1h_trend/model_0.8358.h5
 model_3 = tf.keras.models.load_model('_models/4h_trend/model_0.9098.h5')
-# model_4 = tf.keras.models.load_model('_models/1h3_trend/model_0.5556.h5')
-# model_5 = tf.keras.models.load_model('_models/arb_long_1/model_0.7054.h5')
+
+# model_4 = tf.keras.models.load_model('_models/1m_ham60/model_0.6280.h5')
+# model_5 = tf.keras.models.load_model('_models/1h_arb_long2/model_0.6631.h5')
+# model_6 = tf.keras.models.load_model('_models/1h_short/model_0.7881.h5')
 long_counter = 0
 
 was_pos_before = 0
 image_ident = str(uuid.uuid4())[:8]
-model_number = 59
+model_number = 94
 prev_val = 0
 plus = 0
 minus = 0
 scaler = joblib.load('_models/1h2_trend/scaler_1h.pkl')
 scaler_1 = joblib.load('_models/1h_trend/scaler_1h.pkl')
 scaler_2 = joblib.load('_models/4h_trend/scaler_4h.pkl')
-# scaler_3 = joblib.load('_models/1h3_trend/scaler_1h.pkl')
+
+# scaler_3 = joblib.load('_models/1m_ham60/scaler_1h.pkl')
+scaler_4 = joblib.load('_models/1h_arb_long/scaler_1h.pkl')
+# scaler_5 = joblib.load('_models/1h_short/scaler_1h.pkl')
 report = {}
 cl = 0
 data_list = []
 next_list = []
+
+pass_next_pos = False

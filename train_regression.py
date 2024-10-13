@@ -169,31 +169,38 @@ def train_2Dpic_model_regression(path: str):
 def train_model(csv_file):
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=6, min_lr=0.00001)
     # checkpoint = ModelCheckpoint(f'_models/my_model_{sv.mod_example}.h5', monitor='val_accuracy', save_best_only=True, mode='max')
-    save_path = f'_models/1h3_trend'
-    checkpoint = CustomModelCheckpoint(save_path=save_path, monitor='val_accuracy', save_best_only=True, min_accuracy=0.65)
+    save_path = f'_models/1h_short'
+    checkpoint = CustomModelCheckpoint(save_path=save_path, monitor='val_accuracy', save_best_only=True, min_accuracy=0.60)
     callbacks = [MyCallback(), checkpoint, reduce_lr]
     # 1. Чтение данных из CSV
     data = pd.read_csv(csv_file, header=None)
 
     # Допустим, у нас 200 столбцов для 50 свечей (OHLC) и 1 столбец для target
-    n_features = 500  # 4 (OHLC) * 50 свечей
+    n_features = 300  # 4 (OHLC) * 50 свечей
     X = data.iloc[:, :n_features].values  # Признаки (OHLC)
     y = data.iloc[:, n_features].values#:n_features+3].values   # Target (процент изменения закрытия)
-    y = to_categorical(y, num_classes=3)
+    y = to_categorical(y, num_classes=2)
     # 2. Нормализация данных (очень важно для LSTM)
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
     joblib.dump(scaler, 'scaler_1h.pkl')
 
     # 3. Преобразуем данные в формат (samples, timesteps, features) для LSTM
-    X_lstm = X_scaled.reshape(X_scaled.shape[0], 100, 5)  # 50 свечей, 4 значения на свечу (OHLC)
+    X_lstm = X_scaled.reshape(X_scaled.shape[0], 100, 3)  # 50 свечей, 4 значения на свечу (OHLC)
 
     # 4. Разделение на обучающие и валидационные данные
     X_train, X_val, y_train, y_val = train_test_split(X_lstm, y, test_size=0.15, random_state=42)
 
+    # 5. Подсчет количества образцов в каждом классе
+    class_counts = np.bincount(np.argmax(y_train, axis=1))
+    total_samples = len(y_train)
+
+    # 6. Расчет весов классов
+    class_weights = {i: total_samples / (len(class_counts) * class_counts[i]) for i in range(len(class_counts))}
+    print(class_weights)
     # 5. Создание LSTM модели
     model = tf.keras.models.Sequential([
-        tf.keras.layers.LSTM(128, return_sequences=True, input_shape=(100, 5), dropout=0.2, recurrent_dropout=0.1),
+        tf.keras.layers.LSTM(128, return_sequences=True, input_shape=(100, 3), dropout=0.2, recurrent_dropout=0.1),
         tf.keras.layers.BatchNormalization(),
         # tf.keras.layers.Dropout(0.3),
         tf.keras.layers.LSTM(64, dropout=0.2, recurrent_dropout=0.1),
@@ -202,7 +209,7 @@ def train_model(csv_file):
         tf.keras.layers.Dense(32, kernel_regularizer=tf.keras.regularizers.l2(0.01)),
         # tf.keras.layers.Dropout(0.2),
         # tf.keras.layers.Dense(32),
-        tf.keras.layers.Dense(3, activation='softmax')
+        tf.keras.layers.Dense(2, activation='softmax')
     ])
     # Компиляция модели
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
@@ -498,3 +505,77 @@ def train_model_with_three_series(csv_file):
 #     save_path = f'_models/my_model_{sv.mod_example}.h5'
 #     joblib.dump(xgb_model, save_path)
 #     return xgb_model
+
+def train_transformer_model(csv_file):
+    # Callbacks
+    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=6, min_lr=0.00001)
+    save_path = f'_models/1h_arb_long'
+    checkpoint = CustomModelCheckpoint(save_path=save_path, monitor='val_accuracy', save_best_only=True, min_accuracy=0.60)
+    callbacks = [MyCallback(), checkpoint, reduce_lr]
+
+    # 1. Чтение данных из CSV
+    data = pd.read_csv(csv_file, header=None)
+    n_features = 300  # 3 * 100 свечей
+    X = data.iloc[:, :n_features].values  # Признаки
+    y = data.iloc[:, n_features].values  # Target
+    y = to_categorical(y, num_classes=2)
+
+    # 2. Нормализация данных
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    joblib.dump(scaler, 'scaler_transformer.pkl')
+
+    # 3. Преобразуем данные в формат (samples, timesteps, features) для Transformer
+    X_transformer = X_scaled.reshape(X_scaled.shape[0], 100, 3)  # 100 свечей, 3 признаков на свечу
+
+    # 4. Разделение на обучающие и валидационные данные
+    X_train, X_val, y_train, y_val = train_test_split(X_transformer, y, test_size=0.15, random_state=42)
+
+    # 5. Создание модели Transformer
+    input_layer = tf.keras.layers.Input(shape=(100, 3))
+
+    # Эмбеддинг
+    x = tf.keras.layers.Dense(512)(input_layer)
+    
+    # Multi-Head Attention
+    attention_output = tf.keras.layers.MultiHeadAttention(num_heads=8, key_dim=256)(x, x)
+    attention_output = tf.keras.layers.Dropout(0.1)(attention_output)
+    attention_output = tf.keras.layers.LayerNormalization(epsilon=1e-6)(attention_output)
+    
+    # Добавление residual connection
+    attention_output = tf.keras.layers.Add()([x, attention_output])
+    
+    # Feed Forward Network (FFN)
+    ffn = tf.keras.Sequential([
+        tf.keras.layers.Dense(512, activation='relu'),
+        tf.keras.layers.Dense(256)
+    ])
+    ffn_output = ffn(attention_output)
+    ffn_output = tf.keras.layers.Dropout(0.1)(ffn_output)
+    ffn_output = tf.keras.layers.LayerNormalization(epsilon=1e-6)(ffn_output)
+
+    # Применяем GlobalAveragePooling1D для объединения информации по последовательности
+    pooled_output = tf.keras.layers.GlobalAveragePooling1D()(ffn_output)
+
+    # Выходной слой
+    output_layer = tf.keras.layers.Dense(3, activation='softmax')(pooled_output)
+
+    # Собираем модель
+    model = tf.keras.Model(inputs=input_layer, outputs=output_layer)
+
+    # 6. Компиляция модели
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+    model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
+
+    # 7. Тренировка модели
+    history = model.fit(
+        X_train,
+        y_train,
+        epochs=1000,
+        batch_size=32,
+        validation_data=(X_val, y_val),
+        callbacks=callbacks
+    )
+
+    # Возвращаем модель и историю обучения
+    return model, history

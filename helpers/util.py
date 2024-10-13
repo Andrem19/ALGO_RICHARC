@@ -634,8 +634,12 @@ def read_and_split_csv(file_path):
     with open(file_path, newline='') as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
-            # Разделить строку на 2D массивы по 6 значений в каждом внутреннем массиве
-            split_row = [[float(row[i])] + [float(x) for x in row[i+1:i+6]] for i in range(0, len(row), 6)]
-            result.append(split_row)
+            try:
+                # Разделить строку на 2D массивы по 6 значений в каждом внутреннем массиве
+                split_row = [[float(row[i])] + [float(x) for x in row[i+1:i+6]] for i in range(0, len(row), 6)]
+                result.append(split_row)
+            except ValueError:
+                # Пропустить строку, если возникает ошибка преобразования
+                continue
     return result
 

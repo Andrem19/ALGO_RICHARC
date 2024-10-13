@@ -3,6 +3,25 @@ from models.settings import Settings
 import helpers.util as util
 import coins
 
+def calculate_profit(entry_price, exit_price, amount_usd, position_type, fee=0.10):
+    # Рассчитываем количество купленных или проданных активов
+    amount_of_asset = amount_usd / entry_price
+
+    # Рассчитываем комиссию на входе и выходе
+    total_fee = amount_usd /100 * sv.settings.taker_fee
+
+    # Рассчитываем прибыль или убыток в зависимости от типа позиции
+    if position_type == 'long':
+        profit = (exit_price - entry_price) * amount_of_asset
+    elif position_type == 'short':
+        profit = (entry_price - exit_price) * amount_of_asset
+    else:
+        raise ValueError("Неверный тип позиции. Используйте 'long' или 'short'.")
+
+    # Вычитаем комиссию из прибыли/убытка
+    net_profit = profit - total_fee
+
+    return net_profit
 
 def profit_counter(taker_maker: bool, open_price: float, buy: bool, close_price: float) -> float:
     if taker_maker == True:
@@ -41,11 +60,10 @@ def profit_counter(taker_maker: bool, open_price: float, buy: bool, close_price:
 
 def process_profit(dt: dict, is_first_iter: bool):
 
-    taker = False if sv.signal.type_os_signal in ['ham_60c', 'ham_usdc', 'ham_usdc_1'] or sv.settings.coin in coins.usdc_set else True
-    if dt['type_close'] == 'timefinish':
-        taker = True
-    buy = True if sv.signal.signal == 1 else False
-    prof = profit_counter(taker, dt['price_open'], buy, dt['price_close'])
+    taker = True
+    buy = 'long' if sv.signal.signal == 1 else 'short'
+    # prof = profit_counter(taker, dt['price_open'], buy, dt['price_close'])
+    prof = calculate_profit(dt['price_open'], dt['price_close'], sv.settings.amount, buy, sv.settings.taker_fee)
 
     saldo = 0
     if is_first_iter == True and len(dt['profit_list'])==0:

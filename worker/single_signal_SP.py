@@ -19,37 +19,39 @@ def get_signal(i, data):
         lows = data[i-ln:i, 3]
         opens = data[i-ln:i, 1]
         sg = 3
-        chunk = data[i-100:i]
+        chunk = data[i-114:i]
         list_to_save = []
        
-        for p in range(len(chunk)):
+        # for p in range(len(chunk)):
             # cand = round(util.calculate_percent_difference(chunk[p][1], chunk[p][4])*100, 3)
             # list_to_save.append(cand)  # open-close
             # up_frm = chunk[p][1] if cand <0 else chunk[p][4]
             # list_to_save.append(round(util.calculate_percent_difference(up_frm, chunk[p][2])*100, 3))  # open-high
             # dwn_frm = chunk[p][1] if cand >0 else chunk[p][4]
             # list_to_save.append(round(util.calculate_percent_difference(dwn_frm, chunk[p][3])*100, 3))  # open-low
-            list_to_save.append(round(util.calculate_percent_difference(chunk[p][1], chunk[p][4])*100, 3))
-            list_to_save.append(round(util.calculate_percent_difference(chunk[p][1], chunk[p][2])*100, 3))
-            list_to_save.append(round(util.calculate_percent_difference(chunk[p][1], chunk[p][3])*100, 3))
-
-        predicted_class_1, prediction_1 = prd.make_prediction(sv.model_4, list_to_save, sv.scaler_3, 1, 100, 3)
+            # list_to_save.append(round(util.calculate_percent_difference(chunk[p][1], chunk[p][4])*100, 3))
+            # list_to_save.append(round(util.calculate_percent_difference(chunk[p][1], chunk[p][2])*100, 3))
+            # list_to_save.append(round(util.calculate_percent_difference(chunk[p][1], chunk[p][3])*100, 3))
+        rsi = talib.RSI(chunk[:, 4])
+        rsi_cleaned = np.round(rsi[~np.isnan(rsi)], 2)
+        print('len', len(rsi_cleaned))
+        predicted_class_1, prediction_1 = prd.make_prediction(sv.model_4, rsi_cleaned, sv.scaler_1, 1, 100, 1)
 
           
             
-        if prediction_1[2]>0.60:
+        if prediction_1[0]<rsi[-1]-7:
             sv.signal.type_os_signal = 'short_2'
             sv.settings.init_stop_loss = 0.01#serv.set_stls(0.020, abs(vol_can))#0.004
             sv.settings.take_profit = 0.20
-            sv.settings.target_len = 4#5
+            sv.settings.target_len = 2#5
             sv.settings.amount = 20#20
             # sv.cl = predicted_class
             sg = 2
-        elif prediction_1[1]>0.60:
+        elif prediction_1[0]>rsi[-1]+7:
             sv.signal.type_os_signal = 'long_2'
             sv.settings.init_stop_loss = 0.01#serv.set_stls(0.020, abs(vol_can))#0.004
             sv.settings.take_profit = 0.20
-            sv.settings.target_len = 4#5
+            sv.settings.target_len = 2#5
             sv.settings.amount = 20#20
             # sv.cl = predicted_class
             sg = 1

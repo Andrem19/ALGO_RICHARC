@@ -128,6 +128,20 @@ def all_True_any_False(closes: np.ndarray, opens: np.ndarray, numval: int, varia
         else:
             return np.all(~comparisons)
 
+def all_long(opens, closes):
+    all_up = True
+    for i in range(len(opens)):
+        if opens[i]>closes[i]:
+            all_up = False
+    return all_up
+
+def all_short(opens, closes):
+    all_down = True
+    for i in range(len(opens)):
+        if opens[i]<closes[i]:
+            all_down = False
+    return all_down
+
 
 @jit(nopython=True)
 def convert_timeframe(opens: np.ndarray, highs: np.ndarray, lows: np.ndarray, closes: np.ndarray, timeframe: int, ln: int):
@@ -298,3 +312,13 @@ def range_not_lowest(lows: np.ndarray, length: int, rng: int):
 
     min_in_last_period = np.min(lows[-length:-rng])
     return min_value > min_in_last_period
+
+def is_last_bigger(opens, closes, multiplier):
+    last = abs(opens[-1] - closes[-1]) * multiplier
+    len_cand = len(opens)
+    cand_sum = 0
+    for i in range(len_cand-1):
+        cand_sum += abs(opens[i] - closes[i])
+    
+    cand_mid = cand_sum / (len_cand-1)
+    return cand_mid<last

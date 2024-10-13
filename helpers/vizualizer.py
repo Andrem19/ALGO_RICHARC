@@ -462,3 +462,31 @@ def save_candlesticks_pic_2BB(candles: list, inset_candles: list, path: str):
     # Save the figure
     plt.savefig(path, bbox_inches='tight', pad_inches=0)
     plt.close()
+
+
+def save_candlesticks_pic_1(candles: list, path: str):
+    # Convert the main candlesticks data into a pandas DataFrame
+    df = pd.DataFrame(candles, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
+    df['timestamp'] = df['timestamp'].astype(int)
+    df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms', utc=False).dt.tz_localize('UTC').dt.tz_convert('Europe/London')
+    df.set_index('timestamp', inplace=True)
+
+    # Define the style dictionary
+    my_style = mpf.make_mpf_style(base_mpf_style='binance', gridstyle='', y_on_right=False)
+
+    # Create the main plot
+    fig, ax1 = plt.subplots(figsize=(10, 10))
+
+    # Plot the main candlesticks
+    mpf.plot(df, type='candle', style=my_style, ax=ax1, axisoff=True)
+    # ax1.set_title(util.get_ident_type(sv.signal.type_os_signal))
+
+    # Remove the frame and ticks from the plot
+    for spine in ax1.spines.values():
+        spine.set_visible(False)
+    ax1.set_xticks([])
+    ax1.set_yticks([])
+
+    # Save the figure
+    plt.savefig(path, bbox_inches='tight', pad_inches=0)
+    plt.close()

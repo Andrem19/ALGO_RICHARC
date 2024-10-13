@@ -26,6 +26,34 @@ import json
 import pandas as pd
 import numpy as np
 
+class CustomModelCheckpoint(tf.keras.callbacks.Callback):
+    def __init__(self, save_path, monitor='val_accuracy', save_best_only=True, min_accuracy=0.60, mode='max'):
+        super(CustomModelCheckpoint, self).__init__()
+        self.save_path = save_path
+        self.monitor = monitor
+        self.save_best_only = save_best_only
+        self.min_accuracy = min_accuracy
+        self.best_val = -float('inf') if mode == 'max' else float('inf')
+        self.mode = mode
+
+    def on_epoch_end(self, epoch, logs=None):
+        current = logs.get(self.monitor)
+        
+        # Проверяем, что val_accuracy превышает порог
+        if current is not None and current > self.min_accuracy:
+            if self.save_best_only:
+                if (self.mode == 'max' and current > self.best_val) or (self.mode == 'min' and current < self.best_val):
+                    self.best_val = current
+                    # Формируем имя файла с точностью
+                    filepath = f'{self.save_path}/model_{current:.4f}.h5'
+                    self.model.save(filepath)
+                    print(f'Saving model at {current:.4f} accuracy as {filepath}')
+            else:
+                # Сохраняем каждую модель, если save_best_only=False
+                filepath = f'{self.save_path}/model_{current:.4f}.h5'
+                self.model.save(filepath)
+                print(f'Saving model at {current:.4f} accuracy as {filepath}')
+
 class MyCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         json_file_path = 'message.json'
@@ -52,7 +80,9 @@ class MCallback(tf.keras.callbacks.Callback):
             self.model.stop_training = True
 
 def train_2Dpic_model_2(softmsax: int, path: str, start: bool):
-    checkpoint = ModelCheckpoint(f'_models/my_model_{sv.mod_example}.h5', monitor='val_accuracy', save_best_only=True, mode='max')
+    save_path = f'_models/1h_short'
+    # checkpoint = ModelCheckpoint(f'_models/my_model_{sv.mod_example}.h5', monitor='val_accuracy', save_best_only=True, mode='max')
+    checkpoint = CustomModelCheckpoint(save_path=save_path, monitor='val_accuracy', save_best_only=True, min_accuracy=0.60)
     callbacks = [MyCallback(), tf.keras.callbacks.EarlyStopping(patience=12, restore_best_weights=True), checkpoint]
     train_dir = path
     batch_size = 32
@@ -88,25 +118,24 @@ def train_2Dpic_model_2(softmsax: int, path: str, start: bool):
     if start:
         model = keras.Sequential([
             # data_augmentation,
-            keras.layers.Conv2D(32, 3, strides=(1, 1), padding='same', activation='relu', input_shape=(img_height, img_width, 3),kernel_initializer='he_normal', kernel_regularizer=tf.keras.regularizers.l2(0.01)),
+            keras.layers.Conv2D(16, 3, strides=(1, 1), padding='same', activation='relu', input_shape=(img_height, img_width, 3), kernel_regularizer=tf.keras.regularizers.l2(0.01)),
             keras.layers.BatchNormalization(),
             keras.layers.MaxPooling2D(2),
             # keras.layers.Dropout(0.2),
             # keras.layers.Conv2D(64, 3, activation='relu'),
             keras.layers.Conv2D(
-                filters=64,
+                filters=32,
                 kernel_size=(3, 3),
                 strides=(1, 1),
                 padding='same',
                 activation='relu',
-                kernel_initializer='he_normal',
             ),
             keras.layers.BatchNormalization(),
             keras.layers.MaxPooling2D(2),
             # keras.layers.Dropout(0.2),
             # keras.layers.Conv2D(128, 3, activation='relu'),
             keras.layers.Conv2D(
-                filters=128,
+                filters=64,
                 kernel_size=(3, 3),
                 strides=(1, 1),
                 padding='same',
@@ -119,12 +148,12 @@ def train_2Dpic_model_2(softmsax: int, path: str, start: bool):
             keras.layers.Flatten(),
             # tf.keras.layers.GlobalAveragePooling2D(),
             # keras.layers.Dense(256, activation='relu'),
-            keras.layers.Dense(128, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.001)),
+            keras.layers.Dense(64, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.001)),
             
             keras.layers.Dense(softmsax, activation='softmax')
         ])
 
-        model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),
+        model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00001),
                     loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
                     metrics=['accuracy'])
     else:
@@ -144,7 +173,7 @@ def train_2Dpic_model(softmsax: int, path: str, min_sample: int):
     callbacks = MyCallback()
     # Загрузка и предобработка данных
     train_dir = path # путь к папке с тренировочными данными
-    batch_size = 32 # размер батча
+    batch_size = 16 # размер батча
     img_height = 240 # высота изображений
     img_width = 240 # ширина изображений
 
